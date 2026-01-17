@@ -1,6 +1,5 @@
 <template>
   <aside class="sidebar">
-    <!-- TOP : 로고 -->
     <div class="sidebar-top">
       <div class="logo">
         <div class="logo-icon">
@@ -19,10 +18,8 @@
       </div>
     </div>
 
-    <!-- MENU -->
     <div class="sidebar-menu">
       <nav class="menu">
-        <!-- 단일 메뉴 -->
         <div
             v-for="menu in singleMenus"
             :key="menu.key"
@@ -33,13 +30,11 @@
           <span class="label">{{ menu.label }}</span>
         </div>
 
-        <!-- 아코디언 메뉴 -->
         <div
             v-for="group in accordionMenus"
             :key="group.key"
             :class="['menu-group', { active: isGroupActive(group) }]"
         >
-          <!-- 상위 -->
           <div
               class="menu-item parent"
               :class="{ active: isGroupActive(group) }"
@@ -49,7 +44,6 @@
             <span class="label">{{ group.label }}</span>
           </div>
 
-          <!-- 하위 -->
           <div v-if="openMenuKey === group.key" class="submenu">
             <div
                 v-for="child in group.children"
@@ -64,7 +58,6 @@
       </nav>
     </div>
 
-    <!-- BOTTOM -->
     <div class="sidebar-bottom">
       <div class="menu-item logout">
         <span class="icon" v-html="logoutIcon" />
@@ -84,6 +77,12 @@ const router = useRouter()
 const go = (name: string) => {
   router.push({ name })
 }
+
+/* ===== 아이콘 정의 (UserSidebar와 동일하게 추가) ===== */
+const logoutIcon = `<svg viewBox="0 0 24 24" width="18" height="18">
+  <path d="M16 17l5-5-5-5v3H9v4h7v3Z" fill="currentColor"/>
+  <path d="M4 4h8v4H6v8h6v4H4V4Z" fill="currentColor"/>
+</svg>`
 
 /* ===== 단일 메뉴 ===== */
 const singleMenus = [
@@ -164,9 +163,7 @@ watch(
 )
 </script>
 
-
 <style scoped>
-/* === UserSidebar와 동일한 스타일 === */
 .sidebar {
   width: 240px;
   height: 100vh;
@@ -196,15 +193,22 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
-.brand {
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.logo-text .brand {
   font-size: 15px;
   font-weight: 700;
   color: #111827;
 }
 
-.role {
+.logo-text .role {
   font-size: 11px;
   color: #6b7280;
 }
@@ -222,11 +226,10 @@ watch(
 }
 
 .menu-group.active {
-  background: #f0fdf4;
-  border-radius: 12px;
-  padding: 6px;
+  border-radius: 8px;
 }
 
+/* 메뉴 아이템 공통 스타일 (UserSidebar 복사) */
 .menu-item {
   display: flex;
   align-items: center;
@@ -235,18 +238,22 @@ watch(
   border-radius: 8px;
   cursor: pointer;
   color: #374151;
-  font-size: 14px;
+  font-size: 16px;
 }
 
+/* 하위 메뉴 스타일 조정 */
 .menu-item.sub {
   padding-left: 42px;
-  font-size: 13px;
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 4px;
 }
 
 .menu-item:hover {
   background: #f3f4f6;
 }
 
+/* 활성화 상태 (Green 색상) */
 .menu-item.active {
   background: #dcfce7;
   color: #15803d;
