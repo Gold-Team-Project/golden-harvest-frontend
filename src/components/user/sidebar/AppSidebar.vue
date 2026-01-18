@@ -12,7 +12,6 @@
           </svg>
         </div>
 
-        <!-- ✅ 브랜드 / 역할 분리 -->
         <div class="logo-text">
           <strong class="brand">GreenHarvest</strong>
           <span class="role">B2B Partner</span>
