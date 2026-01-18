@@ -67,18 +67,18 @@
   </aside>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 
-const go = (name: string) => {
+const go = (name) => {
   router.push({ name })
 }
 
-/* ===== 아이콘 정의 (UserSidebar와 동일하게 추가) ===== */
+/* ===== 아이콘 정의 ===== */
 const logoutIcon = `<svg viewBox="0 0 24 24" width="18" height="18">
   <path d="M16 17l5-5-5-5v3H9v4h7v3Z" fill="currentColor"/>
   <path d="M4 4h8v4H6v8h6v4H4V4Z" fill="currentColor"/>
@@ -125,6 +125,17 @@ const accordionMenus = [
     ],
   },
   {
+    key: 'master',
+    label: '마스터 데이터',
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18">
+      <path d="M3 4h18l-2 14H5L3 4Z" fill="currentColor"/>
+    </svg>`,
+    children: [
+      { key: 'masterData', label: '품목 관리', route: 'adminMasterDataList' },
+      { key: 'masterDataCreate', label: '품목 등록', route: 'adminMasterDataCreate' },
+    ],
+  },
+  {
     key: 'customer',
     label: '고객 관리',
     icon: `<svg viewBox="0 0 24 24" width="18" height="18">
@@ -139,15 +150,15 @@ const accordionMenus = [
 ]
 
 /* ===== 상태 ===== */
-const openMenuKey = ref<string | null>(null)
+const openMenuKey = ref(null)
 
-const toggle = (key: string) => {
+const toggle = (key) => {
   openMenuKey.value = openMenuKey.value === key ? null : key
 }
 
-const isGroupActive = (group: any) =>
+const isGroupActive = (group) =>
     openMenuKey.value === group.key ||
-    group.children.some((c: any) => c.route === route.name)
+    group.children.some((c) => c.route === route.name)
 
 /* route 변경 시 자동 오픈 */
 watch(
@@ -229,7 +240,7 @@ watch(
   border-radius: 8px;
 }
 
-/* 메뉴 아이템 공통 스타일 (UserSidebar 복사) */
+/* 메뉴 아이템 공통 스타일 */
 .menu-item {
   display: flex;
   align-items: center;

@@ -1,11 +1,8 @@
 <template>
   <div class="layout">
-    <!-- 사이드바 (고정, 스크롤 없음) -->
     <AdminSidebar />
 
-    <!-- 오른쪽 영역 -->
     <div class="content">
-      <!-- 메인 콘텐츠 (여기만 스크롤) -->
       <main class="main">
         <router-view />
       </main>
@@ -13,7 +10,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import AdminSidebar from '@/components/admin/sidebar/AppSidebar.vue'
 </script>
 
