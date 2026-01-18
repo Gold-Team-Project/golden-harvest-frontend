@@ -36,6 +36,12 @@ const routes = [
                 component: AdminInquiryListView,
                 meta: { title: '관리자 / 문의 관리' },
             },
+            {
+                path: 'notifications',
+                name: 'adminNotification',
+                component: AdminNotifciationListView,
+                meta: { title: '알림' },
+            },
         ]
     }
 ]
