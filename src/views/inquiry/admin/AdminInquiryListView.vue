@@ -132,7 +132,7 @@ const pageSize = 10
 
 const showModal = ref(false)
 const selectedInquiryNo = ref('')
-const selectedNo = ref(0) // 🔥 추가: 선택된 리스트 번호 저장
+const selectedNo = ref(0)
 
 const search = ref({
   title: '',
@@ -179,14 +179,10 @@ const changePage = (page: number) => {
 }
 
 /* 모달 */
-// 🔥 변경: no(순번)를 함께 받음
 const openModal = (InquiryNo: string, no: number) => {
-  if (!InquiryNo) {
-    console.error('❌ InquiryNo is undefined')
-    return
-  }
+  if (!InquiryNo) return
   selectedInquiryNo.value = InquiryNo
-  selectedNo.value = no // 번호 저장
+  selectedNo.value = no
   showModal.value = true
 }
 
@@ -196,7 +192,6 @@ const closeModal = () => {
   selectedNo.value = 0
 }
 
-/* 답변 등록 후 */
 const onAnswered = () => {
   fetchAdminInquiries()
 }
@@ -217,6 +212,10 @@ onMounted(fetchAdminInquiries)
   color: #6b7280;
 }
 
+.page-header {
+  margin-bottom: 8px;
+}
+
 .search-card {
   background: #fff;
   border-radius: 12px;
@@ -226,6 +225,7 @@ onMounted(fetchAdminInquiries)
 .search-row {
   display: flex;
   gap: 12px;
+  align-items: center; /* ⭐ 핵심 */
 }
 
 .field {
@@ -238,11 +238,20 @@ onMounted(fetchAdminInquiries)
 
 .search-row input,
 .search-row select {
-  width: 100%;
+  width: 100%; /* ❗ 93% 제거 */
   height: 40px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.btn-search {
+  height: 40px;
+  padding: 0 20px;
+  background: #22c55e;
+  color: #fff;
+  white-space: nowrap;
 }
 
 .card {
@@ -281,11 +290,6 @@ onMounted(fetchAdminInquiries)
 .status-wait {
   background: #fef3c7;
   color: #b45309;
-}
-
-.btn-search {
-  background: #22c55e;
-  color: #fff;
 }
 
 .btn-soft {
