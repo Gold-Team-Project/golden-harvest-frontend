@@ -8,6 +8,7 @@ import AdminDefaultLayout from "@/layouts/admin/AdminDefaultLayout.vue";
 import MasterDataList from "@/views/masterdata/MasterDataList.vue";
 import MasterDataDetail from "@/views/masterdata/MasterDataDetail.vue";
 import MasterDataEdit from "@/views/masterdata/MasterDataEdit.vue";
+import AdminNotificationListView from "@/views/notification/admin/AdminNotificationListView.vue";
 
 
 const routes = [
@@ -59,7 +60,7 @@ const routes = [
             {
                 path: 'notifications',
                 name: 'adminNotification',
-                component: AdminNotifciationListView,
+                component: AdminNotificationListView,
                 meta: { title: '알림' },
             },
         ]
