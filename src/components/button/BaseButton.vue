@@ -4,7 +4,7 @@
   </button>
 </template>
 
-<script setup lang="ts">
+<script setup>
 </script>
 
 <style scoped>

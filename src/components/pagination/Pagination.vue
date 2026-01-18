@@ -1,6 +1,5 @@
 <template>
   <div class="pagination">
-    <!-- 이전 -->
     <button
         class="arrow"
         :disabled="current === pages[0]"
@@ -9,7 +8,6 @@
       &lt;
     </button>
 
-    <!-- 페이지 번호 -->
     <button
         v-for="page in pages"
         :key="page"
@@ -19,7 +17,6 @@
       {{ page }}
     </button>
 
-    <!-- 다음 -->
     <button
         class="arrow"
         :disabled="current === pages[pages.length - 1]"
@@ -30,17 +27,21 @@
   </div>
 </template>
 
-<script setup lang="ts">
-const props = defineProps<{
-  pages: number[]
-  current: number
-}>()
+<script setup>
+const props = defineProps({
+  pages: {
+    type: Array,
+    required: true
+  },
+  current: {
+    type: Number,
+    required: true
+  }
+})
 
-const emit = defineEmits<{
-  (e: 'update:current', page: number): void
-}>()
+const emit = defineEmits(['update:current'])
 
-const change = (page: number) => {
+const change = (page) => {
   if (page === props.current) return
   if (!props.pages.includes(page)) return
   emit('update:current', page)

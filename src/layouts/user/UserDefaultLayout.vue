@@ -1,14 +1,10 @@
 <template>
   <div class="layout">
-    <!-- 사이드바 (고정, 스크롤 없음) -->
     <AppSidebar />
 
-    <!-- 오른쪽 영역 -->
     <div class="content">
-      <!-- 헤더 (고정) -->
       <AppHeader />
 
-      <!-- 메인 콘텐츠 (여기만 스크롤) -->
       <main class="main">
         <router-view />
       </main>
@@ -16,7 +12,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import AppSidebar from '@/components/user/sidebar/AppSidebar.vue'
 import AppHeader from '@/components/user/header/AppHeader.vue'
 </script>
@@ -44,5 +40,4 @@ import AppHeader from '@/components/user/header/AppHeader.vue'
   padding: 24px;
   background: #f5f5f5;
 }
-
 </style>

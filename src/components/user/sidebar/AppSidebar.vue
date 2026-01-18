@@ -1,6 +1,5 @@
 <template>
   <aside class="sidebar">
-    <!-- TOP : 로고 -->
     <div class="sidebar-top">
       <div class="logo">
         <div class="logo-icon">
@@ -19,7 +18,6 @@
       </div>
     </div>
 
-    <!-- MIDDLE : 메뉴 -->
     <div class="sidebar-menu">
       <nav class="menu">
         <div
@@ -46,7 +44,6 @@
       </nav>
     </div>
 
-    <!-- BOTTOM : 로그아웃 -->
     <div class="sidebar-bottom">
       <div class="menu-item logout">
         <span class="icon" v-html="logoutIcon" />
@@ -56,13 +53,13 @@
   </aside>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 
-const go = (name: string) => {
+const go = (name) => {
   router.push({ name })
 }
 
