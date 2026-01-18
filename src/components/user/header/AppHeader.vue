@@ -1,13 +1,10 @@
 <template>
   <header class="header">
-    <!-- 🔹 왼쪽: 현재 페이지 제목 -->
     <div class="page-title">
       {{ pageTitle }}
     </div>
 
-    <!-- 🔹 오른쪽 영역 -->
     <div class="right">
-      <!-- 검색 -->
       <div class="search-box">
         <svg
             class="search-icon"
@@ -21,7 +18,6 @@
         <input placeholder="찾으시는 상품을 입력해주세요." />
       </div>
 
-      <!-- 알림 -->
       <button class="icon-btn">
         <svg viewBox="0 0 24 24" width="18" height="18">
           <path
@@ -31,7 +27,6 @@
         </svg>
       </button>
 
-      <!-- 문의 / 메시지 -->
       <button class="icon-btn">
         <svg viewBox="0 0 24 24" width="18" height="18">
           <path
@@ -44,7 +39,7 @@
   </header>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 

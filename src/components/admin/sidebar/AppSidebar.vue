@@ -21,22 +21,30 @@
     <div class="sidebar-menu">
       <nav class="menu">
         <div
+            v-for="menu in singleMenus"
+            :key="menu.key"
+            :class="['menu-item', { active: route.name === menu.route }]"
+            @click="go(menu.route)"
+        >
+          <span class="icon" v-html="menu.icon" />
+          <span class="label">{{ menu.label }}</span>
+        </div>
+
+        <div
             v-for="group in accordionMenus"
             :key="group.key"
             :class="['menu-group', { active: isGroupActive(group) }]"
         >
-          <!-- children이 없으면: 단일 메뉴처럼 동작 -->
           <div
               class="menu-item parent"
               :class="{ active: isGroupActive(group) }"
-              @click="onGroupClick(group)"
+              @click="toggle(group.key)"
           >
             <span class="icon" v-html="group.icon" />
             <span class="label">{{ group.label }}</span>
           </div>
 
-          <!-- children이 있는 경우만 아코디언 열림 -->
-          <div v-if="group.children && openMenuKey === group.key" class="submenu">
+          <div v-if="openMenuKey === group.key" class="submenu">
             <div
                 v-for="child in group.children"
                 :key="child.key"
@@ -59,14 +67,14 @@
   </aside>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 
-const go = (name: string) => {
+const go = (name) => {
   router.push({ name })
 }
 
@@ -76,17 +84,8 @@ const logoutIcon = `<svg viewBox="0 0 24 24" width="18" height="18">
   <path d="M4 4h8v4H6v8h6v4H4V4Z" fill="currentColor"/>
 </svg>`
 
-/* ===== 아코디언 메뉴 (대시보드 포함) ===== */
-type MenuChild = { key: string; label: string; route: string }
-type MenuGroup = {
-  key: string
-  label: string
-  icon: string
-  route?: string
-  children?: MenuChild[]
-}
-
-const accordionMenus: MenuGroup[] = [
+/* ===== 단일 메뉴 ===== */
+const singleMenus = [
   {
     key: 'dashboard',
     label: '대시보드',
@@ -97,10 +96,11 @@ const accordionMenus: MenuGroup[] = [
       <rect x="3" y="14" width="7" height="7" rx="2" fill="currentColor"/>
       <rect x="14" y="14" width="7" height="7" rx="2" fill="currentColor"/>
     </svg>`,
-    children: [
-      { key: 'notification', label: '알림 목록', route: 'adminNotification' },
-    ],
   },
+]
+
+/* ===== 아코디언 메뉴 ===== */
+const accordionMenus = [
   {
     key: 'trade',
     label: '거래 관리',
@@ -125,6 +125,17 @@ const accordionMenus: MenuGroup[] = [
     ],
   },
   {
+    key: 'master',
+    label: '마스터 데이터',
+    icon: `<svg viewBox="0 0 24 24" width="18" height="18">
+      <path d="M3 4h18l-2 14H5L3 4Z" fill="currentColor"/>
+    </svg>`,
+    children: [
+      { key: 'masterData', label: '품목 관리', route: 'adminMasterDataList' },
+      { key: 'masterDataCreate', label: '품목 등록', route: 'adminMasterDataCreate' },
+    ],
+  },
+  {
     key: 'customer',
     label: '고객 관리',
     icon: `<svg viewBox="0 0 24 24" width="18" height="18">
@@ -139,35 +150,22 @@ const accordionMenus: MenuGroup[] = [
 ]
 
 /* ===== 상태 ===== */
-const openMenuKey = ref<string | null>(null)
+const openMenuKey = ref(null)
 
-const toggle = (key: string) => {
+const toggle = (key) => {
   openMenuKey.value = openMenuKey.value === key ? null : key
 }
 
-const isGroupActive = (group: MenuGroup) => {
-  if (group.route) return route.name === group.route
-  return (
-      openMenuKey.value === group.key ||
-      !!group.children?.some((c) => c.route === route.name)
-  )
-}
+const isGroupActive = (group) =>
+    openMenuKey.value === group.key ||
+    group.children.some((c) => c.route === route.name)
 
-/* 그룹 클릭: children 있으면 toggle, 없으면 route 이동 */
-const onGroupClick = (group: MenuGroup) => {
-  if (group.children && group.children.length > 0) {
-    toggle(group.key)
-  } else if (group.route) {
-    go(group.route)
-  }
-}
-
-/* route 변경 시 자동 오픈 (children이 있는 그룹만) */
+/* route 변경 시 자동 오픈 */
 watch(
     () => route.name,
     () => {
-      accordionMenus.forEach((group) => {
-        if (group.children?.some((c) => c.route === route.name)) {
+      accordionMenus.forEach(group => {
+        if (group.children.some(c => c.route === route.name)) {
           openMenuKey.value = group.key
         }
       })
@@ -242,7 +240,7 @@ watch(
   border-radius: 8px;
 }
 
-/* 메뉴 아이템 공통 */
+/* 메뉴 아이템 공통 스타일 */
 .menu-item {
   display: flex;
   align-items: center;
@@ -254,7 +252,7 @@ watch(
   font-size: 16px;
 }
 
-/* 하위 메뉴 */
+/* 하위 메뉴 스타일 조정 */
 .menu-item.sub {
   padding-left: 42px;
   font-size: 14px;
@@ -266,7 +264,7 @@ watch(
   background: #f3f4f6;
 }
 
-/* 활성화 상태 */
+/* 활성화 상태 (Green 색상) */
 .menu-item.active {
   background: #dcfce7;
   color: #15803d;
