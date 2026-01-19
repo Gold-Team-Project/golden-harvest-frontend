@@ -18,6 +18,11 @@
     </div>
 
     <div class="card">
+      <div class="table-actions">
+        <BaseButton class="btn-delete-all" :disabled="items.length === 0" @click="deleteAll">
+          전체 삭제
+        </BaseButton>
+      </div>
       <table class="table">
         <thead>
         <tr>
@@ -53,6 +58,10 @@
           <td>
             <BaseButton class="btn-confirm" @click="confirmNotification(n)">
               확인
+            </BaseButton>
+
+            <BaseButton class="btn-delete" @click="deleteOne(n)">
+              삭제
             </BaseButton>
           </td>
         </tr>
@@ -104,19 +113,22 @@ const typeClass = (t) => {
   }
 }
 
-// 예시: 조회 API (백엔드에 맞게 URL/params 조정)
 const fetchNotifications = async () => {
   try {
     const res = await http.get('/notifications', {
-      params: { page: currentPage.value, size: pageSize },
+      params: {
+        userEmail: 'alpha@teamgold.com',
+        page: currentPage.value,
+        size: pageSize,
+      },
     })
 
-    const payload = res.data?.data?.content ?? res.data?.data ?? []
+    const data = res.data?.data
+    const payload = Array.isArray(data?.notifications) ? data.notifications : []
+    const pg = data?.pagination
 
     items.value = payload.map((row, index) => {
-      const rawReceived =
-          row.receivedAt ?? row.received_at ?? row.receivedAtText ?? ''
-
+      const rawReceived = row.receivedAt ?? row.received_at ?? ''
       return {
         userNotificationId: row.userNotificationId ?? row.id ?? `${currentPage.value}-${index}`,
         no: (currentPage.value - 1) * pageSize + index + 1,
@@ -127,17 +139,57 @@ const fetchNotifications = async () => {
       }
     })
 
-    makePages(payload.length)
+    const totalPages = pg?.totalPages ?? 1
+    pages.value = Array.from({ length: totalPages }, (_, i) => i + 1)
+
   } catch (e) {
     console.error(e)
   }
 }
+
+
 
 const confirmNotification = async (n) => {
   // 예시: 읽음 처리 API가 있으면 연결
   // await http.patch(`/notifications/${n.userNotificationId}/read`)
   n.isRead = true
 }
+
+const deleteOne = async (n) => {
+  if (!confirm('해당 알림을 삭제할까요?')) return
+
+  try {
+    // 예시 API: 단건 삭제
+    // 백엔드에 맞게 URL 수정 필요
+    await http.delete(`/notifications/${n.userNotificationId}`, {
+      params: { userEmail: 'alpha@teamgold.com' }, // 필요 없으면 제거
+    })
+
+    // UI 갱신
+    await fetchNotifications()
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const deleteAll = async () => {
+  if (!confirm('알림을 전체 삭제할까요?')) return
+
+  try {
+    // 예시 API: 전체 삭제
+    // 백엔드에 맞게 URL 수정 필요
+    await http.delete('/notifications/deleteAll', {
+      params: { userEmail: 'alpha@teamgold.com' },
+    })
+
+    // 첫 페이지로 보내고 갱신
+    currentPage.value = 1
+    await fetchNotifications()
+  } catch (e) {
+    console.error(e)
+  }
+}
+
 
 const makePages = (size) => {
   const temp = []
@@ -318,4 +370,43 @@ tbody td {
   justify-content: center;
   padding: 18px 0;
 }
+/* 테이블 위 액션 바 */
+.table-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* 관리 버튼들 정렬 */
+.manage-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 단건 삭제 버튼 */
+.btn-delete {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-weight: 800;
+}
+
+/* 전체 삭제 버튼 */
+.btn-delete-all {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #111827;
+  color: #fff;
+  font-weight: 800;
+}
+
+/* 비활성화 느낌 */
+.btn-delete-all:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 </style>
