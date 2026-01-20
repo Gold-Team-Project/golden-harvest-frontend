@@ -97,18 +97,14 @@ const pageSize = 10
 
 const typeLabel = (t) => {
   switch (t) {
-    case 'INQUIRY': return '문의'
-    case 'SIGNUP': return '가입 승인'
-    case 'LOW_STOCK': return '재고 부족'
+    case 'SIGNUP_PENDING': return '가입 승인 대기'
     default: return '알림'
   }
 }
 
 const typeClass = (t) => {
   switch (t) {
-    case 'INQUIRY': return 'type-blue'
-    case 'SIGNUP': return 'type-green'
-    case 'LOW_STOCK': return 'type-orange'
+    case 'SIGNUP_PENDING': return 'type-green'
     default: return 'type-gray'
   }
 }
@@ -117,7 +113,7 @@ const fetchNotifications = async () => {
   try {
     const res = await http.get('/notifications', {
       params: {
-        userEmail: 'alpha@teamgold.com',
+        userEmail: 'admin@teamgold.com', // 여기 바꿈 (지금 데이터 기준)
         page: currentPage.value,
         size: pageSize,
       },
@@ -128,20 +124,32 @@ const fetchNotifications = async () => {
     const pg = data?.pagination
 
     items.value = payload.map((row, index) => {
-      const rawReceived = row.receivedAt ?? row.received_at ?? ''
+      const template = row.notificationTemplate ?? {}
+
+      const type = template.type ?? 'DEFAULT'
+      const title = template.title ?? ''
+      const body = template.body ?? ''
+
       return {
-        userNotificationId: row.userNotificationId ?? row.id ?? `${currentPage.value}-${index}`,
+        userNotificationId: row.userNotificationId,
         no: (currentPage.value - 1) * pageSize + index + 1,
-        type: row.type ?? 'DEFAULT',
-        summary: row.summary ?? row.title ?? row.body ?? '알림이 도착했습니다.',
-        receivedAt: String(rawReceived).replace('T', ' ').slice(0, 16),
-        isRead: !!(row.isRead ?? row.is_read),
+
+        userEmail: row.userEmail,
+        type,
+
+        //화면 "내용 요약"은 제목 우선(없으면 body)
+        summary: title || body || '알림이 도착했습니다.',
+
+        receivedAt: String(row.receivedAt ?? '').replace('T', ' ').slice(0, 16),
+        readAt: row.readAt ? String(row.readAt).replace('T', ' ').slice(0, 16) : null,
+
+        // 서버는 read 라는 필드로 내려줌
+        isRead: !!row.read,
       }
     })
 
     const totalPages = pg?.totalPages ?? 1
     pages.value = Array.from({ length: totalPages }, (_, i) => i + 1)
-
   } catch (e) {
     console.error(e)
   }
@@ -150,10 +158,24 @@ const fetchNotifications = async () => {
 
 
 const confirmNotification = async (n) => {
-  // 예시: 읽음 처리 API가 있으면 연결
-  // await http.patch(`/notifications/${n.userNotificationId}/read`)
+  // 이미 읽음이면 호출하지 않음
+  if (n?.isRead) return
+
+  // UI는 먼저 반영(낙관적 업데이트)하고 실패 시 롤백
+  const prev = n.isRead
   n.isRead = true
+
+  try {
+    // 백엔드: @PatchMapping("/notifications/{notificationId}")
+    // isRead를 바꾸는 API라고 가정하고 body로 전달 (백엔드가 body를 안 받는다면 {} 로 바꾸면 됩니다)
+    await http.patch(`/notifications/${n.userNotificationId}`)
+  } catch (e) {
+    console.error(e)
+    n.isRead = prev
+    alert('알림 확인 처리에 실패했습니다.')
+  }
 }
+
 
 const deleteOne = async (n) => {
   if (!confirm('해당 알림을 삭제할까요?')) return
