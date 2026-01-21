@@ -9,6 +9,8 @@ import MasterDataList from "@/views/masterdata/MasterDataList.vue";
 import MasterDataDetail from "@/views/masterdata/MasterDataDetail.vue";
 import MasterDataEdit from "@/views/masterdata/MasterDataEdit.vue";
 import AdminNotificationListView from "@/views/notification/admin/AdminNotificationListView.vue";
+import PerchaseOrderListView from "@/views/perchaseOrder/PerchaseOrderListView.vue";
+
 
 
 const routes = [
@@ -61,6 +63,12 @@ const routes = [
                 path: 'notifications',
                 name: 'adminNotification',
                 component: AdminNotificationListView,
+                meta: { title: '알림' },
+            },
+            {
+                path: 'perchaseOrder',
+                name: 'perchaseOrder',
+                component: PerchaseOrderListView,
                 meta: { title: '알림' },
             },
         ]
