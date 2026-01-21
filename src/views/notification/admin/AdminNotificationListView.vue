@@ -18,6 +18,11 @@
     </div>
 
     <div class="card">
+      <div class="table-actions">
+        <BaseButton class="btn-delete-all" :disabled="items.length === 0" @click="deleteAll">
+          전체 삭제
+        </BaseButton>
+      </div>
       <table class="table">
         <thead>
         <tr>
@@ -54,6 +59,10 @@
             <BaseButton class="btn-confirm" @click="confirmNotification(n)">
               확인
             </BaseButton>
+
+            <BaseButton class="btn-delete" @click="deleteOne(n)">
+              삭제
+            </BaseButton>
           </td>
         </tr>
 
@@ -88,56 +97,121 @@ const pageSize = 10
 
 const typeLabel = (t) => {
   switch (t) {
-    case 'INQUIRY': return '문의'
-    case 'SIGNUP': return '가입 승인'
-    case 'LOW_STOCK': return '재고 부족'
+    case 'SIGNUP_PENDING': return '가입 승인 대기'
     default: return '알림'
   }
 }
 
 const typeClass = (t) => {
   switch (t) {
-    case 'INQUIRY': return 'type-blue'
-    case 'SIGNUP': return 'type-green'
-    case 'LOW_STOCK': return 'type-orange'
+    case 'SIGNUP_PENDING': return 'type-green'
     default: return 'type-gray'
   }
 }
 
-// 예시: 조회 API (백엔드에 맞게 URL/params 조정)
 const fetchNotifications = async () => {
   try {
     const res = await http.get('/notifications', {
-      params: { page: currentPage.value, size: pageSize },
+      params: {
+        userEmail: 'admin@teamgold.com', // 여기 바꿈 (지금 데이터 기준)
+        page: currentPage.value,
+        size: pageSize,
+      },
     })
 
-    const payload = res.data?.data?.content ?? res.data?.data ?? []
+    const data = res.data?.data
+    const payload = Array.isArray(data?.notifications) ? data.notifications : []
+    const pg = data?.pagination
 
     items.value = payload.map((row, index) => {
-      const rawReceived =
-          row.receivedAt ?? row.received_at ?? row.receivedAtText ?? ''
+      const template = row.notificationTemplate ?? {}
+
+      const type = template.type ?? 'DEFAULT'
+      const title = template.title ?? ''
+      const body = template.body ?? ''
 
       return {
-        userNotificationId: row.userNotificationId ?? row.id ?? `${currentPage.value}-${index}`,
+        userNotificationId: row.userNotificationId,
         no: (currentPage.value - 1) * pageSize + index + 1,
-        type: row.type ?? 'DEFAULT',
-        summary: row.summary ?? row.title ?? row.body ?? '알림이 도착했습니다.',
-        receivedAt: String(rawReceived).replace('T', ' ').slice(0, 16),
-        isRead: !!(row.isRead ?? row.is_read),
+
+        userEmail: row.userEmail,
+        type,
+
+        //화면 "내용 요약"은 제목 우선(없으면 body)
+        summary: title || body || '알림이 도착했습니다.',
+
+        receivedAt: String(row.receivedAt ?? '').replace('T', ' ').slice(0, 16),
+        readAt: row.readAt ? String(row.readAt).replace('T', ' ').slice(0, 16) : null,
+
+        // 서버는 read 라는 필드로 내려줌
+        isRead: !!row.read,
       }
     })
 
-    makePages(payload.length)
+    const totalPages = pg?.totalPages ?? 1
+    pages.value = Array.from({ length: totalPages }, (_, i) => i + 1)
   } catch (e) {
     console.error(e)
   }
 }
 
+
+
 const confirmNotification = async (n) => {
-  // 예시: 읽음 처리 API가 있으면 연결
-  // await http.patch(`/notifications/${n.userNotificationId}/read`)
+  // 이미 읽음이면 호출하지 않음
+  if (n?.isRead) return
+
+  // UI는 먼저 반영(낙관적 업데이트)하고 실패 시 롤백
+  const prev = n.isRead
   n.isRead = true
+
+  try {
+    // 백엔드: @PatchMapping("/notifications/{notificationId}")
+    // isRead를 바꾸는 API라고 가정하고 body로 전달 (백엔드가 body를 안 받는다면 {} 로 바꾸면 됩니다)
+    await http.patch(`/notifications/${n.userNotificationId}`)
+  } catch (e) {
+    console.error(e)
+    n.isRead = prev
+    alert('알림 확인 처리에 실패했습니다.')
+  }
 }
+
+
+const deleteOne = async (n) => {
+  if (!confirm('해당 알림을 삭제할까요?')) return
+
+  try {
+    // 예시 API: 단건 삭제
+    // 백엔드에 맞게 URL 수정 필요
+    await http.delete(`/notifications/${n.userNotificationId}`, {
+      params: { userEmail: 'alpha@teamgold.com' }, // 필요 없으면 제거
+    })
+
+    // UI 갱신
+    await fetchNotifications()
+  } catch (e) {
+    console.error(e)
+  }
+}
+
+const deleteAll = async () => {
+  if (!confirm('알림을 전체 삭제할까요?')) return
+
+  try {
+    // 예시 API: 전체 삭제
+    // 백엔드에 맞게 URL 수정 필요
+    await http.delete('/notifications/deleteAll', {
+      params: { userEmail: 'alpha@teamgold.com' },
+    })
+
+    // 첫 페이지로 보내고 갱신
+    currentPage.value = 1
+    await fetchNotifications()
+  } catch (e) {
+    console.error(e)
+  }
+}
+
 
 const makePages = (size) => {
   const temp = []
@@ -318,4 +392,43 @@ tbody td {
   justify-content: center;
   padding: 18px 0;
 }
+/* 테이블 위 액션 바 */
+.table-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* 관리 버튼들 정렬 */
+.manage-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 단건 삭제 버튼 */
+.btn-delete {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-weight: 800;
+}
+
+/* 전체 삭제 버튼 */
+.btn-delete-all {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #111827;
+  color: #fff;
+  font-weight: 800;
+}
+
+/* 비활성화 느낌 */
+.btn-delete-all:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 </style>
