@@ -7,11 +7,14 @@
         <router-view />
       </main>
     </div>
+
+    <ChatWidget />
   </div>
 </template>
 
 <script setup>
 import AdminSidebar from '@/components/admin/sidebar/AppSidebar.vue'
+import ChatWidget from '@/views/chat/ChatWidget.vue'
 </script>
 
 <style scoped>
@@ -20,6 +23,7 @@ import AdminSidebar from '@/components/admin/sidebar/AppSidebar.vue'
   display: flex;
   height: 100vh;
   overflow: hidden;
+  position: relative; /* 위젯 고정을 위해 추가 */
 }
 
 /* 우측 콘텐츠 */
