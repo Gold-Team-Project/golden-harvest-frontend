@@ -10,7 +10,9 @@ import MasterDataDetail from "@/views/masterdata/MasterDataDetail.vue";
 import MasterDataEdit from "@/views/masterdata/MasterDataEdit.vue";
 import AdminNotificationListView from "@/views/notification/admin/AdminNotificationListView.vue";
 import PerchaseOrderListView from "@/views/perchaseOrder/PerchaseOrderListView.vue";
-
+import LotListView from "@/views/lot/LotListView.vue";
+import DiscardRegisterView from "@/views/discard/DiscardRegisterView.vue";
+import DiscardListView from "@/views/discard/DiscardListView.vue";
 
 
 const routes = [
@@ -70,6 +72,24 @@ const routes = [
                 name: 'perchaseOrder',
                 component: PerchaseOrderListView,
                 meta: { title: '알림' },
+            },
+            {
+                path: 'lots',
+                name: 'adminLotList',
+                component: LotListView,
+                meta: { title: '홈 / LOT 관리 / LOT 리스트' },
+            },
+            {
+                path: 'discard/register',
+                name: 'adminDiscardRegister',
+                component: DiscardRegisterView,
+                meta: { title: '홈 / 재고 관리 / 폐기 등록' },
+            },
+            {
+                path: 'discard/list',
+                name: 'adminDiscardList',
+                component: DiscardListView,
+                meta: { title: '홈 / 재고 관리 / 폐기 내역' },
             },
         ]
     }

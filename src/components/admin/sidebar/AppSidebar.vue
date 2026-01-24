@@ -120,7 +120,7 @@ const accordionMenus = [
     </svg>`,
     children: [
       { key: 'lot', label: 'LOT 목록', route: 'adminLotList' },
-      { key: 'discard', label: '폐기 등록', route: 'adminDiscardCreate' },
+      { key: 'discard', label: '폐기 등록', route: 'adminDiscardRegister' },
       { key: 'discardHistory', label: '폐기 내역', route: 'adminDiscardList' },
     ],
   },
