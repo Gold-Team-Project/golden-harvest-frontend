@@ -5,6 +5,8 @@ import InquiryListView from "@/views/inquiry/user/InquiryListView.vue";
 import AdminInquiryListView from "@/views/inquiry/admin/AdminInquiryListView.vue";
 import InquiryCreateView from "@/views/inquiry/user/InquiryCreateView.vue";
 import AdminDefaultLayout from "@/layouts/admin/AdminDefaultLayout.vue";
+import AdminOrderListView from "@/views/orderlist/AdminOrderListView.vue";
+import AdminOrderDetailView from "@/views/orderlist/AdminOrderDetailView.vue";
 import MasterDataList from "@/views/masterdata/MasterDataList.vue";
 import MasterDataDetail from "@/views/masterdata/MasterDataDetail.vue";
 import MasterDataEdit from "@/views/masterdata/MasterDataEdit.vue";
@@ -13,6 +15,11 @@ import PerchaseOrderListView from "@/views/perchaseOrder/PerchaseOrderListView.v
 import LotListView from "@/views/lot/LotListView.vue";
 import DiscardRegisterView from "@/views/discard/DiscardRegisterView.vue";
 import DiscardListView from "@/views/discard/DiscardListView.vue";
+import OrderHistoryView from "@/views/orderHistory/OrderHistoryView.vue";
+import OrderHistoryDetailView from "@/views/orderHistory/OrderHistoryDetailView.vue";
+import CartView from "@/views/cart/CartView.vue";
+import OrderView from "@/views/order/OrderView.vue";
+import OrderDetailView from "@/views/order/OrderDetailView.vue";
 
 
 const routes = [
@@ -20,6 +27,36 @@ const routes = [
         path: '/',
         component: UserDefaultLayout,
         children: [
+            {
+                path: 'order',
+                name: 'Order',
+                component: OrderView,
+                meta: { title: '주문' }
+            },
+            {
+                path: 'order/:id',
+                name: 'ProductDetail',
+                component: OrderDetailView,
+                meta: { title: '주문 / 상품상세' }
+            },
+            {
+                path: 'cart',
+                name: 'Cart',
+                component: CartView,
+                meta: { title: '장바구니' }
+            },
+            {
+                path: 'order-history',
+                name: "Invoice",
+                component: OrderHistoryView,
+                meta: { title: '영수증'}
+            },
+            {
+                path: 'order-history/:id',
+                name: 'OrderDetail',
+                component: OrderHistoryDetailView,
+                meta: { title: '영수증 / 영수증 상세 내역' }
+            },
             {
                 path: 'inquiries',
                 name: "inquiryList",
@@ -38,6 +75,18 @@ const routes = [
         path: '/admin',
         component: AdminDefaultLayout,
         children: [
+            {
+                path: 'orders',
+                name: 'adminOrderList',
+                component: AdminOrderListView,
+                meta: { title: '거래 관리 / 고객 주문 목록' },
+            },
+            {
+                path: 'orders/:id',
+                name: 'adminOrderDetail',
+                component: AdminOrderDetailView,
+                meta: { title: '거래 관리 / 주문 상세' },
+            },
             {
                 path: 'inquiries',
                 name: 'adminInquiryList',
