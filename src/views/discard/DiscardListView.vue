@@ -10,10 +10,13 @@
           <span>이번 달 총 폐기량</span>
         </div>
         <div class="card-value">
-          1,240 kg <span class="trend-up">↗ +12%</span>
+          {{ discardVolume.currentMonthVolume.toLocaleString() }} kg 
+          <span :class="volumeTrend.trendClass">
+            {{ volumeTrend.icon }} {{ volumeTrend.percentage }}%
+          </span>
         </div>
         <div class="progress-bar">
-          <div class="fill-danger" style="width: 70%"></div>
+          <div class="fill-danger" :style="{ width: volumeTrend.percentage + '%' }"></div>
         </div>
       </div>
 
@@ -22,10 +25,10 @@
           <span>이번 달 폐기 손실액</span>
         </div>
         <div class="card-value">
-          4,500,000 <span class="trend-down">↘ -12%</span>
+          - 원 <span class="trend-down">↘ -0%</span>
         </div>
         <div class="progress-bar">
-          <div class="fill-warning" style="width: 40%"></div>
+          <div class="fill-warning" style="width: 0%"></div>
         </div>
       </div>
 
@@ -33,6 +36,7 @@
         <div class="card-header">
           <span>품목별 폐기 비율 (30일)</span>
         </div>
+        <!-- This also needs to be fed by API data -->
         <div class="ratio-item" v-for="item in wasteRatios" :key="item.name">
           <span class="label">{{ item.name }}</span>
           <div class="mini-bar-bg">
@@ -52,11 +56,11 @@
           <input type="date" v-model="filters.endDate">
         </div>
         <div class="field">
-          <input type="text" placeholder="품목명 또는 코드" v-model="filters.searchKeyword">
+          <input type="text" placeholder="LOT 번호" v-model="filters.lotNo">
         </div>
         <div class="field">
-          <select v-model="filters.reason">
-            <option value="all">전체 사유</option>
+          <select v-model="filters.discardStatus">
+            <option value="">전체 사유</option>
             <option v-for="r in reasonOptions" :key="r" :value="r">{{ r }}</option>
           </select>
         </div>
@@ -70,34 +74,35 @@
             <tr>
                 <th>NO</th>
                 <th>폐기 일자</th>
-                <th>품목 정보</th>
+                <th>품목 정보 (LOT)</th>
                 <th>폐기량</th>
-                <th>손실</th>
+                <th>손실율</th>
                 <th>폐기 사유</th>
                 <th>처리자</th>
                 <th>관리</th>
             </tr>
             </thead>
             <tbody>
-            <tr v-for="item in tableData" :key="item.no">
-                <td>{{ item.no }}</td>
-                <td>{{ item.date }}</td>
+            <tr v-for="(item, index) in items" :key="item.discardId">
+                <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
+                <td>{{ item.discardedAt ? item.discardedAt.substring(0, 10) : '' }}</td>
                 <td class="product-info">
-                <img :src="item.imageUrl" alt="product" class="product-image"/>
-                <div>
-                    <div class="p-name">{{ item.productName }}</div>
-                    <div class="p-code">CODE : {{ item.productCode }}</div>
-                </div>
+                  <div>
+                      <div class="p-name">LOT: {{ item.lotNo }}</div>
+                  </div>
                 </td>
-                <td><strong>{{ item.amount }}</strong></td>
-                <td>약 {{ item.loss.toLocaleString() }}원</td>
+                <td><strong>{{ item.quantity }}</strong></td>
+                <td>{{ item.discardRate }}%</td>
                 <td>
-                    <StatusBadge :class="getReasonClass(item.reason)">{{ item.reason }}</StatusBadge>
+                    <StatusBadge :class="getReasonClass(item.discardStatus)">{{ item.discardStatus }}</StatusBadge>
                 </td>
-                <td><span class="handler-badge">{{ item.handler }}</span></td>
+                <td><span class="handler-badge">{{ item.approvedEmailId }}</span></td>
                 <td>
                     <BaseButton class="btn-soft" @click="openModal(item)">확인</BaseButton>
                 </td>
+            </tr>
+            <tr v-if="items.length === 0">
+                <td colspan="8">폐기 내역 데이터가 없습니다.</td>
             </tr>
             </tbody>
         </table>
@@ -113,7 +118,8 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted, watch, computed } from 'vue';
+import { getDiscardList, getDiscardVolume } from '@/api/DiscardApi.js';
 import BaseButton from '@/components/button/BaseButton.vue';
 import Pagination from '@/components/pagination/Pagination.vue';
 import StatusBadge from '@/components/status/StatusBadge.vue';
@@ -121,6 +127,19 @@ import DiscardItemView from './DiscardItemView.vue';
 
 const isModalOpen = ref(false);
 const selectedItem = ref(null);
+
+const items = ref([]);
+const wasteRatios = ref([]);
+const discardVolume = ref({ currentMonthVolume: 0, lastMonthVolume: 0 });
+
+const filters = reactive({
+    startDate: '',
+    endDate: '',
+    lotNo: '',
+    discardStatus: '',
+});
+
+const reasonOptions = ['파손/손실', '유통기한', '부패/변질'];
 
 const openModal = (item) => {
   selectedItem.value = item;
@@ -132,55 +151,86 @@ const closeModal = () => {
   selectedItem.value = null;
 };
 
-const wasteRatios = ref([
-    { name: '사과', percent: 46, color: '#4ade80' },
-    { name: '수박', percent: 30, color: '#facc15' },
-    { name: '포도', percent: 15, color: '#60a5fa' }
-]);
-
-const filters = reactive({
-    startDate: '',
-    endDate: '',
-    searchKeyword: '',
-    reason: 'all'
-});
-
-const reasonOptions = ['파손/손실', '유통기한', '부패/변질'];
-
-const tableData = ref(Array(5).fill({
-    no: 102,
-    date: '2023-10-24 14:30',
-    productName: '프리미엄 부산 사과',
-    productCode: 'A-1023',
-    amount: '20kg',
-    loss: 90000,
-    reason: '파손/손실',
-    handler: '관리자',
-    imageUrl: 'https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?auto=format&fit=crop&w=100&q=60',
-}).map((item, i, arr) => {
-    let reason = item.reason;
-    if (i === 1) reason = '유통기한';
-    if (i === 2) reason = '부패/변질';
-    return { ...item, no: arr.length - i, reason: reason };
-}));
-
-const fetchData = () => {
-    console.log('검색 조건으로 API 호출:', filters);
+const fetchListData = async () => {
+  try {
+    const response = await getDiscardList({
+      page: currentPage.value,
+      size: pageSize.value,
+      ...filters
+    });
+    if (response.success && Array.isArray(response.data)) {
+      items.value = response.data;
+      const totalPages = Math.ceil(response.data.length / pageSize.value);
+      makePages(totalPages > 0 ? totalPages : 1);
+    } else {
+      items.value = [];
+      makePages(1);
+    }
+  } catch (error) {
+    console.error('Failed to fetch discard list:', error);
+    items.value = [];
+    makePages(1);
+  }
 };
 
-const getReasonClass = (reason) => {
-    if (reason === '파손/손실') return 'status-info';
-    if (reason === '유통기한') return 'status-warning';
-    if (reason === '부패/변질') return 'status-danger';
+const fetchVolumeData = async () => {
+  try {
+    const response = await getDiscardVolume();
+    if (response.success) {
+      discardVolume.value = response.data;
+    }
+  } catch (error) {
+    console.error('Failed to fetch discard volume:', error);
+  }
+};
+
+const volumeTrend = computed(() => {
+  const { currentMonthVolume, lastMonthVolume } = discardVolume.value;
+  if (lastMonthVolume === 0) {
+    return {
+      percentage: currentMonthVolume > 0 ? 100 : 0,
+      trendClass: 'trend-up',
+      icon: '↗',
+    };
+  }
+  const percentage = Math.round(((currentMonthVolume - lastMonthVolume) / lastMonthVolume) * 100);
+  const isUp = percentage >= 0;
+  return {
+    percentage: Math.abs(percentage),
+    trendClass: isUp ? 'trend-up' : 'trend-down',
+    icon: isUp ? '↗' : '↘',
+  };
+});
+
+const getReasonClass = (status) => {
+    if (status === '파손/손실') return 'status-info';
+    if (status === '유통기한') return 'status-warning';
+    if (status === '부패/변질') return 'status-danger';
     return '';
 };
 
-// Mock Pagination
 const currentPage = ref(1);
-const pages = ref([1, 2, 3, 4, 5]);
+const pageSize = ref(10);
+const pages = ref([]);
+
+const makePages = (totalPages) => {
+  pages.value = [];
+  for(let i = 1; i <= totalPages; i++) {
+    pages.value.push(i);
+  }
+};
+
 const changePage = (page) => {
     currentPage.value = page;
 };
+
+onMounted(() => {
+  fetchListData();
+  fetchVolumeData();
+});
+
+watch(currentPage, fetchListData);
+watch(filters, fetchListData); // 검색 조건 변경 시 다시 로드
 
 </script>
 
@@ -250,10 +300,8 @@ const changePage = (page) => {
 .table th, .table td { padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center; vertical-align: middle; }
 th { background-color: #f9fafb; font-weight: 600; color: #374151; font-size: 13px; }
 
-.product-info { display: flex; align-items: center; gap: 12px; text-align: left !important; }
-.product-image { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; border: 1px solid #e5e7eb; }
+.product-info { text-align: left !important; }
 .p-name { font-weight: 600; font-size: 14px; }
-.p-code { font-size: 12px; color: #9ca3af; }
 
 .handler-badge {
   background-color: #f3f4f6;
