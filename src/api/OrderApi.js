@@ -35,3 +35,43 @@ export async function fetchAllOrders(filters) {
         throw error;
     }
 }
+
+export async function fetchCartItems() {
+    try {
+        const response = await http.get('/cart');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching cart items:', error);
+        throw error;
+    }
+}
+
+export async function updateCartItemQuantity(skuNo, quantity) {
+    try {
+        const response = await http.put('/cart/items', { skuNo, quantity });
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating cart item quantity for ${skuNo}:`, error);
+        throw error;
+    }
+}
+
+export async function deleteCartItem(skuNo) {
+    try {
+        const response = await http.delete(`/cart/items/${skuNo}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error deleting cart item ${skuNo}:`, error);
+        throw error;
+    }
+}
+
+export async function checkoutCart() {
+    try {
+        const response = await http.post('/cart/checkout');
+        return response.data;
+    } catch (error) {
+        console.error('Error during cart checkout:', error);
+        throw error;
+    }
+}
