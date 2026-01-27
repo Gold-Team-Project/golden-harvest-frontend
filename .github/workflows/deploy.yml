@@ -1,0 +1,77 @@
+name: deploy-frontend
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: ap-northeast-2
+  FRONT_PREFIX: front
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (Vue)
+        run: npm run build
+
+      # Access Key 방식 AWS 인증
+      - name: Configure AWS credentials (Access Key)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # front/ 만 배포 (uploads/는 절대 건드리지 않음)
+      - name: Deploy to S3 (front/ only)
+        env:
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          FRONT_PREFIX: ${{ env.FRONT_PREFIX }}
+        run: |
+          set -euo pipefail
+
+          DEST="s3://$S3_BUCKET/$FRONT_PREFIX"
+          echo "Deploying dist/ -> $DEST"
+          echo "NOTE: uploads/ will NOT be touched."
+
+          # 1) index.html: 캐시 짧게 (배포 반영 빠르게)
+          aws s3 cp dist/index.html "$DEST/index.html" \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --content-type "text/html"
+
+          # 2) 나머지: 변경분만 업로드 + front/ 내에서만 찌꺼기 삭제
+          #    Vite/Vue는 보통 해시 파일명이라 캐시 길게가 안전함
+          aws s3 sync dist "$DEST" \
+            --delete \
+            --exclude "index.html" \
+            --cache-control "public, max-age=31536000, immutable"
+
+      # CloudFront 캐시 무효화 (최소화: index.html만)
+      # secrets.CLOUDFRONT_DISTRIBUTION_ID 설정 시에만 수행
+      - name: CloudFront invalidate index.html (optional)
+        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
+        env:
+          DIST_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          set -euo pipefail
+          aws cloudfront create-invalidation \
+            --distribution-id "$DIST_ID" \
+            --paths "/index.html"
