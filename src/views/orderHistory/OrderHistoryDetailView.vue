@@ -1,11 +1,17 @@
 <template>
   <div class="order-detail-view">
     <div class="main-content">
-      <div class="card">
+      <div v-if="loading" class="card">
+        <p>주문 상세 정보를 불러오는 중...</p>
+      </div>
+      <div v-else-if="error" class="card">
+        <p style="color: red;">오류: {{ error }}</p>
+      </div>
+      <div v-else-if="orderDetail" class="card">
         <div class="order-header">
           <div>
             <h2 class="order-title">주문 상세</h2>
-            <p class="order-info">2025. 12. 28 주문 <span class="order-id">주문번호 : SO-20251231</span></p>
+            <p class="order-info">{{ orderDetail.createdAt }} 주문 <span class="order-id">주문번호 : {{ orderDetail.salesOrderId }}</span></p>
           </div>
           <BaseButton variant="outline">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;"><path d="M19 8H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2h3a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1Zm-5 11h-4v-5h4v5Zm3-6H7v-4h10v4Z" /></svg>
@@ -14,38 +20,43 @@
         </div>
 
         <h3 class="section-title">주문 품목 리스트</h3>
-        <table class="item-table">
-          <thead>
-            <tr>
-              <th>상품 정보</th>
-              <th>단가</th>
-              <th>수량</th>
-              <th>합계</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in items" :key="item.id">
-              <td>
-                <div class="item-info">
-                  <img :src="item.image" alt="item-image" class="item-image" />
-                  <div class="item-details">
-                    <p class="item-name">{{ item.name }}</p>
-                    <p class="item-code">코드: {{ item.code }}</p>
-                    <p class="item-option">옵션: {{ item.option }}</p>
+        <div class="table-responsive">
+          <table class="item-table">
+            <thead>
+              <tr>
+                <th>상품 정보</th>
+                <th>단가</th>
+                <th>수량</th>
+                <th>합계</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in items" :key="item.id">
+                <td>
+                  <div class="item-info">
+                    <img :src="item.image" alt="item-image" class="item-image" />
+                    <div class="item-details">
+                      <p class="item-name">{{ item.name }}</p>
+                      <p class="item-code">코드: {{ item.code }}</p>
+                      <p class="item-option">옵션: {{ item.option }}</p>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td>{{ item.price.toLocaleString() }}원</td>
-              <td>{{ item.quantity }}</td>
-              <td>{{ (item.price * item.quantity).toLocaleString() }}원</td>
-            </tr>
-          </tbody>
-        </table>
+                </td>
+                <td>{{ item.price.toLocaleString() }}원</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ (item.price * item.quantity).toLocaleString() }}원</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <div class="total-summary">
           <span>합계 :</span>
           <span class="total-amount">{{ totalAmount.toLocaleString() }}원</span>
         </div>
+      </div>
+      <div v-else class="card">
+        <p>주문 정보를 찾을 수 없습니다.</p>
       </div>
     </div>
 
@@ -91,7 +102,7 @@
         </div>
         <div class="total-payment">
           <span class="label">총 결제 금액</span>
-          <span class="amount">550,000 원</span>
+          <span class="amount">{{ totalAmount.toLocaleString() }}원</span>
         </div>
       </div>
     </div>
@@ -99,16 +110,57 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import BaseButton from '@/components/button/BaseButton.vue'
+import { fetchOrderDetail } from '@/api/OrderApi'
 
-const items = ref([
-  { id: 1, name: '프리미엄 제주 감귤 (10kg)', code: 'PO-00125', option: '특상', price: 30000, quantity: 10, image: '' },
-  { id: 2, name: '프리미엄 제주 감귤 (15kg)', code: 'PO-00125', option: '특상', price: 30000, quantity: 10, image: '' },
-])
+const route = useRoute()
+const orderDetail = ref(null)
+const loading = ref(true)
+const error = ref(null)
 
-const totalAmount = computed(() => items.value.reduce((sum, item) => sum + item.price * item.quantity, 0))
+const items = computed(() => {
+  if (!orderDetail.value || !orderDetail.value.orderItems) {
+    return []
+  }
+  return orderDetail.value.orderItems.map((item, index) => ({
+    id: index, // Using index as ID, as no specific item ID is provided in API response
+    name: item.itemName || item.gradeName || item.varietyName || '상품명 없음',
+    code: item.gradeName || '코드 없음', // Placeholder
+    option: item.varietyName || '옵션 없음', // Placeholder
+    price: item.price,
+    quantity: item.quantity,
+    image: '', // No image URL in API response
+  }))
+})
 
+const totalAmount = computed(() => {
+  return orderDetail.value ? orderDetail.value.totalAmount : 0
+})
+
+const loadOrderDetail = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    const orderId = route.params.id
+    const response = await fetchOrderDetail(orderId)
+    if (response.success && response.data) {
+      orderDetail.value = response.data
+    } else {
+      error.value = response.message || '주문 상세 정보를 불러오는데 실패했습니다.'
+    }
+  } catch (err) {
+    error.value = 'API 호출 중 오류가 발생했습니다: ' + err.message
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadOrderDetail()
+})
 </script>
 
 <style scoped>
@@ -281,5 +333,54 @@ const totalAmount = computed(() => items.value.reduce((sum, item) => sum + item.
 .total-payment .amount {
   color: #ef4444;
   font-size: 20px;
+}
+
+@media (max-width: 768px) {
+  .order-detail-view {
+    flex-direction: column;
+  }
+
+  .sidebar-content {
+    width: 100%; /* Make sidebar full width */
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr; /* Stack info items vertically */
+  }
+
+  .info-grid .label {
+    width: auto; /* Allow label to take necessary width */
+    margin-right: 8px; /* Add some space between label and value */
+  }
+
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .order-id {
+    font-size: 20px; /* Adjust font size for smaller screens */
+  }
+
+  .order-info {
+    margin-top: 4px;
+  }
+
+  .actions {
+    flex-wrap: wrap; /* Allow buttons to wrap */
+    width: 100%; /* Make buttons take full width if wrapped */
+    justify-content: flex-start; /* Align buttons to start */
+  }
+
+  .actions .BaseButton {
+    flex: 1 1 auto; /* Allow buttons to grow/shrink but keep some base size */
+  }
+
+  /* Table responsiveness */
+  .table-responsive {
+    width: 100%;
+    overflow-x: auto;
+  }
 }
 </style>
