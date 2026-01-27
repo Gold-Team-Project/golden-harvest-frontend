@@ -1,5 +1,4 @@
-name: deploy-frontend
-
+name: deploy
 on:
   push:
     branches: ["main"]
