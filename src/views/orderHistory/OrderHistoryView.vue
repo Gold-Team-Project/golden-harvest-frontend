@@ -15,38 +15,42 @@
     </div>
 
     <div class="card">
-      <div class="list-summary">
-        총 {{ orders.length }}건의 주문 내역이 있습니다.
+      <div v-if="loading" class="list-summary">데이터를 불러오는 중...</div>
+      <div v-else-if="error" class="list-summary" style="color: red;">오류: {{ error }}</div>
+      <div v-else class="list-summary">
+        총 {{ totalOrders }}건의 주문 내역이 있습니다.
       </div>
 
-      <table class="order-table">
-        <thead>
-          <tr>
-            <th>주문일자</th>
-            <th>상품명</th>
-            <th>수량</th>
-            <th>결제금액</th>
-            <th>주문상태</th>
-            <th>관리</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="order in orders" :key="order.id">
-            <td>{{ order.date }}</td>
-            <td>{{ order.productName }}</td>
-            <td>{{ order.quantity }}</td>
-            <td>{{ order.amount.toLocaleString() }}원</td>
-            <td>
-              <StatusBadge :status="order.status" />
-            </td>
-            <td>
-              <router-link :to="{ name: 'OrderDetail', params: { id: order.id } }" class="detail-link">
-                <BaseButton size="sm" variant="outline">상세보기</BaseButton>
-              </router-link>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="order-table">
+          <thead>
+            <tr>
+              <th>주문일자</th>
+              <th>상품명</th>
+              <th>수량</th>
+              <th>결제금액</th>
+              <th>주문상태</th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in paginatedOrders" :key="order.id">
+              <td>{{ order.date }}</td>
+              <td>{{ order.productName }}</td>
+              <td>{{ order.quantity }}</td>
+              <td>{{ order.amount.toLocaleString() }}원</td>
+              <td>
+                <OrderStatusBadge :status="order.status" />
+              </td>
+              <td>
+                <router-link :to="{ name: 'OrderDetail', params: { id: order.id } }" class="detail-link">
+                  <BaseButton size="sm" variant="outline">상세보기</BaseButton>
+                </router-link>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <Pagination
         class="pagination"
@@ -59,25 +63,141 @@
 </template>
 
 <script setup>
-import {ref, computed} from 'vue'
+import {ref, computed, onMounted, watch} from 'vue'
 import BaseButton from '@/components/button/BaseButton.vue'
-import StatusBadge from '@/components/status/StatusBadge.vue'
+import OrderStatusBadge from '@/components/status/OrderStatusBadge.vue'
 import Pagination from '@/components/pagination/Pagination.vue'
+import {fetchMyOrders} from '@/api/OrderApi'
 
-const orders = ref([
-  { id: 1, date: '2023.10.25', productName: '제주 감귤 10kg 외 5건', quantity: 5, amount: 100000, status: '주문완료' },
-  { id: 2, date: '2023.10.25', productName: '제주 감귤 10kg 외 5건', quantity: 5, amount: 100000, status: '상품준비중' },
-  { id: 3, date: '2023.10.25', productName: '제주 감귤 10kg 외 5건', quantity: 5, amount: 100000, status: '상품준비중' },
-  { id: 4, date: '2023.10.25', productName: '제주 감귤 10kg 외 5건', quantity: 5, amount: 100000, status: '배송중' },
-  { id: 5, date: '2023.10.25', productName: '제주 감귤 10kg 외 5건', quantity: 5, amount: 100000, status: '배송중' },
-  { id: 6, date: '2023.10.25', productName: '제주 감귤 10kg 외 5건', quantity: 5, amount: 100000, status: '배송완료' },
-  { id: 7, date: '2023.10.25', productName: '제주 감귤 10kg 외 5건', quantity: 5, amount: 100000, status: '주문취소' },
-  { id: 8, date: '2023.10.25', productName: '제주 감귤 10kg 외 5건', quantity: 5, amount: 100000, status: '배송완료' },
-  { id: 9, date: '2023.10.25', productName: '제주 감귤 10kg 외 5건', quantity: 5, amount: 100000, status: '주문취소' },
-]);
-
+const orders = ref([]);
 const currentPage = ref(1);
-const paginationPages = computed(() => [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+const itemsPerPage = 10;
+const totalOrders = ref(0);
+const loading = ref(false);
+const error = ref(null);
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return orders.value.slice(start, end);
+});
+
+const paginationPages = computed(() => {
+  const totalPages = Math.ceil(totalOrders.value / itemsPerPage);
+  if (totalPages === 0) return [1];
+  return Array.from({ length: totalPages }, (_, i) => i + 1);
+});
+
+    const loadOrders = async () => {
+
+      loading.value = true;
+
+      error.value = null;
+
+      try {
+
+        const response = await fetchMyOrders();
+
+        if (response.success && response.data) {
+
+                    const mapOrderStatusToKey = (status) => {
+
+                      switch (status) {
+
+                        case '주문 접수': return 'PENDING';
+
+                        case '상품 준비중': return 'PAID'; // API now sends '상품 준비중' for PAID status
+
+                        case '배송 준비중': return 'PREPARING';
+
+                        case '배송 중': return 'SHIPPING';
+
+                        case '배송 완료': return 'DELIVERED';
+
+                        case '주문 취소': return 'CANCELLED';
+
+                        default: return 'UNKNOWN';
+
+                      }
+
+                    };
+
+
+
+          orders.value = response.data.map(order => {
+
+            let productName = '상품명 없음';
+
+            let totalQuantity = 0;
+
+
+
+            if (order.orderItems && order.orderItems.length > 0) {
+
+              const firstItem = order.orderItems[0];
+
+              productName = firstItem.itemName || firstItem.gradeName || firstItem.varietyName || '상품명 없음';
+
+              if (order.orderItems.length > 1) {
+
+                productName += ` 외 ${order.orderItems.length - 1}건`;
+
+              }
+
+              totalQuantity = order.orderItems.reduce((sum, item) => sum + item.quantity, 0);
+
+            }
+
+
+
+            return {
+
+              id: order.salesOrderId,
+
+              date: order.createdAt,
+
+              productName: productName,
+
+              quantity: totalQuantity,
+
+              amount: order.totalAmount,
+
+              status: mapOrderStatusToKey(order.orderStatus), // Use mapped status
+
+            };
+
+          });
+
+          totalOrders.value = orders.value.length;
+
+        } else {
+
+          error.value = response.message || '주문 내역을 불러오는데 실패했습니다.';
+
+        }
+
+      } catch (err) {
+
+        error.value = 'API 호출 중 오류가 발생했습니다: ' + err.message;
+
+        console.error(err);
+
+      } finally {
+
+        loading.value = false;
+
+      }
+
+    };
+
+onMounted(() => {
+  loadOrders();
+});
+
+watch(currentPage, () => {
+  // If we were fetching data per page, we would call loadOrders here with page parameter.
+  // Since we fetch all and paginate client-side, no need to re-fetch.
+});
 
 </script>
 
@@ -162,5 +282,39 @@ const paginationPages = computed(() => [1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
 .pagination {
   margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+  .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px; /* Adjust gap for stacked items */
+  }
+
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px; /* Adjust gap for stacked items */
+  }
+
+  .date-inputs {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%; /* Ensure date inputs take full width when stacked */
+  }
+
+  .date-input {
+    width: 100%;
+  }
+
+  .filter-section > .BaseButton { /* Target the BaseButton directly inside filter-section */
+    width: 100%;
+  }
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
 }
 </style>
