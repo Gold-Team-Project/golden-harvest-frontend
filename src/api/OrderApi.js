@@ -82,3 +82,23 @@ export async function checkoutCart() {
         throw error;
     }
 }
+
+export async function cancelOrder(orderId) {
+    try {
+        const response = await http.patch(`/sales/orders/${orderId}/cancel`); // Corrected path
+        return response.data;
+    } catch (error) {
+        console.error(`Error cancelling order ${orderId}:`, error);
+        throw error;
+    }
+}
+
+export async function approveOrder(orderId) {
+    try {
+        const response = await http.patch(`/sales/orders/${orderId}/approve`, {}); // Send an empty JSON body
+        return response.data;
+    } catch (error) {
+        console.error(`Error approving order ${orderId}:`, error);
+        throw error;
+    }
+}
