@@ -1,52 +1,94 @@
 <template>
-  <div class="product-detail-view">
+  <div class="product-detail-view" v-if="productDetails">
     <div class="product-image-section">
-      <img src="" alt="Product Image" class="main-product-image" />
+      <img :src="productDetails.fileUrl" :alt="productDetails.itemName" class="main-product-image" />
     </div>
     <div class="product-info-section">
       <div class="card">
-        <h1 class="product-name">사과 15kg</h1>
-        <p class="product-origin">원산지 : 전라남도 임자면</p>
-        <p class="product-price">80,000 원</p>
-
-        <div class="selection-box">
-          <div class="selection-header">
-            <span>품목</span>
-            <span>가격</span>
-            <span>수량</span>
-          </div>
-          <div class="selection-item">
-            <span>대저 짭짤이 토마토 15kg</span>
-            <span>80,000</span>
-            <span>5</span>
-          </div>
-          <div class="selection-total">
-            <span>합계 : <strong>400,000 원</strong></span>
-          </div>
-        </div>
+        <h1 class="product-name">{{ productDetails.itemName }}</h1>
+        <p class="product-origin">원산지 : {{ productDetails.country }}</p>
+        <p class="product-price">
+          {{ displayPrice.toLocaleString() }} 원
+        </p>
 
         <div class="controls">
           <div class="quantity-control">
-            <button>-</button>
-            <input type="text" value="5" readonly />
-            <button>+</button>
+            <button @click="decreaseQuantity">-</button>
+            <input type="text" :value="quantity" readonly />
+            <button @click="increaseQuantity">+</button>
           </div>
           <BaseButton variant="primary">장바구니 담기</BaseButton>
           <BaseButton variant="primary">바로 구매하기</BaseButton>
         </div>
 
         <ul class="product-details-list">
-          <li>총 중량 : 5000g</li>
-          <li>과일 종류 : 부사</li>
-          <li>품목코드 : A-1023</li>
+          <li>총 중량 : {{ productDetails.packToKg }}</li>
+          <li>과일 종류 : {{ productDetails.varietyName }}</li>
+          <li>품목코드 : {{ productDetails.itemCode }}</li>
+          <li v-if="productDetails.grade">등급 : {{ productDetails.grade }}</li>
+          <li v-if="productDetails.description">설명 : {{ productDetails.description }}</li>
+          <li v-if="productDetails.shelfLifeDays">유통기한 : {{ productDetails.shelfLifeDays }}일</li>
+          <li v-if="productDetails.storageTempMin && productDetails.storageTempMax">
+            저장 온도 : {{ productDetails.storageTempMin }}℃ ~ {{ productDetails.storageTempMax }}℃
+          </li>
         </ul>
       </div>
     </div>
   </div>
+  <div v-else>
+    <p>상품 정보를 불러오는 중...</p>
+  </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import BaseButton from '@/components/button/BaseButton.vue';
+import { fetchItemDetail } from '@/api/OrderApi.js';
+
+const route = useRoute();
+const productDetails = ref(null);
+const quantity = ref(1);
+const displayPrice = ref(0); // New reactive variable for the price passed from OrderView
+
+const increaseQuantity = () => {
+  quantity.value++;
+};
+
+const decreaseQuantity = () => {
+  if (quantity.value > 1) {
+    quantity.value--;
+  }
+};
+
+onMounted(async () => {
+  const skuNo = route.params.id; // Assuming skuNo is passed as 'id' in route params
+  const priceQuery = route.query.price; // Get price from query parameter
+
+  if (priceQuery) {
+    displayPrice.value = parseFloat(priceQuery); // Parse price as a number
+  } else {
+    console.warn('Price not provided in query parameters.');
+  }
+
+  if (skuNo) {
+    try {
+      const response = await fetchItemDetail(skuNo);
+      if (response && response.success) {
+        productDetails.value = response.data;
+      } else {
+        console.error('상품 상세 정보를 불러오는데 실패했습니다:', response?.message);
+        productDetails.value = null; // Set to null on failure
+      }
+    } catch (error) {
+      console.error('상품 상세 정보를 불러오는 중 에러가 발생했습니다:', error);
+      productDetails.value = null; // Set to null on error
+    }
+  } else {
+    console.error('skuNo가 제공되지 않았습니다.');
+    productDetails.value = null;
+  }
+});
 </script>
 
 <style scoped>
