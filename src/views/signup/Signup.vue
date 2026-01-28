@@ -19,18 +19,20 @@
         <h2 class="form-title">새로운 파트너</h2>
         <p class="form-desc">비즈니스 세부 정보를 입력하여 새 파트너 계정을 만드세요.</p>
 
-        <form @submit.prevent="handleSignup" class="signup-form">
-          <div class="input-group">
-            <label>이메일</label>
-            <div class="input-with-button">
-              <input v-model="form.email" type="email" placeholder="이메일을 입력하세요" required />
-              <button type="button" class="verify-btn">인증</button>
-            </div>
+        <form @submit.prevent="handleSignup" class="signup-form"><div class="input-group">
+          <label>이메일</label>
+          <div class="input-with-button">
+            <input v-model="form.email" type="email" placeholder="이메일을 입력하세요" required />
+            <button type="button" class="verify-btn" @click="handleSendVerification">인증</button>
           </div>
+        </div>
 
           <div class="input-group">
             <label>인증번호</label>
-            <input v-model="form.verifyCode" type="text" placeholder="인증번호를 입력하세요" />
+            <div class="input-with-button">
+              <input v-model="form.verifyCode" type="text" placeholder="인증번호를 입력하세요" />
+              <button type="button" class="verify-btn" @click="handleVerifyCode" :disabled="!form.verifyCode">확인</button>
+            </div>
           </div>
 
           <div class="input-group">
@@ -57,13 +59,14 @@
                 <span class="file-name-text">{{ fileName || '선택된 파일 없음' }}</span>
                 <input type="file" id="file-upload" @change="handleFileUpload" hidden />
               </div>
-              <button type="button" class="upload-btn">업로드</button>
+              <button type="button" class="upload-btn" @click="$refs.fileInput.click()">업로드</button>
             </div>
           </div>
 
           <div class="input-group">
             <label>첨부 파일 정보</label>
             <input :value="fileName" type="text" readonly placeholder="파일을 업로드해주세요" />
+            <input type="file" ref="fileInput" id="file-upload" @change="handleFileUpload" hidden />
           </div>
 
           <div class="row-group">
@@ -92,13 +95,84 @@
 
 <script setup>
 import { reactive, ref } from 'vue';
-const form = reactive({ email: '', verifyCode: '', businessName: '', managerName: '', phone: '', password: '', passwordConfirm: '' });
+import authApi from '@/api/AuthApI.js'; // 👈 AuthApi 임포트 확인!
+
+const form = reactive({
+  email: '',
+  verifyCode: '',
+  businessName: '',
+  managerName: '',
+  phone: '',
+  password: '',
+  passwordConfirm: ''
+});
+
 const fileName = ref('');
+const selectedFile = ref(null); // 👈 백엔드 전송용 파일 객체
+
+// 1. 파일 선택 핸들러
 const handleFileUpload = (event) => {
   const file = event.target.files[0];
-  if (file) fileName.value = file.name;
+  if (file) {
+    fileName.value = file.name;
+    selectedFile.value = file; // 파일 객체 저장
+  }
 };
-const handleSignup = () => console.log('Signup data:', form);
+
+// 2. 이메일 인증번호 발송
+const handleSendVerification = async () => {
+  if (!form.email) {
+    alert("이메일을 먼저 입력해주세요.");
+    return;
+  }
+  try {
+    const res = await authApi.sendEmail(form.email, 'signup');
+    alert(res.message || "인증번호가 발송되었습니다.");
+  } catch (error) {
+    console.error("인증번호 발송 실패:", error);
+    alert(error.response?.data?.message || "발송 실패");
+  }
+};
+
+// 3. 이메일 인증번호 확인
+const handleVerifyCode = async () => {
+  try {
+    const res = await authApi.verifyEmail(form.email, form.verifyCode);
+    alert("이메일 인증에 성공하였습니다.");
+  } catch (error) {
+    alert("인증번호가 일치하지 않습니다.");
+  }
+};
+
+// 4. 회원가입 제출
+const handleSignup = async () => {
+  if (form.password !== form.passwordConfirm) {
+    alert("비밀번호가 일치하지 않습니다.");
+    return;
+  }
+  if (!selectedFile.value) {
+    alert("사업자 등록증 파일을 업로드해주세요.");
+    return;
+  }
+
+  try {
+    // 백엔드 DTO 필드명(SignUpRequest)에 맞춰 데이터 구성
+    const signUpData = {
+      email: form.email,
+      password: form.password,
+      company: form.businessName,
+      businessNumber: '1234567890', // 예시 (패턴 @Pattern(regexp = "^\\d{10}$") 준수 필요)
+      name: form.managerName,
+      phoneNumber: form.phone
+    };
+
+    const res = await authApi.signup(signUpData, selectedFile.value);
+    alert(res.message || "회원가입 신청이 완료되었습니다.");
+  } catch (error) {
+    console.error("회원가입 실패:", error);
+    alert(error.response?.data?.message || "회원가입 중 에러가 발생했습니다.");
+  }
+};
 </script>
 
 <style scoped>

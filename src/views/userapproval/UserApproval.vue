@@ -18,7 +18,7 @@
           <label>사업자명</label>
           <div class="search-input-wrapper">
             <img src="@/assets/search.svg" class="search-icon-svg" alt="search" />
-            <input type="text" placeholder="사업자명 검색" v-model="filters.companyName" />
+            <input type="text" placeholder="사업자명 검색" v-model="filters.companyName" @keyup.enter="fetchData" />
           </div>
         </div>
         <div class="filter-item">
@@ -37,7 +37,7 @@
             <option value="ACTIVE">활성화</option>
           </select>
         </div>
-        <button class="search-btn">검색</button>
+        <button class="search-btn" @click="fetchData">검색</button>
       </div>
     </div>
 
@@ -70,7 +70,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="(item, idx) in filteredList" :key="idx">
+          <tr v-for="(item, idx) in displayList" :key="idx">
             <template v-if="activeTab !== 'update'">
               <td>{{ item.date }}</td>
               <td>{{ item.company }}</td>
@@ -108,49 +108,137 @@
       </div>
     </div>
 
-    <UserApprovalModal v-if="isModalOpen" :userData="selectedData" :mode="activeTab" @close="isModalOpen = false" />
+    <UserApprovalModal
+        v-if="isModalOpen"
+        :userData="selectedData"
+        :mode="activeTab"
+        @close="isModalOpen = false"
+        @update="fetchData"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { fetchAllUsers, fetchPendingUpdateRequests } from '@/api/AdminApi.js';
 import UserApprovalModal from '@/views/userapproval/modal/UserApprovalModal.vue';
 
+// 1. 상태 관리
 const activeTab = ref('all');
-const filters = reactive({ companyName: '', ceoName: '', phone: '', status: '' });
 const isModalOpen = ref(false);
 const selectedData = ref(null);
 const currentPage = ref(1);
+const filters = reactive({ companyName: '', ceoName: '', phone: '', status: '' });
 
-const userList = ref([
-  { id: 1, date: '2025-12-25', company: '푸른바다 유통', ceo: '김청수', phone: '010-1234-5678', role: '고객', userStatus: 'PENDING', requestStatus: 'PENDING', type: 'JOIN' },
-  { id: 2, date: '2025-12-24', company: '고래상점', ceo: '박고래', phone: '010-5678-9999', role: '고객', userStatus: 'ACTIVE', requestStatus: 'APPROVED', type: 'JOIN' },
-  { id: 3, date: '2025-12-26', company: '새우나라', updateField: '사업자번호', oldValue: '111-22-33333', newValue: '444-55-66666', type: 'UPDATE' }
-]);
+// 2. 데이터 저장소
+const rawUsers = ref([]);           // UserAdminResponse 원본
+const rawUpdateRequests = ref([]);  // UserUpdateApprovalResponse 원본
+
+// 3. 날짜 포맷팅 유틸
+const formatDate = (dateStr) => {
+  if (!dateStr) return '-';
+  return dateStr.split('T')[0];
+};
+
+// 4. 데이터 가공 및 필터링 (기존 디자인 변수명에 맞게 매핑)
+const displayList = computed(() => {
+  // 1. 전체 유저 데이터가 없을 경우 처리
+  if (!rawUsers.value || rawUsers.value.length === 0) {
+    // 수정 요청 탭은 rawUpdateRequests가 있으면 보여줘야 하므로,
+    // 유저 데이터가 없더라도 바로 리턴하지 않고 아래 로직을 타게 합니다.
+  }
+
+  // --- 가입 승인 및 전체 회원 탭 ---
+  if (activeTab.value === 'all' || activeTab.value === 'join') {
+    if (!rawUsers.value || rawUsers.value.length === 0) return [];
+
+    const list = rawUsers.value.map(u => ({
+      ...u,
+      date: formatDate(u.createdAt),
+      company: u.userCompany || u.company || '-',
+      ceo: u.userName || u.name || '-',
+      phone: u.userPhone || u.phoneNumber || '-',
+      role: u.roleName || '일반회원',
+      userStatus: u.status || 'PENDING'
+    }));
+
+    if (activeTab.value === 'join') {
+      return list.filter(u => u.userStatus === 'PENDING');
+    }
+    return list;
+  }
+
+  // --- 정보 수정 요청 탭 ---
+  if (activeTab.value === 'update') {
+    if (!rawUpdateRequests.value || rawUpdateRequests.value.length === 0) return [];
+
+    return rawUpdateRequests.value.map(req => {
+      // 백엔드에서 보내주는 이메일 필드명(userEmail 또는 email)을 확인하세요.
+      const currentUser = rawUsers.value.find(u => (u.userEmail || u.email) === (req.userEmail || req.email));
+
+      return {
+        ...req,
+        date: formatDate(req.createdAt),
+        company: req.requestCompany || '-',
+        updateField: '사업자 정보 수정',
+        oldValue: currentUser ? (currentUser.userCompany || currentUser.company || '-') : '기존 정보 없음',
+        newValue: req.requestCompany || '-'
+      };
+    });
+  }
+
+  return [];
+});
 
 const tabTitle = computed(() => {
-  if (activeTab.value === 'join') return '가입 승인 요청';
-  if (activeTab.value === 'update') return '정보 수정 요청';
-  return '회원 목록';
+  if (activeTab.value === 'all') return '전체 회원 목록';
+  if (activeTab.value === 'join') return '가입 승인 대기 목록';
+  return '정보 수정 요청 목록';
 });
 
-const filteredList = computed(() => {
-  if (activeTab.value === 'join') return userList.value.filter(u => u.type === 'JOIN' && u.requestStatus === 'PENDING');
-  if (activeTab.value === 'update') return userList.value.filter(u => u.type === 'UPDATE');
-  return userList.value.filter(u => u.type === 'JOIN');
+// 상단 배지 카운트
+const joinPendingCount = computed(() => rawUsers.value.filter(u => u.status === 'PENDING').length);
+const updatePendingCount = computed(() => rawUpdateRequests.value.length);
+
+// 5. API 데이터 호출
+const fetchData = async () => {
+  try {
+    const userRes = await fetchAllUsers();
+    console.log("🔍 원본 유저 데이터:", userRes);
+    // userRes 자체가 { success: true, data: [...] } 형태이므로 .data를 담아야 함
+    if (userRes.success) {
+      rawUsers.value = userRes.data;
+    }
+
+    const updateRes = await fetchPendingUpdateRequests();
+    if (updateRes.success) {
+      rawUpdateRequests.value = updateRes.data;
+    }
+  } catch (error) {
+    console.error("데이터 로드 실패:", error);
+  }
+};
+
+// 6. 이벤트 핸들러
+const openModal = (data) => {
+  selectedData.value = { ...data };
+  isModalOpen.value = true;
+};
+
+onMounted(fetchData);
+
+watch(activeTab, () => {
+  currentPage.value = 1;
+  // 필요 시 fetchData() 재호출 가능하나,
+  // 위 fetchData에서 두 데이터를 다 가져오므로 즉시 반영됩니다.
 });
-
-const joinPendingCount = computed(() => userList.value.filter(u => u.type === 'JOIN' && u.requestStatus === 'PENDING').length);
-const updatePendingCount = computed(() => userList.value.filter(u => u.type === 'UPDATE').length);
-
-const openModal = (data) => { selectedData.value = { ...data }; isModalOpen.value = true; };
 </script>
 
 <style scoped>
 .admin-container { padding: 30px 50px; background-color: #f8f9fb; min-height: 100vh; box-sizing: border-box; }
 .breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; }
 
-/* 🔹 탭 디자인 */
+/* 탭 디자인 */
 .tab-container {
   display: flex;
   gap: 0; /* 탭 사이 틈을 없애고 테두리를 공유하게 설정 (선택 사항) */
@@ -195,7 +283,7 @@ const openModal = (data) => { selectedData.value = { ...data }; isModalOpen.valu
   /* position: absolute; right: 15px; */
 }
 
-/* 🔹 필터 카드 */
+/* 필터 카드 */
 .filter-card {
   background: #fff; padding: 30px; border-radius: 0 20px 20px 20px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #e0e0e0;
@@ -205,7 +293,7 @@ const openModal = (data) => { selectedData.value = { ...data }; isModalOpen.valu
 .filter-item.flex-2 { flex: 1.8; }
 .filter-item label { font-size: 14px; font-weight: 700; color: #444; }
 
-/* 🔹 인풋 스타일 (요청하신 포커스 효과 유지) */
+/* 인풋 스타일 (요청하신 포커스 효과 유지) */
 .search-input-wrapper { position: relative; width: 100%; }
 .search-icon-svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 18px; }
 .search-input-wrapper input, .basic-input, .basic-select {
@@ -221,7 +309,7 @@ const openModal = (data) => { selectedData.value = { ...data }; isModalOpen.valu
 .search-btn:hover { background-color: #0fb80f; }
 .search-btn:active { transform: scale(0.98); }
 
-/* 🔹 리스트 카드 및 테이블 */
+/* 리스트 카드 및 테이블 */
 .list-card { background: #fff; border-radius: 20px; padding: 30px; border: 1px solid #e0e0e0; min-height: 550px; display: flex; flex-direction: column; }
 .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; }
 .title-icon-svg { width: 22px; }
@@ -231,7 +319,7 @@ const openModal = (data) => { selectedData.value = { ...data }; isModalOpen.valu
 .admin-table th { padding: 15px; text-align: left; color: #888; border-bottom: 2px solid #f4f4f4; font-size: 14px; background: #fff; }
 .admin-table td { padding: 18px 10px; font-size: 14px; border-bottom: 1px solid #f9f9f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* 🔹 수정 요청 탭 전용 스타일 */
+/* 수정 요청 탭 전용 스타일 */
 .update-tag { background: #f1f3f5; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; color: #555; }
 .old-val { color: #999; text-decoration: line-through; font-size: 13px; }
 .new-val { color: #11D411; font-weight: 700; font-size: 14px; }

@@ -56,15 +56,39 @@
 
 <script setup>
 import { reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { jwtDecode } from 'jwt-decode'; // ✅ 추가
+import authApi from '@/api/AuthApI.js';
 
-const loginForm = reactive({
-  email: '',
-  password: '',
-  rememberMe: false
-});
+const router = useRouter();
+const loginForm = reactive({ email: '', password: '' });
 
-const handleLogin = () => {
-  console.log('Login attempt:', loginForm);
+const handleLogin = async () => {
+  try {
+    const res = await authApi.login(loginForm);
+
+    // 1. 토큰 저장
+    const { accessToken, refreshToken } = res.data;
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+
+    // 2. 토큰 해독하여 권한 확인
+    const decoded = jwtDecode(accessToken);
+    console.log('디코딩된 토큰:', decoded); // 👈 여기서 role 필드명을 확인하세요 (예: role, auth, roles 등)
+
+    // 3. 권한에 따른 라우팅 (백엔드 Role 이름과 대조하세요)
+    if (decoded.role === 'ROLE_ADMIN') {
+      alert("관리자 페이지로 이동합니다.");
+      router.push('/admin'); // 관리자 전용 경로
+    } else {
+      alert("로그인에 성공했습니다!");
+      router.push('/'); // 일반 유저 메인
+    }
+
+  } catch (error) {
+    console.error("로그인 실패:", error);
+    alert(error.response?.data?.message || "이메일 또는 비밀번호를 확인하세요.");
+  }
 };
 </script>
 
