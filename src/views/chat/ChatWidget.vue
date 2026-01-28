@@ -17,21 +17,32 @@
           </div>
           <button @click="toggleChat" class="close-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
         </div>
 
         <div class="chat-body" ref="chatBody">
-          <div v-for="(msg, index) in messages" :key="index" class="message-row"
-               :class="{ 'user-row': msg.isUser, 'ai-row': !msg.isUser }">
+          <div
+              v-for="(msg, index) in messages"
+              :key="index"
+              class="message-row"
+              :class="{ 'user-row': msg.isUser, 'ai-row': !msg.isUser }"
+          >
             <div v-if="!msg.isUser" class="profile-icon">✨</div>
+
             <div class="bubble-container">
               <div class="bubble">{{ msg.text }}</div>
               <span class="timestamp">{{ msg.time }}</span>
-              <a v-if="msg.downloadUrl" :href="BACKEND_URL + msg.downloadUrl" class="download-link" target="_blank">
-                📂 파일 열기
+
+              <a
+                  v-if="msg.downloadUrl"
+                  href="#"
+                  class="download-link"
+                  @click.prevent="goDownload(msg.downloadUrl)"
+              >
+                📂 파일 다운로드
               </a>
             </div>
           </div>
@@ -39,7 +50,12 @@
 
         <div class="chat-footer">
           <div class="input-container">
-            <input v-model="userInput" @keyup.enter="sendMessage" type="text" placeholder="메시지를 입력하세요..."/>
+            <input
+                v-model="userInput"
+                @keyup.enter="sendMessage"
+                type="text"
+                placeholder="메시지를 입력하세요..."
+            />
             <button @click="sendMessage" class="send-btn">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
                 <path d="M22 2L11 13" stroke-linecap="round" stroke-linejoin="round"/>
@@ -59,8 +75,8 @@
       </svg>
       <svg v-else width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
            stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
     </button>
 
@@ -68,70 +84,116 @@
 </template>
 
 <script setup>
-import {ref, nextTick} from 'vue';
+import { ref, nextTick, watch } from 'vue';
 
-const BACKEND_URL = 'http://localhost:8000'; // 백엔드 주소
+const BACKEND_URL = 'http://localhost:8000';
+const STORAGE_KEY = 'green-ai-chat-messages';
 
-// --- 상태 관리 ---
-const isOpen = ref(false); // 채팅창 열림/닫힘 상태
+const isOpen = ref(false);
 const userInput = ref('');
 const chatBody = ref(null);
-const messages = ref([
-  {text: "안녕하세요! 그린 AI 어시스턴트입니다. 무엇을 도와드릴까요?", time: "오전 10:14", isUser: false}
-]);
 
-// --- 토글 함수 ---
-const toggleChat = () => {
-  isOpen.value = !isOpen.value;
-  // 열릴 때 스크롤 맨 아래로
-  if (isOpen.value) {
-    nextTick(() => scrollToBottom());
-  }
-};
-
-// --- (기존 로직 동일) 메시지 전송 ---
 const getCurrentTime = () => {
   const now = new Date();
-  let hours = now.getHours();
   const minutes = now.getMinutes().toString().padStart(2, '0');
+  const hours = now.getHours();
   const ampm = hours >= 12 ? '오후' : '오전';
   return `${ampm} ${hours % 12 || 12}:${minutes}`;
 };
 
+const savedMessages = localStorage.getItem(STORAGE_KEY);
+
+const messages = ref(
+    savedMessages
+        ? JSON.parse(savedMessages)
+        : [
+          {
+            text: "안녕하세요! 그린 AI 어시스턴트입니다. 무엇을 도와드릴까요?",
+            time: getCurrentTime(),
+            isUser: false
+          }
+        ]
+);
+
+watch(
+    messages,
+    (val) => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(val));
+    },
+    { deep: true }
+);
+
+const toggleChat = () => {
+  isOpen.value = !isOpen.value;
+  if (isOpen.value) {
+    nextTick(scrollToBottom);
+  }
+};
+
+const goDownload = (targetUrl) => {
+  console.log('📂 다운로드 URL:', targetUrl);
+  if (targetUrl) {
+    window.location.href = targetUrl;
+  }
+};
+
 const scrollToBottom = () => {
-  if (chatBody.value) chatBody.value.scrollTop = chatBody.value.scrollHeight;
+  if (chatBody.value) {
+    chatBody.value.scrollTop = chatBody.value.scrollHeight;
+  }
 };
 
 const sendMessage = async () => {
   if (!userInput.value.trim()) return;
 
-  messages.value.push({text: userInput.value, time: getCurrentTime(), isUser: true});
   const currentMsg = userInput.value;
+
+  console.log('📤 사용자 메시지:', currentMsg);
+
+  messages.value.push({
+    text: currentMsg,
+    time: getCurrentTime(),
+    isUser: true
+  });
+
   userInput.value = '';
+
   await nextTick();
   scrollToBottom();
 
   try {
     const response = await fetch(`${BACKEND_URL}/chat`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({message: currentMsg})
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: currentMsg })
     });
+
     const data = await response.json();
+
+    console.log('📥 서버 응답:', data);
+    console.log('📥 메시지 원문:', data.message);
+
     messages.value.push({
-      text: data.message,
+      text: data.message || '응답 메시지가 없습니다.',
       time: getCurrentTime(),
       isUser: false,
       downloadUrl: data.download_url
     });
+
   } catch (e) {
-    messages.value.push({text: "오류가 발생했습니다.", time: getCurrentTime(), isUser: false});
+    console.error('⚠️ 채팅 오류:', e);
+    messages.value.push({
+      text: "오류가 발생했습니다.",
+      time: getCurrentTime(),
+      isUser: false
+    });
   } finally {
     await nextTick();
     scrollToBottom();
   }
 };
 </script>
+
 
 <style scoped>
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -141,12 +203,12 @@ const sendMessage = async () => {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  z-index: 9999; /* 다른 요소보다 위에 오게 */
+  z-index: 9999;
   display: flex;
   flex-direction: column;
-  align-items: flex-end; /* 오른쪽 정렬 */
+  align-items: flex-end;
   font-family: 'Pretendard', sans-serif;
-  gap: 15px; /* 버튼과 창 사이 간격 */
+  gap: 15px;
 }
 
 /* 2. 둥둥 버튼 (Floating Button) */
@@ -174,23 +236,22 @@ const sendMessage = async () => {
 }
 
 .btn-active {
-  background-color: #333; /* 열렸을 때는 어두운 색으로 변경 (선택사항) */
+  background-color: #333;
 }
 
-/* 3. 채팅창 (Card) - 기존 스타일 유지하되 크기/위치 조정 */
+/* 3. 채팅창 (Card) */
 .chat-card {
   width: 360px;
-  height: 550px; /* 높이 약간 줄임 */
+  height: 550px;
   background-color: #F2F4F5;
   border-radius: 24px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  /* 버튼 바로 위에 위치하도록 자연스럽게 배치됨 (flex-direction: column 덕분) */
 }
 
-/* --- 기존 내부 스타일 (헤더, 바디, 메시지 등) --- */
+/* --- 기존 내부 스타일 --- */
 .chat-header {
   background-color: #4CD964;
   padding: 18px 24px;
@@ -278,6 +339,8 @@ const sendMessage = async () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   max-width: 220px;
   line-height: 1.5;
+
+  white-space: pre-line;
 }
 
 .user-row .bubble {
@@ -308,6 +371,7 @@ const sendMessage = async () => {
   border-radius: 4px;
   text-decoration: none;
   font-weight: bold;
+  cursor: pointer; /* 커서 모양 손가락으로 변경 */
 }
 
 .download-link:hover {
@@ -345,7 +409,7 @@ const sendMessage = async () => {
   padding: 5px;
 }
 
-/* --- 애니메이션 (Vue Transition) --- */
+/* --- 애니메이션 --- */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
