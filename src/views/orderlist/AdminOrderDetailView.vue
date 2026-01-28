@@ -7,6 +7,11 @@
       <p style="color: red;">오류: {{ error }}</p>
     </div>
     <div v-else-if="orderDetail">
+      <div class="page-header">
+        <div>
+          <p class="desc">홈 / 거래 관리 / 고객 주문 목록 / {{ orderDetail.salesOrderId }}</p>
+        </div>
+      </div>
       <!-- 주문 헤더 -->
       <div class="order-header">
         <div>
@@ -15,10 +20,7 @@
         </div>
 
         <div class="actions">
-          <BaseButton variant="outline">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;"><path d="M19 8H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2h3a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1Zm-5 11h-4v-5h4v5Zm3-6H7v-4h10v4Z" /></svg>
-              거래 명세서 출력
-          </BaseButton>
+
           <BaseButton
             variant="primary"
             style="background-color: #ef4444;"
@@ -416,5 +418,14 @@ onMounted(() => {
     width: 100%;
     overflow-x: auto;
   }
+}
+
+.page-header {
+  margin-bottom: 8px;
+}
+
+.desc {
+  font-size: 13px;
+  color: #6b7280;
 }
 </style>
