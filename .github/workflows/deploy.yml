@@ -14,6 +14,8 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+#    env:
+#      CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
 
     steps:
       - name: Checkout
@@ -65,12 +67,12 @@ jobs:
 
       # CloudFront 캐시 무효화 (최소화: index.html만)
       # secrets.CLOUDFRONT_DISTRIBUTION_ID 설정 시에만 수행
-      - name: CloudFront invalidate index.html (optional)
-        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
-        env:
-          DIST_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
-        run: |
-          set -euo pipefail
-          aws cloudfront create-invalidation \
-            --distribution-id "$DIST_ID" \
-            --paths "/index.html"
+#      - name: CloudFront invalidate index.html (optional)
+#        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
+#        env:
+#          DIST_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+#        run: |
+#          set -euo pipefail
+#          aws cloudfront create-invalidation \
+#            --distribution-id "$DIST_ID" \
+#            --paths "/index.html"
