@@ -1,5 +1,11 @@
 <template>
   <div class="admin-order-list-view">
+    <div class="page-header">
+      <div>
+        <p class="desc">홈 / 거래 관리 / 고객 주문 목록 </p>
+      </div>
+    </div>
+
     <div class="card filter-card">
       <div class="filter-row">
         <div class="filter-group">
@@ -200,10 +206,7 @@ const paginationPages = computed(() => {
 watch([startDate, endDate, selectedStatus], () => {
   loadOrders();
 });
-watch(searchCompany, () => {
-  // Client-side filtering for searchCompany as API does not support it
-  loadOrders(); // Re-run loadOrders to apply client-side filter
-});
+
 
 // Initial load on component mount
 onMounted(() => {
@@ -330,5 +333,14 @@ onMounted(() => {
 .table-responsive {
   width: 100%;
   overflow-x: auto;
+}
+
+.page-header {
+  margin-bottom: 8px;
+}
+
+.desc {
+  font-size: 13px;
+  color: #6b7280;
 }
 </style>

@@ -13,10 +13,7 @@
             <h2 class="order-title">주문 상세</h2>
             <p class="order-info">{{ orderDetail.createdAt }} 주문 <span class="order-id">주문번호 : {{ orderDetail.salesOrderId }}</span></p>
           </div>
-          <BaseButton variant="outline">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;"><path d="M19 8H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2h3a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1Zm-5 11h-4v-5h4v5Zm3-6H7v-4h10v4Z" /></svg>
-            거래 명세서 출력
-          </BaseButton>
+
         </div>
 
         <h3 class="section-title">주문 품목 리스트</h3>
