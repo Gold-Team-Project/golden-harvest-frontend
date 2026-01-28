@@ -20,9 +20,29 @@ import OrderHistoryDetailView from "@/views/orderHistory/OrderHistoryDetailView.
 import CartView from "@/views/cart/CartView.vue";
 import OrderView from "@/views/order/OrderView.vue";
 import OrderDetailView from "@/views/order/OrderDetailView.vue";
+import Login from "@/views/login/Login.vue";
+import Signup from "@/views/signup/Signup.vue";
+import Password from "@/views/password/Password.vue";
+import Mypage from "@/views/mypage/Mypage.vue";
+import UserApproval from "@/views/userapproval/UserApproval.vue";
 
 
 const routes = [
+    {
+    path: '/login',
+    name: "login",
+    component: Login,
+    },
+    {
+        path: '/signup',
+        name: "signup",
+        component: Signup,
+    },
+    {
+        path: '/password',
+        name: "password",
+        component: Password,
+    },
     {
         path: '/',
         component: UserDefaultLayout,
@@ -69,7 +89,14 @@ const routes = [
                 component: InquiryCreateView,
                 meta: { title: '설정 / 문의 내역 / 문의 등록 '}
             },
+            {
+                path: 'mypage',
+                name: "mypage",
+                component: Mypage,
+                meta: { title: '마이페이지 / 내정보 수정 '}
+            },
         ],
+
     },
     {
         path: '/admin',
@@ -138,6 +165,12 @@ const routes = [
                 path: 'discard/list',
                 name: 'adminDiscardList',
                 component: DiscardListView,
+                meta: { title: '홈 / 재고 관리 / 폐기 내역' },
+            },
+            {
+                path: 'approval',
+                name: 'adminMemberList',
+                component: UserApproval,
                 meta: { title: '홈 / 재고 관리 / 폐기 내역' },
             },
         ]
