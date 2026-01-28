@@ -107,7 +107,7 @@ const accountMenus = [
   {
     key: 'mypage',
     label: '마이페이지',
-    route: 'MyPage',
+    route: 'mypage',
     icon: `<svg viewBox="0 0 24 24" width="18" height="18">
       <circle cx="12" cy="8" r="4" fill="currentColor"/>
       <path d="M4 20c0-4 16-4 16 0" fill="currentColor"/>
