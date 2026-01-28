@@ -86,10 +86,17 @@
 
 <script setup>
 import { reactive, computed } from 'vue';
+import { approveUser, approveProfileUpdate } from '@/api/AdminApi.js';
+
 const props = defineProps(['userData', 'mode']);
 const emit = defineEmits(['close', 'update']);
 
-const localData = reactive({ ...props.userData, adminMemo: '' });
+// 관리자 설정용 로컬 상태 (설정 저장 탭에서 사용)
+const localData = reactive({
+  ...props.userData,
+  adminMemo: '',
+  userStatus: props.userData.status || 'PENDING'
+});
 
 const modalTitle = computed(() => {
   if (props.mode === 'join') return '신규 가입 검토';
@@ -97,12 +104,54 @@ const modalTitle = computed(() => {
   return '회원 상세 설정';
 });
 
-const handleAction = (type) => {
-  console.log(`${type} 처리 실행`, localData);
-  emit('update');
+// 백엔드 API 호출 핸들러
+const handleAction = async (type) => {
+  try {
+    // 1. 신규 가입 승인 로직
+    if (props.mode === 'join' && type === 'APPROVE') {
+      if (!confirm("가입을 승인하시겠습니까?")) return;
+
+      // userData.email 혹은 userData.userEmail 등 백엔드 전달용 이메일 필드 확인
+      const targetEmail = props.userData.userEmail || props.userData.email;
+
+      // 두 번째 인자로 객체가 아닌 'ACTIVE' 문자열만 보냄
+      await approveUser(targetEmail, 'ACTIVE');
+
+      alert("성공적으로 승인되었습니다.");
+      emit('update');
+      emit('close');
+    }
+
+    // 2. 정보 수정 승인 로직
+    else if (props.mode === 'update' && type === 'APPROVE') {
+      if (!confirm("정보 수정을 승인하시겠습니까?\n실제 회원 정보가 변경됩니다.")) return;
+
+      // 백엔드: @PathVariable Long requestId
+      await approveProfileUpdate(props.userData.id);
+      alert("정보 수정 승인이 완료되었습니다.");
+    }
+
+    // 3. 일반 설정 저장 (mode === 'all')
+    else if (type === 'SAVE') {
+      // 필요 시 별도의 설정 저장 API 호출 로직 추가
+      console.log("설정 저장:", localData);
+      alert("설정이 저장되었습니다.");
+    }
+
+    // 성공 시 공통 처리
+    emit('update'); // 부모 컴포넌트(UserApproval.vue)의 목록 새로고침
+    emit('close');  // 모달 닫기
+
+  } catch (error) {
+    console.error("처리 중 에러 발생:", error);
+    // 백엔드 BusinessException 메시지 처리
+    const errorMsg = error.response?.data?.message || "처리에 실패했습니다.";
+    alert("오류: " + errorMsg);
+  }
 };
 
 const zoomImage = () => {
+  // 실제 파일 다운로드/조회 API 경로가 있다면 props.userData.requestFileId 활용 가능
   window.open(props.userData.bizDocUrl || 'https://placehold.jp/300x400.png', '_blank');
 };
 </script>

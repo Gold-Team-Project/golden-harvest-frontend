@@ -1,5 +1,7 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
+import { jwtDecode } from 'jwt-decode' // ✅ 라이브러리 임포트 확인 (없으면 npm install jwt-decode)
+
 import UserDefaultLayout from "@/layouts/user/UserDefaultLayout.vue";
 import InquiryListView from "@/views/inquiry/user/InquiryListView.vue";
 import AdminInquiryListView from "@/views/inquiry/admin/AdminInquiryListView.vue";
@@ -26,12 +28,11 @@ import Password from "@/views/password/Password.vue";
 import Mypage from "@/views/mypage/Mypage.vue";
 import UserApproval from "@/views/userapproval/UserApproval.vue";
 
-
 const routes = [
     {
-    path: '/login',
-    name: "login",
-    component: Login,
+        path: '/login',
+        name: "login",
+        component: Login,
     },
     {
         path: '/signup',
@@ -96,11 +97,11 @@ const routes = [
                 meta: { title: '마이페이지 / 내정보 수정 '}
             },
         ],
-
     },
     {
         path: '/admin',
         component: AdminDefaultLayout,
+        meta: { requiresAdmin: true }, // ✅ 이 부모가 있는 자식들은 모두 가드에 걸립니다.
         children: [
             {
                 path: 'orders',
@@ -133,7 +134,7 @@ const routes = [
                 meta: { title: '홈 / 마스터 데이터 / 품목 관리 / 품목 상세 정보' },
             },
             {
-                path: 'masterData/edit/:skuNo', // 수정 페이지 경로 추가
+                path: 'masterData/edit/:skuNo',
                 name: 'MasterEdit',
                 component: MasterDataEdit
             },
@@ -177,7 +178,41 @@ const routes = [
     }
 ]
 
-export default createRouter({
+// 라우터 생성
+const router = createRouter({
     history: createWebHistory(),
     routes
 })
+
+// 라우터 가드 작성
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem('accessToken');
+
+    // to.matched를 통해 부모 중 하나라도 requiresAdmin이 있는지 확인합니다.
+    const isRequiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
+
+    if (isRequiresAdmin) {
+        if (!token) {
+            alert('관리자 로그인이 필요한 페이지입니다.');
+            return next('/login');
+        }
+
+        try {
+            const decoded = jwtDecode(token);
+            // 백엔드 Role 값(ROLE_ADMIN)과 일치하는지 확인
+            if (decoded.role !== 'ROLE_ADMIN') {
+                alert('접근 권한이 없습니다.');
+                return next('/');
+            }
+            next(); // 관리자라면 통과
+        } catch (error) {
+            console.error('JWT Decode Error:', error);
+            localStorage.removeItem('accessToken');
+            next('/login');
+        }
+    } else {
+        next(); // 일반 페이지는 통과
+    }
+});
+
+export default router;
