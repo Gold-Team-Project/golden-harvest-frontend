@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="62c11ee5-a246-435a-b5b4-daa319e31905" name="변경" comment="feat : 프론트 레이아웃 페이지&#10;주문 장바구니 영수증">
+    <list default="true" id="62c11ee5-a246-435a-b5b4-daa319e31905" name="변경" comment="feat : 나의 주문 내역 조회 관리자 전체 주문 조회 기능 연결">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/api/OrderApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/OrderApi.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/cart/CartView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/cart/CartView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/orderHistory/OrderHistoryView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/orderHistory/OrderHistoryView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/orderlist/AdminOrderListView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/orderlist/AdminOrderListView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,9 +72,22 @@
       <updated>1769406483204</updated>
       <workItem from="1769406484355" duration="11942000" />
     </task>
+    <task id="LOCAL-00001" summary="feat : 나의 주문 내역 조회 관리자 전체 주문 조회 기능 연결">
+      <option name="closed" value="true" />
+      <created>1769499018813</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1769499018813</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat : 나의 주문 내역 조회 관리자 전체 주문 조회 기능 연결" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat : 나의 주문 내역 조회 관리자 전체 주문 조회 기능 연결" />
   </component>
 </project>

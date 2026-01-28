@@ -1,8 +1,15 @@
 import http from './axios.js'
 
-export async function fetchMyOrders() {
+export async function fetchMyOrders(filters) { // Added filters parameter
     try {
-        const response = await http.get('/sales/my-orders');
+        const params = {}; // Start with an empty params object
+        if (filters?.startDate) { // Only add if startDate has a value
+            params.startDate = filters.startDate;
+        }
+        if (filters?.endDate) { // Only add if endDate has a value
+            params.endDate = filters.endDate;
+        }
+        const response = await http.get('/sales/my-orders', { params }); // Pass params to axios
         return response.data;
     } catch (error) {
         console.error('Error fetching my orders:', error);
