@@ -3,15 +3,29 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
-  <component name="ChangeListManager">
-    <list default="true" id="5baba75e-0ace-47e2-b9de-0b36d69a2384" name="변경" comment="depl: secrets.CLOUDFRONT_DISTRIBUTION -&gt; 주석">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
-    <option name="SHOW_DIALOG" value="false" />
-    <option name="HIGHLIGHT_CONFLICTS" value="true" />
-    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
-    <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
+    <component name="ChangeListManager">
+        <list default="true"
+              id="5baba75e-0ace-47e2-b9de-0b36d69a2384"
+              name="변경"
+              comment="depl: secrets.CLOUDFRONT_DISTRIBUTION -&gt; 주석" />
+
+        <list id="62c11ee5-a246-435a-b5b4-daa319e31905"
+              name="변경"
+              comment="depl: 수정">
+            <change afterPath="$PROJECT_DIR$/src/assets/login.svg" afterDir="false" />
+            <change beforePath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" beforeDir="false"
+                    afterPath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" afterDir="false" />
+            <change beforePath="$PROJECT_DIR$/src/router/index.js" beforeDir="false"
+                    afterPath="$PROJECT_DIR$/src/router/index.js" afterDir="false" />
+            <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false"
+                    afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+        </list>
+
+        <option name="SHOW_DIALOG" value="false" />
+        <option name="HIGHLIGHT_CONFLICTS" value="true" />
+        <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+        <option name="LAST_RESOLUTION" value="IGNORE" />
+    </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -23,6 +37,11 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
+        <entry key="$PROJECT_DIR$" value="dev" />
+      </map>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
         <entry key="$PROJECT_DIR$" value="feat/admin-perchase-order" />
       </map>
     </option>
@@ -31,8 +50,17 @@
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Zane-Jeong&quot;
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
     &quot;assignee&quot;: &quot;okok02110211&quot;
   }
+}</component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Gold-Team-Project/golden-harvest-frontend.git",
+    "accountId": "7f22ad36-6ca2-4ee0-9a3e-13cb3b7da4b3"
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
@@ -49,6 +77,11 @@
     &quot;owner&quot;: &quot;Gold-Team-Project&quot;,
     &quot;repository&quot;: &quot;golden-harvest-frontend&quot;
   }
+}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="38mZ0O6z8PCqsaTyMk0iSDTFid7" />
 }</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
@@ -57,6 +90,25 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "feat-login",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/golen-harvest-frontend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
@@ -84,6 +136,13 @@
     ]
   }
 }</component>
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\golen-harvest-frontend\src\assets" />
+      <recent name="C:\golen-harvest-frontend\src\views\mypage\modal" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -107,6 +166,10 @@
       <workItem from="1769409565344" duration="2010000" />
       <workItem from="1769483954383" duration="4508000" />
       <workItem from="1769561756583" duration="2348000" />
+      <workItem from="1769561756583" duration="751000" />
+      <updated>1769406483204</updated>
+      <workItem from="1769406484355" duration="11942000" />
+      <workItem from="1769421258148" duration="33219000" />
     </task>
     <task id="LOCAL-00001" summary="AdminNotificationListView.vue 생성">
       <option name="closed" value="true" />

@@ -5,9 +5,9 @@
         <div class="filter-group">
           <label>기간 조회</label>
           <div class="date-inputs">
-            <input type="date" class="date-input" v-model="startDate" />
+            <input type="date" class="date-input" v-model="startDate" :max="endDate || undefined" />
             <span>~</span>
-            <input type="date" class="date-input" v-model="endDate" />
+            <input type="date" class="date-input" v-model="endDate" :min="startDate || undefined" />
           </div>
         </div>
         <div class="filter-group">
@@ -117,6 +117,13 @@ const paginationPages = computed(() => {
     const loadOrders = async () => {
       loading.value = true;
       error.value = null;
+      
+      if (startDate.value && endDate.value && startDate.value > endDate.value) {
+        alert('시작일은 종료일보다 늦을 수 없습니다.');
+        loading.value = false; // Important: reset loading state if validation fails
+        return; // Prevent API call
+      }
+
       try {
         const filters = {
           startDate: startDate.value,
