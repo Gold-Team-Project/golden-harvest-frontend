@@ -19,7 +19,7 @@
             <option value="INACTIVE">비활성화</option>
           </select>
         </div>
-        <BaseButton class="btn-search" @click="fetchItems">
+        <BaseButton class="btn-search" @click="fetchLots">
           검색
         </BaseButton>
       </div>
@@ -39,8 +39,8 @@
         </tr>
         </thead>
         <tbody>
-        <tr v-for="item in items" :key="item.lotId">
-          <td>{{ item.no }}</td>
+        <tr v-for="(item, index) in items" :key="item.lotId">
+          <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
           <td>{{ item.lotId }}</td>
           <td class="title">{{ item.itemName }}</td>
           <td>{{ item.quantity }}</td>
@@ -74,7 +74,7 @@
 <script setup>
 import {ref, onMounted, watch} from 'vue'
 import {useRouter} from 'vue-router'
-import http from '@/api/axios'
+import {getLots} from '@/api/ItemApi.js'
 
 import Pagination from '@/components/pagination/Pagination.vue'
 import StatusBadge from '@/components/status/StatusBadge.vue'
@@ -86,6 +86,7 @@ const items = ref([])
 const currentPage = ref(1)
 const pages = ref([])
 const pageSize = 10
+const totalItems = ref(0)
 
 const search = ref({
   lotId: '',
@@ -99,63 +100,36 @@ const goDetail = (lotId) => {
   alert(`Navigating to detail for LOT ID: ${lotId}`);
 }
 
-// Mock data for lots
-const mockLots = Array.from({ length: 50 }, (_, i) => ({
-  lotId: `LOT-${202401 + i}`,
-  itemName: `품목 ${i % 5 + 1}`,
-  quantity: Math.floor(Math.random() * 100) + 1,
-  status: Math.random() > 0.3 ? 'ACTIVE' : 'INACTIVE',
-  createdAt: new Date(new Date().getTime() - (50 - i) * 24 * 60 * 60 * 1000).toISOString().substring(0, 10),
-}));
-
-
-const fetchItems = async () => {
-  // In a real scenario, you would make an API call like this:
-  /*
+const fetchLots = async () => {
   try {
-    const res = await http.get('/lots', {
-      params: {
-        page: currentPage.value,
-        size: pageSize,
-        lotId: search.value.lotId || undefined,
-        itemName: search.value.itemName || undefined,
-        status: search.value.status || undefined,
-      },
-    })
-    const payload = res.data?.data?.content ?? [];
-    items.value = payload.map((item, index) => ({
-      ...item,
-      no: (currentPage.value - 1) * pageSize + index + 1,
-      createdAt: item.createdAt?.substring(0, 10),
-    }));
-    // Make pages based on total pages from response
+    const filters = {
+      page: currentPage.value,
+      size: pageSize,
+      lotNo: search.value.lotId || null, // search.lotId를 API의 lotNo로 매핑
+      itemName: search.value.itemName || null,
+      status: search.value.status || null,
+    };
+    const response = await getLots(filters);
+    if (response.success && response.data) {
+      items.value = response.data.map(item => ({
+        lotId: item.lotNo, // API의 lotNo를 템플릿의 lotId로 매핑
+        itemName: item.itemName,
+        quantity: item.quantity,
+        // API에 없는 필드는 임시로 기본값 설정
+        status: 'ACTIVE', // 사용자에게 나중에 추가할 것을 알림
+        createdAt: '2026-01-28', // 사용자에게 나중에 추가할 것을 알림
+      }));
+      totalItems.value = response.data.length; // API가 전체 페이지 정보를 제공하지 않으므로 임시 처리
+      makePages(Math.ceil(totalItems.value / pageSize));
+
+    } else {
+      items.value = [];
+    }
   } catch (err) {
-    console.error(err)
+    console.error('Error fetching lots:', err)
+    items.value = [];
   }
-  */
-
-  // Using mock data for now
-  const filtered = mockLots.filter(lot => {
-    const searchLotId = search.value.lotId.toLowerCase();
-    const searchItemName = search.value.itemName.toLowerCase();
-    const searchStatus = search.value.status;
-
-    return (!searchLotId || lot.lotId.toLowerCase().includes(searchLotId)) &&
-           (!searchItemName || lot.itemName.toLowerCase().includes(searchItemName)) &&
-           (!searchStatus || lot.status === searchStatus);
-  });
-
-  const startIndex = (currentPage.value - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  
-  items.value = filtered.slice(startIndex, endIndex).map((item, index) => ({
-    ...item,
-    no: startIndex + index + 1,
-  }));
-
-  makePages(Math.ceil(filtered.length / pageSize));
 }
-
 
 const makePages = (totalPages) => {
   let temp = [];
@@ -166,12 +140,12 @@ const makePages = (totalPages) => {
 }
 
 const changePage = (page) => {
-  if (page < 1 || page > pages.value.length) return;
+  if (page < 1 || (pages.value.length > 0 && page > pages.value.length)) return;
   currentPage.value = page
 }
 
-watch(currentPage, fetchItems)
-onMounted(fetchItems)
+watch(currentPage, fetchLots)
+onMounted(fetchLots)
 </script>
 
 <style scoped>
