@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5baba75e-0ace-47e2-b9de-0b36d69a2384" name="변경" comment="depl: 수정">
+    <list default="true" id="5baba75e-0ace-47e2-b9de-0b36d69a2384" name="변경" comment="depl: secrets.CLOUDFRONT_DISTRIBUTION -&gt; 주석">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -106,7 +106,7 @@
       <workItem from="1768991596185" duration="571000" />
       <workItem from="1769409565344" duration="2010000" />
       <workItem from="1769483954383" duration="4508000" />
-      <workItem from="1769561756583" duration="751000" />
+      <workItem from="1769561756583" duration="2348000" />
     </task>
     <task id="LOCAL-00001" summary="AdminNotificationListView.vue 생성">
       <option name="closed" value="true" />
@@ -156,7 +156,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769503325259</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="depl: secrets.CLOUDFRONT_DISTRIBUTION -&gt; 주석">
+      <option name="closed" value="true" />
+      <created>1769562692579</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1769562692579</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -169,6 +177,7 @@
     <MESSAGE value="depl: deploy 파일 생성" />
     <MESSAGE value="feat: gitignore" />
     <MESSAGE value="depl: 수정" />
-    <option name="LAST_COMMIT_MESSAGE" value="depl: 수정" />
+    <MESSAGE value="depl: secrets.CLOUDFRONT_DISTRIBUTION -&gt; 주석" />
+    <option name="LAST_COMMIT_MESSAGE" value="depl: secrets.CLOUDFRONT_DISTRIBUTION -&gt; 주석" />
   </component>
 </project>
