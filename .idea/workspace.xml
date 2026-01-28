@@ -4,101 +4,223 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="62c11ee5-a246-435a-b5b4-daa319e31905" name="변경" comment="feat : 나의 주문 내역 조회 관리자 전체 주문 조회 기능 연결" />
+    <list default="true" id="62c11ee5-a246-435a-b5b4-daa319e31905" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/src/assets/login.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.js" afterDir="false" />
+    <list default="true" id="5baba75e-0ace-47e2-b9de-0b36d69a2384" name="변경" comment="depl: 수정">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Vue Composition API Component" />
+        <option value="GitHub Workflow" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="dev" />
+      </map>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feat/admin-perchase-order" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
     &quot;assignee&quot;: &quot;Zane-Jeong&quot;
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;okok02110211&quot;
   }
+}</component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Gold-Team-Project/golden-harvest-frontend.git",
+    "accountId": "7f22ad36-6ca2-4ee0-9a3e-13cb3b7da4b3"
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Gold-Team-Project/golden-harvest-frontend.git&quot;,
-    &quot;accountId&quot;: &quot;69c14e35-7d50-461c-b2e3-bbcc9c97fa16&quot;
+    &quot;accountId&quot;: &quot;99bf73cb-b918-4e6e-8cce-9bfc8dbee279&quot;
+  },
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
+    },
+    &quot;owner&quot;: &quot;Gold-Team-Project&quot;,
+    &quot;repository&quot;: &quot;golden-harvest-frontend&quot;
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
 }</component>
   <component name="ProjectId" id="38mZ0O6z8PCqsaTyMk0iSDTFid7" />
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="38S7K04BksA4TP0g6Hxeo145dxo" />
   <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "feat-login",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/golen-harvest-frontend",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feat-order-list-and-cart&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Playdata/Desktop/golden-harvest-frontend&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;vue.recent.templates&quot;: [
+      &quot;Vue Composition API Component&quot;
+    ]
   }
 }</component>
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\golen-harvest-frontend\src\assets" />
+      <recent name="C:\golen-harvest-frontend\src\views\mypage\modal" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.26830.84" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.25557.131" />
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-IU-252.25557.131" />
       </set>
     </attachedChunks>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="디폴트 작업">
-      <changelist id="62c11ee5-a246-435a-b5b4-daa319e31905" name="변경" comment="" />
-      <created>1769406483204</created>
+      <changelist id="5baba75e-0ace-47e2-b9de-0b36d69a2384" name="변경" comment="" />
+      <created>1768781051449</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
+      <updated>1768781051449</updated>
+      <workItem from="1768781053201" duration="7193000" />
+      <workItem from="1768878763602" duration="11382000" />
+      <workItem from="1768953860601" duration="8203000" />
+      <workItem from="1768965296619" duration="3042000" />
+      <workItem from="1768991596185" duration="571000" />
+      <workItem from="1769409565344" duration="2010000" />
+      <workItem from="1769483954383" duration="4508000" />
+      <workItem from="1769561756583" duration="751000" />
       <updated>1769406483204</updated>
       <workItem from="1769406484355" duration="11942000" />
+      <workItem from="1769421258148" duration="33219000" />
     </task>
-    <task id="LOCAL-00001" summary="feat : 나의 주문 내역 조회 관리자 전체 주문 조회 기능 연결">
+    <task id="LOCAL-00001" summary="AdminNotificationListView.vue 생성">
       <option name="closed" value="true" />
-      <created>1769499018813</created>
+      <created>1768810204230</created>
       <option name="number" value="00001" />
       <option name="presentableId" value="LOCAL-00001" />
       <option name="project" value="LOCAL" />
-      <updated>1769499018813</updated>
+      <updated>1768810204230</updated>
     </task>
-    <task id="LOCAL-00002" summary="feat : 나의 주문 내역 조회 관리자 전체 주문 조회 기능 연결">
+    <task id="LOCAL-00002" summary="feat: 알림 페이지 삭제 연결">
       <option name="closed" value="true" />
-      <created>1769561697935</created>
+      <created>1768893186712</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1769561697935</updated>
+      <updated>1768893186712</updated>
     </task>
-    <task id="LOCAL-00003" summary="feat : 나의 주문 내역 조회 관리자 전체 주문 조회 기능 연결">
+    <task id="LOCAL-00003" summary="feat: 발주 페이지">
       <option name="closed" value="true" />
-      <created>1769571527820</created>
+      <created>1768964940535</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
-      <updated>1769571527820</updated>
+      <updated>1768964940535</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="depl: deploy 파일 생성">
+      <option name="closed" value="true" />
+      <created>1769500745080</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1769500745080</updated>
+    </task>
+    <task id="LOCAL-00005" summary="feat: gitignore">
+      <option name="closed" value="true" />
+      <created>1769501255073</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1769501255073</updated>
+    </task>
+    <task id="LOCAL-00006" summary="depl: 수정">
+      <option name="closed" value="true" />
+      <created>1769503325259</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1769503325259</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat : 나의 주문 내역 조회 관리자 전체 주문 조회 기능 연결" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat : 나의 주문 내역 조회 관리자 전체 주문 조회 기능 연결" />
+    <MESSAGE value="AdminNotificationListView.vue 생성" />
+    <MESSAGE value="feat: 알림 페이지 삭제 연결" />
+    <MESSAGE value="feat: 발주 페이지" />
+    <MESSAGE value="depl: deploy 파일 생성" />
+    <MESSAGE value="feat: gitignore" />
+    <MESSAGE value="depl: 수정" />
+    <option name="LAST_COMMIT_MESSAGE" value="depl: 수정" />
   </component>
 </project>
