@@ -1,8 +1,15 @@
 import http from './axios.js'
 
-export async function fetchMyOrders() {
+export async function fetchMyOrders(filters) { // Added filters parameter
     try {
-        const response = await http.get('/sales/my-orders');
+        const params = {}; // Start with an empty params object
+        if (filters?.startDate) { // Only add if startDate has a value
+            params.startDate = filters.startDate;
+        }
+        if (filters?.endDate) { // Only add if endDate has a value
+            params.endDate = filters.endDate;
+        }
+        const response = await http.get('/sales/my-orders', { params }); // Pass params to axios
         return response.data;
     } catch (error) {
         console.error('Error fetching my orders:', error);
@@ -72,6 +79,26 @@ export async function checkoutCart() {
         return response.data;
     } catch (error) {
         console.error('Error during cart checkout:', error);
+        throw error;
+    }
+}
+
+export async function cancelOrder(orderId) {
+    try {
+        const response = await http.patch(`/sales/orders/${orderId}/cancel`); // Corrected path
+        return response.data;
+    } catch (error) {
+        console.error(`Error cancelling order ${orderId}:`, error);
+        throw error;
+    }
+}
+
+export async function approveOrder(orderId) {
+    try {
+        const response = await http.patch(`/sales/orders/${orderId}/approve`, {}); // Send an empty JSON body
+        return response.data;
+    } catch (error) {
+        console.error(`Error approving order ${orderId}:`, error);
         throw error;
     }
 }

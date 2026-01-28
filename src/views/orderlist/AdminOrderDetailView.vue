@@ -19,8 +19,18 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 4px;"><path d="M19 8H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2h3a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1Zm-5 11h-4v-5h4v5Zm3-6H7v-4h10v4Z" /></svg>
               거래 명세서 출력
           </BaseButton>
-          <BaseButton variant="primary" style="background-color: #ef4444;">주문 취소</BaseButton>
-          <BaseButton variant="primary" style="background-color: #2ecc71;">승인</BaseButton>
+          <BaseButton
+            variant="primary"
+            style="background-color: #ef4444;"
+            @click="handleCancelOrder"
+            :disabled="orderDetail?.orderStatus === '주문 취소' || orderDetail?.orderStatus === '배송 완료'"
+          >주문 취소</BaseButton>
+          <BaseButton
+            variant="primary"
+            style="background-color: #2ecc71;"
+            @click="handleApproveOrder"
+            :disabled="orderDetail?.orderStatus !== '주문 접수'"
+          >승인</BaseButton>
         </div>
       </div>
 
@@ -111,7 +121,7 @@ import { useRoute } from 'vue-router'
 import BaseButton from '@/components/button/BaseButton.vue';
 import InfoCard from './InfoCard.vue'
 import OrderProgress from './OrderProgress.vue'
-import { fetchOrderDetail } from '@/api/OrderApi'
+import { fetchOrderDetail, cancelOrder, approveOrder } from '@/api/OrderApi' // Import approveOrder
 
 const route = useRoute()
 const orderDetail = ref(null)
@@ -183,6 +193,82 @@ const loadOrderDetail = async () => {
     loading.value = false
   }
 }
+
+// Function to handle order cancellation
+const handleCancelOrder = async () => {
+  if (!orderDetail.value) return;
+
+  const orderId = route.params.id;
+  if (!orderId) {
+    alert('주문 ID를 찾을 수 없습니다.');
+    return;
+  }
+
+  // Prevent cancellation if already cancelled or delivered
+  if (orderDetail.value.orderStatus === '주문 취소' || orderDetail.value.orderStatus === '배송 완료') {
+    alert('이미 취소되었거나 완료된 주문은 취소할 수 없습니다.');
+    return;
+  }
+
+  if (!confirm(`주문번호 ${orderId}를 정말 취소하시겠습니까?`)) {
+    return;
+  }
+
+  loading.value = true;
+  error.value = null;
+  try {
+    const response = await cancelOrder(orderId);
+    if (response.success) {
+      alert('주문이 성공적으로 취소되었습니다.');
+      await loadOrderDetail(); // Reload details to reflect new status
+    } else {
+      error.value = response.message || '주문 취소에 실패했습니다.';
+    }
+  } catch (err) {
+    error.value = 'API 호출 중 오류가 발생했습니다: ' + err.message;
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Function to handle order approval
+const handleApproveOrder = async () => {
+  if (!orderDetail.value) return;
+
+  const orderId = route.params.id;
+  if (!orderId) {
+    alert('주문 ID를 찾을 수 없습니다.');
+    return;
+  }
+
+  // Prevent approval if already approved, cancelled, or delivered
+  if (orderDetail.value.orderStatus === '배송 완료' || orderDetail.value.orderStatus === '주문 취소' || orderDetail.value.orderStatus === '상품 준비중') {
+    alert('이미 완료되었거나 취소된 주문 또는 이미 상품 준비중인 주문은 승인할 수 없습니다.');
+    return;
+  }
+
+  if (!confirm(`주문번호 ${orderId}를 승인하시겠습니까?`)) {
+    return;
+  }
+
+  loading.value = true;
+  error.value = null;
+  try {
+    const response = await approveOrder(orderId);
+    if (response.success) {
+      alert('주문이 성공적으로 승인되었습니다.');
+      await loadOrderDetail(); // Reload details to reflect new status
+    } else {
+      error.value = response.message || '주문 승인에 실패했습니다.';
+    }
+  } catch (err) {
+    error.value = 'API 호출 중 오류가 발생했습니다: ' + err.message;
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
+};
 
 onMounted(() => {
   loadOrderDetail()

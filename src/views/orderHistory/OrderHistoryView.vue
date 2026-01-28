@@ -5,12 +5,12 @@
         <div class="filter-group">
           <label class="filter-label">기간 조회</label>
           <div class="date-inputs">
-            <input type="date" class="date-input" />
+            <input type="date" class="date-input" v-model="startDate" :max="endDate || undefined" />
             <span>~</span>
-            <input type="date" class="date-input" />
+            <input type="date" class="date-input" v-model="endDate" :min="startDate || undefined" />
           </div>
         </div>
-        <BaseButton>조회하기</BaseButton>
+        <BaseButton @click="applyFilter">조회하기</BaseButton>
       </div>
     </div>
 
@@ -76,6 +76,9 @@ const totalOrders = ref(0);
 const loading = ref(false);
 const error = ref(null);
 
+const startDate = ref('');
+const endDate = ref('');
+
 const paginatedOrders = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
@@ -88,110 +91,76 @@ const paginationPages = computed(() => {
   return Array.from({ length: totalPages }, (_, i) => i + 1);
 });
 
-    const loadOrders = async () => {
+const loadOrders = async (filters = {}) => { // loadOrders now accepts filters
+  loading.value = true;
+  error.value = null;
+  try {
+    const response = await fetchMyOrders(filters); // Pass filters to fetchMyOrders
 
-      loading.value = true;
+    if (response.success && response.data) {
+      const mapOrderStatusToKey = (status) => {
+        switch (status) {
+          case '주문 접수': return 'PENDING';
+          case '상품 준비중': return 'PAID';
+          case '배송 준비중': return 'PREPARING';
+          case '배송 중': return 'SHIPPING';
+          case '배송 완료': return 'DELIVERED';
+          case '주문 취소': return 'CANCELLED';
+          default: return 'UNKNOWN';
+        }
+      };
 
-      error.value = null;
+      orders.value = response.data.map(order => {
+        let productName = '상품명 없음';
+        let totalQuantity = 0;
 
-      try {
-
-        const response = await fetchMyOrders();
-
-        if (response.success && response.data) {
-
-                    const mapOrderStatusToKey = (status) => {
-
-                      switch (status) {
-
-                        case '주문 접수': return 'PENDING';
-
-                        case '상품 준비중': return 'PAID'; // API now sends '상품 준비중' for PAID status
-
-                        case '배송 준비중': return 'PREPARING';
-
-                        case '배송 중': return 'SHIPPING';
-
-                        case '배송 완료': return 'DELIVERED';
-
-                        case '주문 취소': return 'CANCELLED';
-
-                        default: return 'UNKNOWN';
-
-                      }
-
-                    };
-
-
-
-          orders.value = response.data.map(order => {
-
-            let productName = '상품명 없음';
-
-            let totalQuantity = 0;
-
-
-
-            if (order.orderItems && order.orderItems.length > 0) {
-
-              const firstItem = order.orderItems[0];
-
-              productName = firstItem.itemName || firstItem.gradeName || firstItem.varietyName || '상품명 없음';
-
-              if (order.orderItems.length > 1) {
-
-                productName += ` 외 ${order.orderItems.length - 1}건`;
-
-              }
-
-              totalQuantity = order.orderItems.reduce((sum, item) => sum + item.quantity, 0);
-
-            }
-
-
-
-            return {
-
-              id: order.salesOrderId,
-
-              date: order.createdAt,
-
-              productName: productName,
-
-              quantity: totalQuantity,
-
-              amount: order.totalAmount,
-
-              status: mapOrderStatusToKey(order.orderStatus), // Use mapped status
-
-            };
-
-          });
-
-          totalOrders.value = orders.value.length;
-
-        } else {
-
-          error.value = response.message || '주문 내역을 불러오는데 실패했습니다.';
-
+        if (order.orderItems && order.orderItems.length > 0) {
+          const firstItem = order.orderItems[0];
+          productName = firstItem.itemName || firstItem.gradeName || firstItem.varietyName || '상품명 없음';
+          if (order.orderItems.length > 1) {
+            productName += ` 외 ${order.orderItems.length - 1}건`;
+          }
+          totalQuantity = order.orderItems.reduce((sum, item) => sum + item.quantity, 0);
         }
 
-      } catch (err) {
+        return {
+          id: order.salesOrderId,
+          date: order.createdAt,
+          productName: productName,
+          quantity: totalQuantity,
+          amount: order.totalAmount,
+          status: mapOrderStatusToKey(order.orderStatus),
+        };
+      });
+      totalOrders.value = orders.value.length;
+    } else {
+      error.value = response.message || '주문 내역을 불러오는데 실패했습니다.';
+    }
+  } catch (err) {
+    error.value = 'API 호출 중 오류가 발생했습니다: ' + err.message;
+    console.error(err);
+  } finally {
+    loading.value = false;
+  }
+};
 
-        error.value = 'API 호출 중 오류가 발생했습니다: ' + err.message;
+const applyFilter = () => {
+  currentPage.value = 1; // Reset to first page on filter change
+  
+  if (startDate.value && endDate.value && startDate.value > endDate.value) {
+    alert('시작일은 종료일보다 늦을 수 없습니다.');
+    return; // Prevent API call
+  }
 
-        console.error(err);
-
-      } finally {
-
-        loading.value = false;
-
-      }
-
-    };
+  const filters = {
+    startDate: startDate.value,
+    endDate: endDate.value,
+  };
+  loadOrders(filters);
+};
 
 onMounted(() => {
-  loadOrders();
+  applyFilter(); // Initial load with filters
 });
 
 watch(currentPage, () => {
