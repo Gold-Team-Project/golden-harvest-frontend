@@ -45,11 +45,6 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="feat/admin-perchase-order" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">
@@ -113,37 +108,9 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;git-widget-placeholder&quot;: &quot;feat-login&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feat-unit-test-order-and-cart&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
-  &lt;component name=&quot;ProjectViewState&quot;&gt;
-    &lt;option name=&quot;showLibraryContents&quot; value=&quot;true&quot; /&gt;
-  &lt;/component&gt;
-  &lt;component name=&quot;PropertiesComponent&quot;&gt;{
-  &amp;quot;keyToString&amp;quot;: {
-    &amp;quot;ModuleVcsDetector.initialDetectionPerformed&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;RunOnceActivity.ShowReadmeOnStart&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;RunOnceActivity.git.unshallow&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;git-widget-placeholder&amp;quot;: &amp;quot;dev&amp;quot;,
-    &amp;quot;ignore.virus.scanning.warn.message&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;junie.onboarding.icon.badge.shown&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;kotlin-language-version-configured&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;last_opened_file_path&amp;quot;: &amp;quot;C:/Users/Playdata/Desktop/golden-harvest-frontend&amp;quot;,
-    &amp;quot;node.js.detected.package.eslint&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;node.js.detected.package.tslint&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;node.js.selected.package.eslint&amp;quot;: &amp;quot;(autodetect)&amp;quot;,
-    &amp;quot;node.js.selected.package.tslint&amp;quot;: &amp;quot;(autodetect)&amp;quot;,
-    &amp;quot;nodejs_package_manager_path&amp;quot;: &amp;quot;npm&amp;quot;,
-    &amp;quot;to.speed.mode.migration.done&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;ts.external.directory.path&amp;quot;: &amp;quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&amp;quot;,
-    &amp;quot;vue.rearranger.settings.migration&amp;quot;: &amp;quot;true&amp;quot;
-  },
-  &amp;quot;keyToStringList&amp;quot;: {
-    &amp;quot;vue.recent.templates&amp;quot;: [
-      &amp;quot;Vue Composition API Component&amp;quot;
-    ]
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
   }
 }</component>
   <component name="SharedIndexes">
@@ -189,13 +156,13 @@
       <option name="project" value="LOCAL" />
       <updated>1769584207206</updated>
     </task>
-    <task id="LOCAL-00003" summary="feat: 발주 페이지">
+    <task id="LOCAL-00003" summary="feat : 관리자 홈">
       <option name="closed" value="true" />
-      <created>1768964940535</created>
+      <created>1769670578344</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
-      <updated>1768964940535</updated>
+      <updated>1769670578344</updated>
     </task>
     <task id="LOCAL-00004" summary="depl: deploy 파일 생성">
       <option name="closed" value="true" />
