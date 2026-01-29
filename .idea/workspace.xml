@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43c5fe95-3e04-467a-91cd-d1239512ffda" name="변경" comment="feat : 페이지 수정">
+    <list default="true" id="43c5fe95-3e04-467a-91cd-d1239512ffda" name="변경" comment="feat : 관리자 홈">
       <change beforePath="$PROJECT_DIR$/src/components/admin/sidebar/AppSidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/admin/sidebar/AppSidebar.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,13 +99,13 @@
       <option name="project" value="LOCAL" />
       <updated>1769667276809</updated>
     </task>
-    <task id="LOCAL-00003" summary="feat: 발주 페이지">
+    <task id="LOCAL-00003" summary="feat : 관리자 홈">
       <option name="closed" value="true" />
-      <created>1768964940535</created>
+      <created>1769670578344</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
-      <updated>1768964940535</updated>
+      <updated>1769670578344</updated>
     </task>
     <task id="LOCAL-00004" summary="depl: deploy 파일 생성">
       <option name="closed" value="true" />
@@ -140,10 +139,14 @@
       <option name="project" value="LOCAL" />
       <updated>1769562692579</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat : 관리자 홈" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat : 관리자 홈" />
   </component>
 </project>

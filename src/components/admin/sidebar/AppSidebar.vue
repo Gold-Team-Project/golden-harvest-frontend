@@ -1,7 +1,7 @@
 <template>
   <aside class="sidebar">
     <div class="sidebar-top">
-      <div class="logo">
+      <div class="logo" @click="go('adminDashboard')">
         <div class="logo-icon">
           <svg width="20" height="20" viewBox="0 0 24 24">
             <path
@@ -12,7 +12,7 @@
         </div>
 
         <div class="logo-text">
-          <strong class="brand">GreenHarvest</strong>
+          <strong class="brand">GoldenHarvest</strong>
           <span class="role">Admin Console</span>
         </div>
       </div>
@@ -193,6 +193,7 @@ watch(
   display: flex;
   gap: 10px;
   align-items: center;
+  cursor: pointer; /* Add cursor pointer */
 }
 
 .logo-icon {
