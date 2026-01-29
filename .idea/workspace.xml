@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43c5fe95-3e04-467a-91cd-d1239512ffda" name="변경" comment="feat : 관리자 홈">
-      <change beforePath="$PROJECT_DIR$/src/components/admin/sidebar/AppSidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/admin/sidebar/AppSidebar.vue" afterDir="false" />
-    </list>
+    <list default="true" id="7662aefc-30c4-4e1c-8624-a1ce67cf32e2" name="변경" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -60,13 +58,11 @@
   &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="38S7K04BksA4TP0g6Hxeo145dxo" />
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;git-widget-placeholder&quot;: &quot;feat-unit-test-order-and-cart&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "git-widget-placeholder": "feat-unit-test-order-and-cart"
   }
-}</component>
+}]]></component>
   <component name="TaskManager">
     <task id="LOCAL-00001" summary="AdminNotificationListView.vue 생성">
       <option name="closed" value="true" />
@@ -107,13 +103,13 @@
       <option name="project" value="LOCAL" />
       <updated>1769670578344</updated>
     </task>
-    <task id="LOCAL-00004" summary="depl: deploy 파일 생성">
+    <task id="LOCAL-00004">
       <option name="closed" value="true" />
-      <created>1769500745080</created>
+      <created>1769673281524</created>
       <option name="number" value="00004" />
       <option name="presentableId" value="LOCAL-00004" />
       <option name="project" value="LOCAL" />
-      <updated>1769500745080</updated>
+      <updated>1769673281524</updated>
     </task>
     <task id="LOCAL-00005" summary="feat: gitignore">
       <option name="closed" value="true" />
@@ -139,14 +135,10 @@
       <option name="project" value="LOCAL" />
       <updated>1769562692579</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat : 관리자 홈" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat : 관리자 홈" />
   </component>
 </project>
