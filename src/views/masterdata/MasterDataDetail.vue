@@ -191,18 +191,32 @@ const handleImgError = (e: Event) => {
 
 const fetchDetail = async () => {
   const skuNo = route.params.skuNo as string
+  console.log('[DETAIL] skuNo:', skuNo)
+
   if (!skuNo) return
 
   try {
     const res = await http.get(`/master-data/items/${skuNo}`)
+    console.log('[DETAIL] raw response:', res)
+
     const data = res.data?.data || res.data
+    console.log('[DETAIL] parsed data:', data)
 
     if (data) {
       info.value = data
       priceList.value = data.originPrices || []
+
+      console.log('[DETAIL] info.fileUrl:', info.value.fileUrl)
+
+      if (info.value.fileUrl) {
+        console.log(
+            '[DETAIL] full image url:',
+            getFullImageUrl(info.value.fileUrl)
+        )
+      }
     }
   } catch (err) {
-    console.error('상세 정보 조회 실패:', err)
+    console.error('[DETAIL] 상세 정보 조회 실패:', err)
   }
 }
 
