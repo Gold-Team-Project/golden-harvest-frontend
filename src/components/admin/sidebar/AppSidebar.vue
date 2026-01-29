@@ -34,8 +34,8 @@
             v-for="group in accordionMenus"
             :key="group.key"
             :class="{ 'expanded': displayedOpenKey === group.key }"
-            @mouseenter="hoveredMenuKey = group.key"
-            @mouseleave="hoveredMenuKey = null"
+            @mouseenter="clearMouseleaveTimeout(); hoveredMenuKey = group.key"
+            @mouseleave="startMouseleaveTimeout()"
         >
           <div
               class="menu-item parent"
@@ -157,6 +157,21 @@ const accordionMenus = [
 /* ===== 상태 ===== */
 
 const hoveredMenuKey = ref(null);
+const mouseleaveTimeout = ref(null);
+const HOVER_DELAY_MS = 200; // 200ms 지연 시간 설정
+
+const startMouseleaveTimeout = () => {
+  mouseleaveTimeout.value = setTimeout(() => {
+    hoveredMenuKey.value = null;
+  }, HOVER_DELAY_MS);
+};
+
+const clearMouseleaveTimeout = () => {
+  if (mouseleaveTimeout.value) {
+    clearTimeout(mouseleaveTimeout.value);
+    mouseleaveTimeout.value = null;
+  }
+};
 
 
 
