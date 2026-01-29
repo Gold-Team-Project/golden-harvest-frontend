@@ -45,7 +45,7 @@
     </div>
 
     <div class="sidebar-bottom">
-      <div class="menu-item logout">
+      <div class="menu-item logout" @click="handleLogout">
         <span class="icon" v-html="logoutIcon" />
         <span class="label">로그아웃</span>
       </div>
@@ -55,9 +55,24 @@
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import authApi from '@/api/AuthApI'
 
 const route = useRoute()
 const router = useRouter()
+
+const handleLogout = async () => {
+  if (!confirm("로그아웃 하시겠습니까?")) return;
+  try {
+    await authApi.logout();
+  } catch (error) {
+    console.error("로그아웃 요청 중 오류:", error);
+  } finally {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    alert("로그아웃 되었습니다.");
+    router.push('/login');
+  }
+};
 
 const go = (name) => {
   router.push({ name })
