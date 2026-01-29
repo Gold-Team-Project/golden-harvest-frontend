@@ -23,29 +23,37 @@
           <div class="input-group">
             <label>이메일 주소</label>
             <div class="input-with-button">
-              <input v-model="form.email" type="email" placeholder="이메일을 입력하세요" required />
-              <button type="button" class="verify-btn">인증</button>
+              <input v-model="form.email" type="email" placeholder="이메일을 입력하세요" :disabled="isVerified" required />
+              <button type="button" class="verify-btn" @click="handleSendCode" :disabled="isVerified">
+                {{ isCodeSent ? '재발송' : '인증' }}
+              </button>
             </div>
           </div>
 
-          <div class="input-group">
+          <div class="input-group" v-if="isCodeSent">
             <label>인증번호</label>
-            <input v-model="form.verifyCode" type="text" placeholder="인증번호를 입력하세요" />
+            <div class="input-with-button">
+              <input v-model="form.verifyCode" type="text" placeholder="인증번호 6자리를 입력하세요" :disabled="isVerified" />
+              <button type="button" class="verify-btn check-btn" @click="handleVerifyCode" v-if="!isVerified">확인</button>
+              <button type="button" class="verify-btn success-btn" v-else disabled>완료</button>
+            </div>
           </div>
 
-          <div class="input-group">
-            <label>새로운 비밀번호</label>
-            <input v-model="form.newPassword" type="password" placeholder="새로운 비밀번호를 입력하세요" />
-          </div>
+          <div v-if="isVerified">
+            <div class="input-group">
+              <label>새로운 비밀번호</label>
+              <input v-model="form.newPassword" type="password" placeholder="8~20자 사이로 입력하세요" required />
+            </div>
 
-          <div class="input-group">
-            <label>비밀번호 확인</label>
-            <input v-model="form.passwordConfirm" type="password" placeholder="비밀번호를 다시 입력하세요" />
-          </div>
+            <div class="input-group">
+              <label>비밀번호 확인</label>
+              <input v-model="form.passwordConfirm" type="password" placeholder="비밀번호를 다시 입력하세요" required />
+            </div>
 
-          <button type="submit" class="reset-submit-btn">
-            비밀번호 재설정 &nbsp; →
-          </button>
+            <button type="submit" class="reset-submit-btn">
+              비밀번호 재설정 &nbsp; →
+            </button>
+          </div>
         </form>
 
         <div class="simple-line"></div>
@@ -61,7 +69,13 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import authApi from '@/api/AuthApI';
+
+const router = useRouter();
+const isCodeSent = ref(false); // 인증번호 발송 여부
+const isVerified = ref(false); // 인증 완료 여부
 
 const form = reactive({
   email: '',
@@ -70,8 +84,55 @@ const form = reactive({
   passwordConfirm: ''
 });
 
-const handleResetPassword = () => {
-  console.log('Password reset attempt:', form);
+// 1. 인증번호 발송 함수
+const handleSendCode = async () => {
+  if (!form.email) return alert("이메일을 입력해주세요.");
+  try {
+    // 백엔드 EmailRequest { email, type } 구조에 맞춤
+    await authApi.sendEmail({ email: form.email, type: 'PASSWORD_RESET' });
+    isCodeSent.value = true;
+    alert("인증번호가 발송되었습니다. 메일을 확인해주세요.");
+  } catch (error) {
+    alert(error.response?.data?.message || "인증번호 발송에 실패했습니다.");
+  }
+};
+
+// 2. 인증번호 확인 함수 (추가됨!)
+// Password.vue 내부의 handleVerifyCode 함수
+const handleVerifyCode = async () => {
+  if (!form.verifyCode) {
+    alert("인증번호를 입력해주세요.");
+    return;
+  }
+
+  try {
+    // AuthApI.js 정의에 맞춰 두 개의 인자를 전달 (email, code)
+    await authApi.verifyEmail(form.email, form.verifyCode);
+
+    isVerified.value = true;
+    alert("이메일 인증에 성공하였습니다.");
+  } catch (error) {
+    console.error("인증 실패 상세:", error.response?.data);
+    alert(error.response?.data?.message || "인증번호가 일치하지 않습니다.");
+  }
+};
+
+// 3. 비밀번호 재설정 최종 제출
+const handleResetPassword = async () => {
+  if (!isVerified.value) return alert("이메일 인증을 먼저 완료해주세요.");
+  if (form.newPassword !== form.passwordConfirm) return alert("비밀번호가 일치하지 않습니다.");
+
+  try {
+    await authApi.resetPassword({
+      email: form.email,
+      newPassword: form.newPassword
+    });
+
+    alert("비밀번호가 성공적으로 재설정 되었습니다. 다시 로그인해 주세요.");
+    router.push('/login');
+  } catch (error) {
+    alert(error.response?.data?.message || "재설정 실패");
+  }
 };
 </script>
 
@@ -118,6 +179,8 @@ input:focus {
 .input-with-button { display: flex; gap: 12px; }
 .input-with-button input { flex: 1; }
 .verify-btn { width: 100px; background-color: #11D411; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
+.verify-btn:hover { background-color: #0fb80f; }
+.verify-btn:active { transform: scale(0.98); }
 
 /* 5. 재설정 버튼 (Signup 스타일) */
 .reset-submit-btn {

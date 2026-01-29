@@ -59,7 +59,7 @@
     </div>
 
     <div class="sidebar-bottom">
-      <div class="menu-item logout">
+      <div class="menu-item logout" @click="handleLogout">
         <span class="icon" v-html="logoutIcon" />
         <span class="label">로그아웃</span>
       </div>
@@ -70,6 +70,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import authApi from '@/api/AuthApI'
 
 const route = useRoute()
 const router = useRouter()
@@ -77,6 +78,20 @@ const router = useRouter()
 const go = (name) => {
   router.push({ name })
 }
+
+const handleLogout = async () => {
+  if (!confirm("로그아웃 하시겠습니까?")) return;
+  try {
+    await authApi.logout(); // 백엔드 Redis 토큰 삭제 및 블랙리스트 등록
+  } catch (error) {
+    console.error("로그아웃 요청 중 오류:", error);
+  } finally {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    alert("로그아웃 되었습니다.");
+    router.push('/login');
+  }
+};
 
 /* ===== 아이콘 정의 ===== */
 const logoutIcon = `<svg viewBox="0 0 24 24" width="18" height="18">

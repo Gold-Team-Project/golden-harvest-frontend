@@ -79,8 +79,14 @@
               <td>{{ item.role }}</td>
               <td>
                   <span :class="['status-badge', item.userStatus]">
-                    {{ item.userStatus === 'ACTIVE' ? '활성화' : '대기' }}
-                  </span>
+  {{
+                      {
+                        'ACTIVE': '활성화',
+                        'PENDING': '대기',
+                        'INACTIVE': '비활성화'
+                      }[item.userStatus] || '알 수 없음'
+                    }}
+</span>
               </td>
             </template>
             <template v-else>
@@ -107,7 +113,6 @@
         </div>
       </div>
     </div>
-
     <UserApprovalModal
         v-if="isModalOpen"
         :userData="selectedData"
@@ -120,8 +125,9 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue';
-import { fetchAllUsers, fetchPendingUpdateRequests } from '@/api/AdminApi.js';
+import { fetchAllUsers, fetchPendingUpdateRequests, updateUserStatus } from '@/api/AdminApi.js';
 import UserApprovalModal from '@/views/userapproval/modal/UserApprovalModal.vue';
+
 
 // 1. 상태 관리
 const activeTab = ref('all');
@@ -133,6 +139,8 @@ const filters = reactive({ companyName: '', ceoName: '', phone: '', status: '' }
 // 2. 데이터 저장소
 const rawUsers = ref([]);           // UserAdminResponse 원본
 const rawUpdateRequests = ref([]);  // UserUpdateApprovalResponse 원본
+
+const currentUserEmail = ref(localStorage.getItem('userEmail') || '');
 
 // 3. 날짜 포맷팅 유틸
 const formatDate = (dateStr) => {
@@ -221,7 +229,11 @@ const fetchData = async () => {
 
 // 6. 이벤트 핸들러
 const openModal = (data) => {
-  selectedData.value = { ...data };
+  // 모달에 넘길 데이터에 '본인 여부' 플래그 추가
+  selectedData.value = {
+    ...data,
+    isMe: (data.userEmail || data.email) === currentUserEmail.value
+  };
   isModalOpen.value = true;
 };
 
@@ -326,8 +338,10 @@ watch(activeTab, () => {
 
 /* 배지 및 버튼 */
 .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+/* 기존 스타일에 INACTIVE 추가 */
 .status-badge.ACTIVE { background: #eefdee; color: #11D411; border: 1px solid #11D411; }
 .status-badge.PENDING { background: #fff8ee; color: #f39c12; border: 1px solid #f39c12; }
+.status-badge.INACTIVE { background: #fef2f2; color: #ef4444; border: 1px solid #ef4444; } /* 빨간색 계열 추천 */
 .detail-btn { background: #f1f3f5; border: 1px solid #dee2e6; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; }
 
 .pagination-wrapper { margin-top: auto; padding-top: 30px; }
