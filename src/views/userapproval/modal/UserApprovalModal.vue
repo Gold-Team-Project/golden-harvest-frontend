@@ -12,9 +12,10 @@
           <label>사업자 등록증 확인</label>
           <div class="file-preview" @click="zoomImage">
             <img
-                :src="userData.bizDocUrl || 'https://placehold.jp/24/11d411/ffffff/300x400.png?text=사업자등록증%20미리보기'"
+                :src="imageUrl"
                 alt="사업자등록증"
             />
+
             <div class="zoom-overlay">클릭하여 크게 보기</div>
           </div>
         </div>
@@ -84,6 +85,15 @@ const modalTitle = computed(() => {
   if (props.mode === 'update') return '정보 수정 승인';
   return '회원 상세 설정';
 });
+const imageUrl = computed(() => {
+  if (props.mode === 'update') {
+    return props.userData.requestFileUrl
+        || props.userData.fileUrl
+        || 'https://placehold.jp/24/11d411/ffffff/300x400.png?text=사업자등록증%20미리보기'
+  }
+  return props.userData.fileUrl
+      || 'https://placehold.jp/24/11d411/ffffff/300x400.png?text=사업자등록증%20미리보기'
+})
 
 const handleAction = async (type) => {
   try {
@@ -120,10 +130,13 @@ const handleAction = async (type) => {
     alert("오류: " + errorMsg);
   }
 };
-
 const zoomImage = () => {
-  window.open(props.userData.bizDocUrl || 'https://placehold.jp/300x400.png', '_blank');
+  window.open(
+      imageUrl.value,
+      '_blank'
+  );
 };
+
 </script>
 
 <style scoped>
