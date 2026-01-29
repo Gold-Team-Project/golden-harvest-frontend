@@ -3,6 +3,7 @@
     <div class="modal-box">
       <header class="modal-header">
         <h3>{{ modalTitle }}</h3>
+        <span v-if="isMe" class="me-tag">본인 계정</span>
         <button class="close-x" @click="$emit('close')">✕</button>
       </header>
 
@@ -14,7 +15,7 @@
                 :src="userData.bizDocUrl || 'https://placehold.jp/24/11d411/ffffff/300x400.png?text=사업자등록증%20미리보기'"
                 alt="사업자등록증"
             />
-            <div class="zoom-overlay">🔍 클릭하여 크게 보기</div>
+            <div class="zoom-overlay">클릭하여 크게 보기</div>
           </div>
         </div>
 
@@ -22,48 +23,20 @@
           <div class="info-row">
             <div class="info-item">
               <label>회원 상태</label>
-              <select v-model="localData.userStatus" :class="['status-select', localData.userStatus]">
+              <select
+                  v-model="localData.userStatus"
+                  :class="['status-select', localData.userStatus]"
+                  :disabled="isMe"
+              >
                 <option value="ACTIVE">활성화</option>
                 <option value="PENDING">대기</option>
                 <option value="INACTIVE">비활성화</option>
               </select>
+              <p v-if="isMe" class="helper-text">관리자 본인 상태는 수정할 수 없습니다.</p>
             </div>
-            <div class="info-item">
-              <label>권한 설정</label>
-              <select v-model="localData.role" class="basic-select">
-                <option value="고객">고객</option>
-                <option value="관리자">관리자</option>
-              </select>
-            </div>
-          </div>
-          <div class="info-item full">
-            <label>관리자 메모</label>
-            <textarea v-model="localData.adminMemo" placeholder="특이사항을 입력하세요" class="basic-textarea"></textarea>
           </div>
         </div>
 
-        <div v-if="mode === 'join'" class="join-info">
-          <div class="info-summary">
-            <p><strong>사업자명:</strong> {{ userData.company }}</p>
-            <p><strong>대표자:</strong> {{ userData.ceo }}</p>
-            <p><strong>사업자번호:</strong> {{ userData.bizNum }}</p>
-          </div>
-        </div>
-
-        <div v-if="mode === 'update'" class="update-compare">
-          <div class="compare-header">
-            <span>기존 정보</span>
-            <span class="arrow">→</span>
-            <span>변경 요청</span>
-          </div>
-          <div class="compare-row">
-            <div class="field-label-tag">{{ userData.updateField }}</div>
-            <div class="compare-box">
-              <div class="old">{{ userData.oldValue }}</div>
-              <div class="new">{{ userData.newValue }}</div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <footer class="modal-footer">
@@ -77,7 +50,13 @@
         </template>
         <template v-else>
           <button class="reject-btn" @click="$emit('close')">취소</button>
-          <button class="save-btn" @click="handleAction('SAVE')">설정 저장</button>
+          <button
+              class="save-btn"
+              :disabled="isMe"
+              @click="handleAction('SAVE')"
+          >
+            설정 저장
+          </button>
         </template>
       </footer>
     </div>
@@ -86,16 +65,18 @@
 
 <script setup>
 import { reactive, computed } from 'vue';
-import { approveUser, approveProfileUpdate } from '@/api/AdminApi.js';
+import { approveUser, approveProfileUpdate, updateUserStatus } from '@/api/AdminApi.js'; // ✅ 신규 API 추가
 
 const props = defineProps(['userData', 'mode']);
 const emit = defineEmits(['close', 'update']);
 
-// 관리자 설정용 로컬 상태 (설정 저장 탭에서 사용)
+// 본인 여부 판별 (부모에서 넘겨준 isMe 활용)
+const isMe = computed(() => props.userData.isMe);
+
 const localData = reactive({
   ...props.userData,
   adminMemo: '',
-  userStatus: props.userData.status || 'PENDING'
+  userStatus: props.userData.userStatus || 'PENDING' // displayList의 변수명(userStatus)에 맞춤
 });
 
 const modalTitle = computed(() => {
@@ -104,54 +85,43 @@ const modalTitle = computed(() => {
   return '회원 상세 설정';
 });
 
-// 백엔드 API 호출 핸들러
 const handleAction = async (type) => {
   try {
-    // 1. 신규 가입 승인 로직
+    const targetEmail = props.userData.userEmail || props.userData.email;
+
     if (props.mode === 'join' && type === 'APPROVE') {
       if (!confirm("가입을 승인하시겠습니까?")) return;
-
-      // userData.email 혹은 userData.userEmail 등 백엔드 전달용 이메일 필드 확인
-      const targetEmail = props.userData.userEmail || props.userData.email;
-
-      // 두 번째 인자로 객체가 아닌 'ACTIVE' 문자열만 보냄
       await approveUser(targetEmail, 'ACTIVE');
-
       alert("성공적으로 승인되었습니다.");
-      emit('update');
-      emit('close');
     }
-
-    // 2. 정보 수정 승인 로직
     else if (props.mode === 'update' && type === 'APPROVE') {
-      if (!confirm("정보 수정을 승인하시겠습니까?\n실제 회원 정보가 변경됩니다.")) return;
-
-      // 백엔드: @PathVariable Long requestId
+      if (!confirm("정보 수정을 승인하시겠습니까?")) return;
       await approveProfileUpdate(props.userData.id);
       alert("정보 수정 승인이 완료되었습니다.");
     }
-
-    // 3. 일반 설정 저장 (mode === 'all')
+    // ✅ 3. 일반 설정 저장 (상태 변경 API 호출)
     else if (type === 'SAVE') {
-      // 필요 시 별도의 설정 저장 API 호출 로직 추가
-      console.log("설정 저장:", localData);
+      if (isMe.value) return;
+
+      if (!confirm(`회원 상태를 ${localData.userStatus}로 변경하시겠습니까?`)) return;
+
+      // 우리가 만든 PATCH /api/admin/user/{targetEmail}/status 호출
+      await updateUserStatus(targetEmail, localData.userStatus);
+
       alert("설정이 저장되었습니다.");
     }
 
-    // 성공 시 공통 처리
-    emit('update'); // 부모 컴포넌트(UserApproval.vue)의 목록 새로고침
-    emit('close');  // 모달 닫기
+    emit('update');
+    emit('close');
 
   } catch (error) {
     console.error("처리 중 에러 발생:", error);
-    // 백엔드 BusinessException 메시지 처리
     const errorMsg = error.response?.data?.message || "처리에 실패했습니다.";
     alert("오류: " + errorMsg);
   }
 };
 
 const zoomImage = () => {
-  // 실제 파일 다운로드/조회 API 경로가 있다면 props.userData.requestFileId 활용 가능
   window.open(props.userData.bizDocUrl || 'https://placehold.jp/300x400.png', '_blank');
 };
 </script>
@@ -205,4 +175,35 @@ label { display: block; font-size: 13px; font-weight: 700; color: #666; margin-b
 .approve-btn, .save-btn { background: #11D411; color: #fff; }
 .reject-btn { background: #f1f3f5; color: #666; }
 .save-btn:hover, .approve-btn:hover { background: #0fb80f; }
+
+/* 본인 계정 표시 스타일 추가 */
+.me-tag {
+  background: #f1f3f5;
+  color: #666;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.helper-text {
+  font-size: 11px;
+  color: #ff4d4d;
+  margin-top: 5px;
+}
+
+/* 비활성화 상태 색상 추가 */
+.status-select.INACTIVE { border-color: #ff4d4d; color: #ff4d4d; font-weight: 700; }
+
+/* 버튼 비활성화 스타일 */
+button:disabled {
+  background: #ccc !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+select:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
 </style>

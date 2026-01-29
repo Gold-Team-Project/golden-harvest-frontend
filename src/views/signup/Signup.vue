@@ -55,9 +55,9 @@
             <label>사업자 등록증 첨부</label>
             <div class="file-upload-container">
               <div class="file-info-box">
-                <label for="file-upload" class="file-select-label">파일 선택</label>
+                <label for="file-input-id" class="file-select-label">파일 선택</label>
                 <span class="file-name-text">{{ fileName || '선택된 파일 없음' }}</span>
-                <input type="file" id="file-upload" @change="handleFileUpload" hidden />
+                <input type="file" id="file-input-id" @change="handleFileUpload" hidden />
               </div>
               <button type="button" class="upload-btn" @click="$refs.fileInput.click()">업로드</button>
             </div>
@@ -66,7 +66,7 @@
           <div class="input-group">
             <label>첨부 파일 정보</label>
             <input :value="fileName" type="text" readonly placeholder="파일을 업로드해주세요" />
-            <input type="file" ref="fileInput" id="file-upload" @change="handleFileUpload" hidden />
+            <input type="file" ref="fileInput" @change="handleFileUpload" hidden />
           </div>
 
           <div class="row-group">
@@ -126,7 +126,10 @@ const handleSendVerification = async () => {
     return;
   }
   try {
-    const res = await authApi.sendEmail(form.email, 'signup');
+    const res = await authApi.sendEmail({
+      email: form.email,
+      type: 'signup'
+    });
     alert(res.message || "인증번호가 발송되었습니다.");
   } catch (error) {
     console.error("인증번호 발송 실패:", error);
@@ -212,6 +215,8 @@ input:focus { border-color: #11D411 !important; box-shadow: 0 0 0 3px rgba(17, 2
 
 .input-with-button { display: flex; gap: 12px; }
 .verify-btn { width: 100px; background-color: #11D411; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
+.verify-btn:hover { background-color: #0fb80f; }
+.verify-btn:active { transform: scale(0.98); }
 .row-group { display: flex; gap: 20px; margin-bottom: 14px; width: 100%; }
 .input-column { flex: 1; min-width: 0; }
 
@@ -219,6 +224,8 @@ input:focus { border-color: #11D411 !important; box-shadow: 0 0 0 3px rgba(17, 2
 .file-info-box { flex: 1; display: flex; align-items: center; background: white; border: 1px solid #C8E4C8; border-radius: 10px; padding: 0 15px; height: 48px; box-sizing: border-box; }
 .file-select-label { background: #E2E8F0; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; color: #444; font-weight: 700; margin-right: 12px; margin-bottom: 0; }
 .upload-btn { width: 100px; background-color: #11D411; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
+.upload-btn:hover { background-color: #0fb80f; }
+.upload-btn:active { transform: scale(0.98); }
 
 /* 하단 영역 미세 압축 */
 .signup-submit-btn {

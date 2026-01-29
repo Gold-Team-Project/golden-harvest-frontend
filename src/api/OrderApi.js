@@ -43,6 +43,26 @@ export async function fetchAllOrders(filters) {
     }
 }
 
+export async function fetchProducts(filters) {
+    try {
+        const response = await http.get('/items', { params: filters });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+    }
+}
+
+export async function fetchItemDetail(skuNo) {
+    try {
+        const response = await http.get(`/master-data/items/${skuNo}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching item detail for ${skuNo}:`, error);
+        throw error;
+    }
+}
+
 export async function fetchCartItems() {
     try {
         const response = await http.get('/cart');
@@ -92,7 +112,9 @@ export async function cancelOrder(orderId) {
         throw error;
     }
 }
-
+export function addToCart(payload) {
+    return http.post('/cart/items', payload);
+}
 export async function approveOrder(orderId) {
     try {
         const response = await http.patch(`/sales/orders/${orderId}/approve`, {}); // Send an empty JSON body
@@ -101,4 +123,5 @@ export async function approveOrder(orderId) {
         console.error(`Error approving order ${orderId}:`, error);
         throw error;
     }
+
 }

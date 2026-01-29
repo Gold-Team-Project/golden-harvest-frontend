@@ -37,7 +37,7 @@
       <router-link
         v-for="product in products"
         :key="product.id"
-        :to="{ name: 'ProductDetail', params: { id: product.id } }"
+        :to="{ name: 'ProductDetail', params: { id: product.id }, query: { price: product.price } }"
         class="product-link"
       >
         <div class="product-card">
@@ -68,19 +68,35 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import BaseButton from '@/components/button/BaseButton.vue';
+import { fetchProducts } from '@/api/OrderApi.js';
 
-const products = ref([
-  { id: 1, category: '채소 > 열매채소 | 국산(부산)', name: '대저 짭짤이 토마토 15kg', price: 80000, unit: '박스', image: '' },
-  { id: 2, category: '채소 > 열매채소 | 국산(부산)', name: '대저 짭짤이 토마토 15kg', price: 80000, unit: '박스', image: '' },
-  { id: 3, category: '채소 > 열매채소 | 국산(부산)', name: '대저 짭짤이 토마토 15kg', price: 80000, unit: '박스', image: '' },
-  { id: 4, category: '채소 > 열매채소 | 국산(부산)', name: '대저 짭짤이 토마토 15kg', price: 80000, unit: '박스', image: '' },
-  { id: 5, category: '채소 > 열매채소 | 국산(부산)', name: '대저 짭짤이 토마토 15kg', price: 80000, unit: '박스', image: '' },
-  { id: 6, category: '채소 > 열매채소 | 국산(부산)', name: '대저 짭짤이 토마토 15kg', price: 80000, unit: '박스', image: '' },
-  { id: 7, category: '채소 > 열매채소 | 국산(부산)', name: '대저 짭짤이 토마토 15kg', price: 80000, unit: '박스', image: '' },
-  { id: 8, category: '채소 > 열매채소 | 국산(부산)', name: '대저 짭짤이 토마토 15kg', price: 80000, unit: '박스', image: '' },
-]);
+const products = ref([]);
+
+const loadProducts = async () => {
+  try {
+    const response = await fetchProducts();
+    if (response && response.success) {
+      products.value = response.data.map(item => ({
+        id: item.skuNo,
+        name: item.itemName,
+        price: item.customerPrice,
+        unit: item.baseUnit,
+        category: `${item.varietyName} | ${item.gradeName}`,
+        image: item.fileUrl,
+      }));
+    } else {
+      console.error('상품을 불러오는데 실패했습니다:', response?.message);
+    }
+  } catch (error) {
+    console.error('상품을 불러오는 중 에러가 발생했습니다:', error);
+  }
+};
+
+onMounted(() => {
+  loadProducts();
+});
 </script>
 
 <style scoped>

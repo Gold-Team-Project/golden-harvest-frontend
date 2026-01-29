@@ -1,52 +1,119 @@
 <template>
-  <div class="product-detail-view">
+  <div class="product-detail-view" v-if="productDetails">
     <div class="product-image-section">
-      <img src="" alt="Product Image" class="main-product-image" />
+      <img :src="productDetails.fileUrl" :alt="productDetails.itemName" class="main-product-image" />
     </div>
     <div class="product-info-section">
       <div class="card">
-        <h1 class="product-name">사과 15kg</h1>
-        <p class="product-origin">원산지 : 전라남도 임자면</p>
-        <p class="product-price">80,000 원</p>
-
-        <div class="selection-box">
-          <div class="selection-header">
-            <span>품목</span>
-            <span>가격</span>
-            <span>수량</span>
-          </div>
-          <div class="selection-item">
-            <span>대저 짭짤이 토마토 15kg</span>
-            <span>80,000</span>
-            <span>5</span>
-          </div>
-          <div class="selection-total">
-            <span>합계 : <strong>400,000 원</strong></span>
-          </div>
-        </div>
+        <h1 class="product-name">{{ productDetails.itemName }}</h1>
+        <p class="product-origin">원산지 : {{ productDetails.country }}</p>
+        <p class="product-price">
+          {{ displayPrice.toLocaleString() }} 원
+        </p>
 
         <div class="controls">
           <div class="quantity-control">
-            <button>-</button>
-            <input type="text" value="5" readonly />
-            <button>+</button>
+            <button @click="decreaseQuantity">-</button>
+            <input type="text" :value="quantity" readonly />
+            <button @click="increaseQuantity">+</button>
           </div>
-          <BaseButton variant="primary">장바구니 담기</BaseButton>
-          <BaseButton variant="primary">바로 구매하기</BaseButton>
+          <BaseButton
+              variant="primary"
+              :disabled="isSubmitting"
+              @click="handleAddToCart"
+          >
+            장바구니 담기
+          </BaseButton>
+
+          <BaseButton
+              variant="primary"
+              :disabled="isSubmitting"
+              @click="handleBuyNow"
+          >
+            바로 구매하기
+          </BaseButton>
         </div>
 
         <ul class="product-details-list">
-          <li>총 중량 : 5000g</li>
-          <li>과일 종류 : 부사</li>
-          <li>품목코드 : A-1023</li>
+          <li>총 중량 : {{ productDetails.packToKg }}</li>
+          <li>과일 종류 : {{ productDetails.varietyName }}</li>
+          <li>품목코드 : {{ productDetails.itemCode }}</li>
+          <li v-if="productDetails.grade">등급 : {{ productDetails.grade }}</li>
+          <li v-if="productDetails.description">설명 : {{ productDetails.description }}</li>
+          <li v-if="productDetails.shelfLifeDays">유통기한 : {{ productDetails.shelfLifeDays }}일</li>
+          <li v-if="productDetails.storageTempMin && productDetails.storageTempMax">
+            저장 온도 : {{ productDetails.storageTempMin }}℃ ~ {{ productDetails.storageTempMax }}℃
+          </li>
         </ul>
       </div>
     </div>
   </div>
+  <div v-else>
+    <p>상품 정보를 불러오는 중...</p>
+  </div>
 </template>
 
-<script setup>
+<<script setup>
+import { ref, onMounted, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import BaseButton from '@/components/button/BaseButton.vue';
+import { fetchItemDetail, addToCart } from '@/api/OrderApi.js';
+
+const route = useRoute();
+const router = useRouter();
+
+const productDetails = ref(null);
+const quantity = ref(1);
+const displayPrice = ref(0);
+const isSubmitting = ref(false);
+
+/* 수량 */
+const increaseQuantity = () => quantity.value++;
+const decreaseQuantity = () => {
+  if (quantity.value > 1) quantity.value--;
+};
+
+/* 총 금액 */
+const totalPrice = computed(() => displayPrice.value * quantity.value);
+
+/* 장바구니 */
+const handleAddToCart = async () => {
+  if (!productDetails.value || isSubmitting.value) return;
+
+  isSubmitting.value = true;
+  try {
+    await addToCart({
+      skuNo: productDetails.value.skuNo,
+      quantity: quantity.value,
+    });
+    alert('장바구니에 담았습니다 🛒');
+  } catch (e) {
+    alert('장바구니 담기에 실패했습니다.');
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+/* 바로 구매 */
+const handleBuyNow = () => {
+  router.push({
+    name: 'order',
+    query: {
+      skuNo: productDetails.value.skuNo,
+      quantity: quantity.value,
+    },
+  });
+};
+
+onMounted(async () => {
+  const skuNo = route.params.id;
+  const priceQuery = route.query.price;
+
+  if (priceQuery) displayPrice.value = Number(priceQuery);
+
+  const res = await fetchItemDetail(skuNo);
+  if (res?.success) productDetails.value = res.data;
+});
 </script>
 
 <style scoped>

@@ -102,34 +102,38 @@ const goDetail = (lotId) => {
 
 const fetchLots = async () => {
   try {
-    const filters = {
+    const response = await getLots({
       page: currentPage.value,
       size: pageSize,
-      lotNo: search.value.lotId || null, // search.lotId를 API의 lotNo로 매핑
-      itemName: search.value.itemName || null,
-      status: search.value.status || null,
-    };
-    const response = await getLots(filters);
+
+      // 검색 조건
+      skuNo: search.value.lotId || null, // 🔥 skuNo로 맞춤
+
+      startDate: '2025-01-01',
+      endDate: '2025-12-31',
+    });
+
     if (response.success && response.data) {
       items.value = response.data.map(item => ({
-        lotId: item.lotNo, // API의 lotNo를 템플릿의 lotId로 매핑
+        lotId: item.lotNo,
         itemName: item.itemName,
         quantity: item.quantity,
-        // API에 없는 필드는 임시로 기본값 설정
-        status: 'ACTIVE', // 사용자에게 나중에 추가할 것을 알림
-        createdAt: '2026-01-28', // 사용자에게 나중에 추가할 것을 알림
+        status: 'ACTIVE', // 임시
+        createdAt: item.inboundDate ?? '-', // 있으면 매핑
       }));
-      totalItems.value = response.data.length; // API가 전체 페이지 정보를 제공하지 않으므로 임시 처리
-      makePages(Math.ceil(totalItems.value / pageSize));
 
+      totalItems.value = response.totalCount ?? response.data.length;
+      makePages(Math.ceil(totalItems.value / pageSize));
     } else {
       items.value = [];
     }
   } catch (err) {
-    console.error('Error fetching lots:', err)
+    console.error(err);
     items.value = [];
   }
-}
+};
+
+
 
 const makePages = (totalPages) => {
   let temp = [];
