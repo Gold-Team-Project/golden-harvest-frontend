@@ -101,7 +101,7 @@ const routes = [
     {
         path: '/admin',
         component: AdminDefaultLayout,
-        meta: { requiresAdmin: true }, // ✅ 이 부모가 있는 자식들은 모두 가드에 걸립니다.
+        meta: { requiresAdmin: false }, // ✅ 이 부모가 있는 자식들은 모두 가드에 걸립니다.
         children: [
             {
                 path: 'orders',
