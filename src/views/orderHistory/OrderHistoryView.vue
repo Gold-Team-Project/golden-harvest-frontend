@@ -110,7 +110,7 @@ const loadOrders = async (filters = {}) => { // loadOrders now accepts filters
         }
       };
 
-      orders.value = response.data.map(order => {
+      orders.value = response.data.content.map(order => {
         let productName = '상품명 없음';
         let totalQuantity = 0;
 
@@ -132,7 +132,7 @@ const loadOrders = async (filters = {}) => { // loadOrders now accepts filters
           status: mapOrderStatusToKey(order.orderStatus),
         };
       });
-      totalOrders.value = orders.value.length;
+      totalOrders.value = response.data.totalElements;
     } else {
       error.value = response.message || '주문 내역을 불러오는데 실패했습니다.';
     }
