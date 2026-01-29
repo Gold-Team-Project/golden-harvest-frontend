@@ -107,21 +107,21 @@
       <option name="project" value="LOCAL" />
       <updated>1769670578344</updated>
     </task>
-    <task id="LOCAL-00004" summary="depl: deploy 파일 생성">
+    <task id="LOCAL-00004" summary="feat : 관리자 홈">
       <option name="closed" value="true" />
-      <created>1769500745080</created>
+      <created>1769671231808</created>
       <option name="number" value="00004" />
       <option name="presentableId" value="LOCAL-00004" />
       <option name="project" value="LOCAL" />
-      <updated>1769500745080</updated>
+      <updated>1769671231808</updated>
     </task>
-    <task id="LOCAL-00005" summary="feat: gitignore">
+    <task id="LOCAL-00005" summary="feat : 관리자 홈">
       <option name="closed" value="true" />
-      <created>1769501255073</created>
+      <created>1769672202553</created>
       <option name="number" value="00005" />
       <option name="presentableId" value="LOCAL-00005" />
       <option name="project" value="LOCAL" />
-      <updated>1769501255073</updated>
+      <updated>1769672202553</updated>
     </task>
     <task id="LOCAL-00006" summary="depl: 수정">
       <option name="closed" value="true" />
@@ -139,7 +139,7 @@
       <option name="project" value="LOCAL" />
       <updated>1769562692579</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
