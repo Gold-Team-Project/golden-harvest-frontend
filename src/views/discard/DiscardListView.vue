@@ -25,10 +25,13 @@
           <span>이번 달 폐기 손실액</span>
         </div>
         <div class="card-value">
-          - 원 <span class="trend-down">↘ -0%</span>
+          {{ discardLoss.currentTotalValue.toLocaleString() }} 원
+          <span :class="lossTrend.trendClass">
+            {{ lossTrend.icon }} {{ lossTrend.percentage }}%
+          </span>
         </div>
         <div class="progress-bar">
-          <div class="fill-warning" style="width: 0%"></div>
+          <div class="fill-warning" :style="{ width: lossTrend.percentage + '%' }"></div>
         </div>
       </div>
 
@@ -36,13 +39,15 @@
         <div class="card-header">
           <span>품목별 폐기 비율 (30일)</span>
         </div>
-        <!-- This also needs to be fed by API data -->
-        <div class="ratio-item" v-for="item in wasteRatios" :key="item.name">
-          <span class="label">{{ item.name }}</span>
+        <div class="ratio-item" v-for="item in topDiscardedItemsWithPercentage" :key="item.itemName">
+          <span class="label">{{ item.itemName }}</span>
           <div class="mini-bar-bg">
             <div class="mini-bar-fill" :style="{ width: item.percent + '%', backgroundColor: item.color }"></div>
           </div>
           <span class="percent">{{ item.percent }}%</span>
+        </div>
+        <div v-if="topDiscardedItemsWithPercentage.length === 0" class="text-center no-data">
+          폐기 비율 데이터가 없습니다.
         </div>
       </div>
     </section>
@@ -119,7 +124,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue';
-import { getDiscardList, getDiscardVolume } from '@/api/DiscardApi.js';
+import { getDiscardList, getDiscardVolume, getDiscardLoss, getDiscardRatioByItem } from '@/api/DiscardApi.js';
 import BaseButton from '@/components/button/BaseButton.vue';
 import Pagination from '@/components/pagination/Pagination.vue';
 import StatusBadge from '@/components/status/StatusBadge.vue';
@@ -129,8 +134,9 @@ const isModalOpen = ref(false);
 const selectedItem = ref(null);
 
 const items = ref([]);
-const wasteRatios = ref([]);
+const topDiscardedItems = ref([]); // Renamed from wasteRatios
 const discardVolume = ref({ currentMonthVolume: 0, lastMonthVolume: 0 });
+const discardLoss = ref({ currentTotalValue: 0, lastMonthTotalValue: 0 });
 
 const filters = reactive({
     startDate: '',
@@ -151,8 +157,15 @@ const closeModal = () => {
   selectedItem.value = null;
 };
 
+const fetchData = () => {
+  fetchListData();
+  // No need to refetch volume and loss data on filter changes unless they are filter-dependent.
+  // Assuming they are monthly/overall summaries, they don't change with item list filters.
+};
+
 const fetchListData = async () => {
   try {
+    // This part still needs proper total pages from API
     const response = await getDiscardList({
       page: currentPage.value,
       size: pageSize.value,
@@ -160,7 +173,7 @@ const fetchListData = async () => {
     });
     if (response.success && Array.isArray(response.data)) {
       items.value = response.data;
-      const totalPages = Math.ceil(response.data.length / pageSize.value);
+      const totalPages = Math.ceil(response.data.length / pageSize.value); // This needs to be improved with actual total from API
       makePages(totalPages > 0 ? totalPages : 1);
     } else {
       items.value = [];
@@ -184,6 +197,29 @@ const fetchVolumeData = async () => {
   }
 };
 
+const fetchLossData = async () => {
+  try {
+    const response = await getDiscardLoss();
+    if (response.success) {
+      discardLoss.value = response.data;
+    }
+  } catch (error) {
+    console.error('Failed to fetch discard loss:', error);
+  }
+};
+
+const fetchTopDiscardedItemsData = async () => {
+  try {
+    const response = await getDiscardRatioByItem();
+    if (response.success && Array.isArray(response.data)) {
+      topDiscardedItems.value = response.data.slice(0, 3); // Take top 3 as requested
+    }
+  } catch (error) {
+    console.error('Failed to fetch top discarded items:', error);
+  }
+};
+
+
 const volumeTrend = computed(() => {
   const { currentMonthVolume, lastMonthVolume } = discardVolume.value;
   if (lastMonthVolume === 0) {
@@ -201,6 +237,38 @@ const volumeTrend = computed(() => {
     icon: isUp ? '↗' : '↘',
   };
 });
+
+const lossTrend = computed(() => {
+  const { currentTotalValue, lastMonthTotalValue } = discardLoss.value;
+  if (lastMonthTotalValue === 0) {
+    return {
+      percentage: currentTotalValue > 0 ? 100 : 0,
+      trendClass: 'trend-up',
+      icon: '↗',
+    };
+  }
+  const percentage = Math.round(((currentTotalValue - lastMonthTotalValue) / lastMonthTotalValue) * 100);
+  const isUp = percentage >= 0;
+  return {
+    percentage: Math.abs(percentage),
+    trendClass: isUp ? 'trend-up' : 'trend-down',
+    icon: isUp ? '↗' : '↘',
+  };
+});
+
+const topDiscardedItemsWithPercentage = computed(() => {
+  const totalQuantitySum = topDiscardedItems.value.reduce((sum, item) => sum + item.totalQuantity, 0);
+  if (totalQuantitySum === 0) {
+    return [];
+  }
+  const colors = ['#ef4444', '#f97316', '#eab308']; // Example colors
+  return topDiscardedItems.value.map((item, index) => ({
+    ...item,
+    percent: Math.round((item.totalQuantity / totalQuantitySum) * 100),
+    color: colors[index % colors.length], // Assign a color
+  }));
+});
+
 
 const getReasonClass = (status) => {
     if (status === '파손/손실') return 'status-info';
@@ -227,10 +295,12 @@ const changePage = (page) => {
 onMounted(() => {
   fetchListData();
   fetchVolumeData();
+  fetchLossData();
+  fetchTopDiscardedItemsData(); // Fetch new data
 });
 
-watch(currentPage, fetchListData);
-watch(filters, fetchListData); // 검색 조건 변경 시 다시 로드
+watch(currentPage, fetchData); // Use fetchData to ensure all relevant data is reloaded if pagination affects summaries
+watch(filters, fetchData); // 검색 조건 변경 시 다시 로드
 
 </script>
 
@@ -318,3 +388,4 @@ th { background-color: #f9fafb; font-weight: 600; color: #374151; font-size: 13p
 .status-warning { background: #fef3c7; color: #b45309; }
 .status-info { background: #e0e7ff; color: #3730a3; }
 </style>
+

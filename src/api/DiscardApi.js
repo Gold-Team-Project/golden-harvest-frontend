@@ -26,3 +26,23 @@ export async function getDiscardVolume() {
         throw error;
     }
 }
+
+export async function getDiscardLoss() {
+    try {
+        const response = await http.get('/discard/loss');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching discard loss:', error);
+        throw error;
+    }
+}
+
+export async function getDiscardRatioByItem() {
+    try {
+        const response = await http.get('/discard/ratio-by-item');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching discard ratio by item:', error);
+        throw error;
+    }
+}
