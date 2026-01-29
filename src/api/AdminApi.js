@@ -46,3 +46,10 @@ export async function approveProfileUpdate(requestId) {
         throw error;
     }
 }
+// 유저 상태 변경
+export const updateUserStatus = async (targetEmail, newStatus) => {
+    // PATCH /api/admin/user/{targetEmail}/status?newStatus=ACTIVE
+    return await http.patch(`/admin/user/${targetEmail}/status`, null, {
+        params: { newStatus: newStatus }
+    });
+};

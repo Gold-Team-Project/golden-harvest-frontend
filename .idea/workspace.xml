@@ -4,13 +4,45 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="43c5fe95-3e04-467a-91cd-d1239512ffda" name="변경" comment="feat : 관리자 홈">
+    <list default="true" id="1365d000-85ed-4ee5-9ee1-c2e66a4772c9" name="변경" comment="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 레이아웃 작성">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+    <list default="true" id="1365d000-85ed-4ee5-9ee1-c2e66a4772c9" name="변경" comment="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 api 우선연동">
+      <change beforePath="$PROJECT_DIR$/src/api/AdminApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/AdminApi.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/AuthApI.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/AuthApI.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/admin/sidebar/AppSidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/admin/sidebar/AppSidebar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/login/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/login/Login.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/mypage/Mypage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/mypage/Mypage.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/mypage/modal/AddressModal.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/mypage/modal/UserDetailModal.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/password/Password.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/password/Password.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/signup/Signup.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/signup/Signup.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/userapproval/modal/UserApprovalModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/userapproval/modal/UserApprovalModal.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="78" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Pull.Settings">
+    <option name="OPTIONS">
+      <set>
+        <option value="REBASE" />
+      </set>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -53,6 +85,16 @@
     <component name="ProjectId" id="38mZ0O6z8PCqsaTyMk0iSDTFid7" />
     }
   </component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Gold-Team-Project/golden-harvest-frontend.git",
+    "accountId": "2df266ad-f2e5-4b58-9036-196182c4f774"
+  }
+}]]></component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -60,6 +102,10 @@
   &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="38S7K04BksA4TP0g6Hxeo145dxo" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;git-widget-placeholder&quot;: &quot;feat-unit-test-order-and-cart&quot;,
@@ -67,6 +113,14 @@
     &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
   }
 }</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.30387.90" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="TaskManager">
     <task id="LOCAL-00001" summary="AdminNotificationListView.vue 생성">
       <option name="closed" value="true" />
@@ -77,7 +131,7 @@
       <updated>1769564814205</updated>
     </task>
     <task active="true" id="Default" summary="디폴트 작업">
-      <changelist id="5baba75e-0ace-47e2-b9de-0b36d69a2384" name="변경" comment="" />
+      <changelist id="1365d000-85ed-4ee5-9ee1-c2e66a4772c9" name="변경" comment="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 레이아웃 작성" />
       <created>1768781051449</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -90,14 +144,17 @@
       <workItem from="1769409565344" duration="2010000" />
       <workItem from="1769483954383" duration="4508000" />
       <workItem from="1769561756583" duration="2348000" />
+      <workItem from="1769614876666" duration="1388000" />
+      <workItem from="1769618488630" duration="106000" />
+      <workItem from="1769651162789" duration="2226000" />
     </task>
-    <task id="LOCAL-00002" summary="f">
+    <task id="LOCAL-00002" summary="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 api 우선연동">
       <option name="closed" value="true" />
-      <created>1769667276809</created>
+      <created>1769584207206</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1769667276809</updated>
+      <updated>1769584207206</updated>
     </task>
     <task id="LOCAL-00003" summary="feat : 관리자 홈">
       <option name="closed" value="true" />
@@ -139,14 +196,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769562692579</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat : 관리자 홈" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat : 관리자 홈" />
+    <MESSAGE value="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 레이아웃 작성" />
+    <MESSAGE value="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 api 우선연동" />
+    <option name="LAST_COMMIT_MESSAGE" value="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 api 우선연동" />
   </component>
 </project>

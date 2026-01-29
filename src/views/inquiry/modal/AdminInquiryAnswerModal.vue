@@ -44,7 +44,7 @@
             <div class="box multiline">{{ detail.body }}</div>
           </div>
 
-          <div v-if="detail.fileId" class="field">
+          <div v-if="detail.fileName" class="field">
             <label>첨부파일</label>
             <div class="file-box" @click="downloadFile">
               📎 {{ detail.fileName }}
@@ -91,6 +91,7 @@ const fetchDetail = async () => {
 
   try {
     const res = await http.get(`/admin/inquiries/${props.inquiryNo}`)
+    console.log("서버 응답 상세 데이터:", res.data.data)
     detail.value = res.data.data
     comment.value = detail.value?.comment ?? ''
   } catch (error) {
@@ -100,33 +101,22 @@ const fetchDetail = async () => {
 
 /* 📎 파일 다운로드 */
 const downloadFile = async () => {
-  if (!detail.value?.fileId) return
+  const url = detail.value?.downloadUrl
+  if (!url || url === "-0") return alert("다운로드할 파일이 없습니다.")
 
-  try {
-    // 404 수정 제외 (원래 경로 유지)
-    const response = await http.get(`/files/${detail.value.fileId}`, {
-      responseType: 'blob',
-    })
+  const response = await fetch(url, { method: "GET" }) // 또는 axios.get(url,{responseType:'blob'})
+  const blob = await response.blob()
 
-    const blob = new Blob([response.data], {
-      type: response.headers['content-type'],
-    })
-
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = detail.value.fileName || 'download_file'
-
-    document.body.appendChild(link)
-    link.click()
-
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error('파일 다운로드 실패:', error)
-    alert('파일을 다운로드하는 중 오류가 발생했습니다.')
-  }
+  const a = document.createElement("a")
+  const objectUrl = URL.createObjectURL(blob)
+  a.href = objectUrl
+  a.download = detail.value.fileName || url.split("/").pop()!
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(objectUrl)
 }
+
 
 /* 답변 등록 */
 const submitAnswer = async () => {

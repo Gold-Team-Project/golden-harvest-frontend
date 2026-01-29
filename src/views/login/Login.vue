@@ -37,7 +37,7 @@
               <input type="checkbox" v-model="loginForm.rememberMe" />
               <span>로그인 유지</span>
             </label>
-            <router-link to="/find-password" class="find-link">비밀번호 찾기</router-link>
+            <router-link to="/password" class="find-link">비밀번호 찾기</router-link>
           </div>
 
           <button type="submit" class="login-submit-btn">로그인</button>

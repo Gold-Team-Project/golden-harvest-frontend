@@ -28,9 +28,9 @@ export const authApi = {
     },
 
     // 3. 이메일 인증번호 발송 (type: 'SIGNUP' 또는 'PASSWORD_RESET')
-    sendEmail: async (email, type) => {
-        const response = await http.post('/auth/email/send', { email, type });
-        return response.data;
+    sendEmail: async (emailData) => {
+        // emailData는 { email: '...', type: 'PASSWORD_RESET' } 형태여야 함
+        return await http.post('/auth/email/send', emailData);
     },
 
     // 4. 이메일 인증번호 검증
@@ -51,6 +51,35 @@ export const authApi = {
         // 헤더에 토큰을 실어 보내는 것은 인터셉터에서 처리한다고 가정
         const response = await http.post('/auth/logout');
         return response.data;
+    },
+    getMyInfo: async () => {
+        return await http.get('/user/me');
+    },
+
+    // 프로필 정보 수정 (이름, 전화번호, 주소 등)
+    updateProfile: async (profileData) => {
+        return await http.patch('/user/profile', profileData);
+    },
+
+    // 마이페이지 내 비밀번호 변경
+    changePassword: async (passwordData) => {
+        return await http.patch('/user/password', passwordData);
+    },
+
+    // 중요 정보(사업자 정보, 회사명) 수정 요청
+    requestBusinessUpdate: async (updateData) => {
+        // updateData: { requestCompany, requestBusinessNumber, requestFileId }
+        return await http.post('/user/business-update', updateData);
+    },
+    // 파일 단독 업로드 (수정 요청 시 사용)
+    uploadFile: async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        return await http.post('/api/files/upload', formData, { // 실제 백엔드 파일 업로드 경로로 수정 필요
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
     }
 };
 
