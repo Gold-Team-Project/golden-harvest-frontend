@@ -107,10 +107,10 @@ const fetchLots = async () => {
       size: pageSize,
 
       // 검색 조건
-      skuNo: search.value.lotId || null, // 🔥 skuNo로 맞춤
-
-      startDate: '2025-01-01',
-      endDate: '2025-12-31',
+      skuNo: search.value.lotId || null,
+      //
+      // startDate: '2025-01-01',
+      // endDate: '2026-12-31',
     });
 
     if (response.success && response.data) {

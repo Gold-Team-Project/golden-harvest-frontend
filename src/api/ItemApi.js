@@ -10,6 +10,7 @@ export async function getAllItems(filters) {
             endDate: filters.endDate || null,
         };
         const response = await http.get('/items', { params });
+        console.log(response.data)
         return response.data;
     } catch (error) {
         console.error('Error fetching all items:', error);
@@ -26,7 +27,7 @@ export async function getLots(filters) {
             offset: (filters.page - 1) * filters.size,
         };
 
-        const response = await http.get('/admin/items', { params });''
+        const response = await http.get('/admin/items', { params });
         console.log(response.data)
         return response.data;
     } catch (error) {

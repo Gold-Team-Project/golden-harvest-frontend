@@ -28,6 +28,7 @@ import Signup from "@/views/signup/Signup.vue";
 import Password from "@/views/password/Password.vue";
 import Mypage from "@/views/mypage/Mypage.vue";
 import UserApproval from "@/views/userapproval/UserApproval.vue";
+import DashBoardView from "@/views/dashboard/user/DashBoardView.vue";
 
 const routes = [
     {
@@ -96,6 +97,12 @@ const routes = [
                 name: "mypage",
                 component: Mypage,
                 meta: { title: '마이페이지 / 내정보 수정 '}
+            },
+            {
+                path: 'dashboard',
+                name: "dashboard",
+                component: DashBoardView,
+                meta: { title: '마이페이지 / 대시보드 '}
             },
         ],
     },

@@ -35,21 +35,25 @@
 
     <div class="product-grid">
       <router-link
-        v-for="product in products"
-        :key="product.id"
-        :to="{ name: 'ProductDetail', params: { id: product.id }, query: { price: product.price } }"
-        class="product-link"
+          v-for="product in products"
+          :key="product.id"
+          :to="{
+          name: 'ProductDetail',
+          params: { id: product.id },
+          query: { price: product.price }
+        }"
+          class="product-link"
       >
         <div class="product-card">
           <div class="product-image-wrapper">
-            <img :src="product.image" :alt="product.name" class="product-image" />
+            <img :src="product.image || '/path/to/default-apple.png'" :alt="product.name" class="product-image" />
             <span class="best-badge">베스트</span>
           </div>
           <div class="product-info">
             <p class="product-category">{{ product.category }}</p>
             <p class="product-name">{{ product.name }}</p>
             <p class="product-price">
-              <span class="price-value">{{ product.price.toLocaleString() }}원</span>
+              <span class="price-value">{{ (product.price || 0).toLocaleString() }}원</span>
               <span class="price-unit"> / {{ product.unit }}</span>
             </p>
             <BaseButton variant="primary" size="md" class="add-to-cart-btn">
@@ -77,17 +81,19 @@ const products = ref([]);
 const loadProducts = async () => {
   try {
     const response = await fetchProducts();
-    if (response && response.success) {
+    // ✅ response.data가 null이거나 빈 배열일 경우에 대비한 안전 장치
+    if (response && response.success && Array.isArray(response.data)) {
       products.value = response.data.map(item => ({
-        id: item.skuNo,
-        name: item.itemName,
-        price: item.customerPrice,
-        unit: item.baseUnit,
-        category: `${item.varietyName} | ${item.gradeName}`,
-        image: item.fileUrl,
+        // ✅ 데이터가 비어있을 경우(null/undefined) 기본값 처리
+        id: item.skuNo || Math.random().toString(36).substr(2, 9),
+        name: item.itemName || '상품명 준비중',
+        price: item.customerPrice || 0, // 0으로 처리하여 toLocaleString() 에러 방지
+        unit: item.baseUnit || '단위 미정',
+        category: item.varietyName ? `${item.varietyName} | ${item.gradeName}` : '카테고리 미분류',
+        image: item.fileUrl || '',
       }));
     } else {
-      console.error('상품을 불러오는데 실패했습니다:', response?.message);
+      console.warn('상품 데이터가 비어있거나 응답이 성공이 아닙니다:', response?.message);
     }
   } catch (error) {
     console.error('상품을 불러오는 중 에러가 발생했습니다:', error);
