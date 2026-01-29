@@ -166,7 +166,7 @@ const displayList = computed(() => {
       company: u.userCompany || u.company || '-',
       ceo: u.userName || u.name || '-',
       phone: u.userPhone || u.phoneNumber || '-',
-      role: u.roleName || '일반회원',
+      role: u.role || '일반 사용자',
       userStatus: u.status || 'PENDING'
     }));
 
@@ -212,7 +212,7 @@ const updatePendingCount = computed(() => rawUpdateRequests.value.length);
 const fetchData = async () => {
   try {
     const userRes = await fetchAllUsers();
-    console.log("🔍 원본 유저 데이터:", userRes);
+    console.log(" 원본 유저 데이터:", userRes);
     // userRes 자체가 { success: true, data: [...] } 형태이므로 .data를 담아야 함
     if (userRes.success) {
       rawUsers.value = userRes.data;
