@@ -112,7 +112,9 @@ export async function cancelOrder(orderId) {
         throw error;
     }
 }
-
+export function addToCart(payload) {
+    return http.post('/cart/items', payload);
+}
 export async function approveOrder(orderId) {
     try {
         const response = await http.patch(`/sales/orders/${orderId}/approve`, {}); // Send an empty JSON body
@@ -121,4 +123,5 @@ export async function approveOrder(orderId) {
         console.error(`Error approving order ${orderId}:`, error);
         throw error;
     }
+
 }

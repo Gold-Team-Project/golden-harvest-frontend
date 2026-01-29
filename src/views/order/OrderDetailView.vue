@@ -17,8 +17,21 @@
             <input type="text" :value="quantity" readonly />
             <button @click="increaseQuantity">+</button>
           </div>
-          <BaseButton variant="primary">장바구니 담기</BaseButton>
-          <BaseButton variant="primary">바로 구매하기</BaseButton>
+          <BaseButton
+              variant="primary"
+              :disabled="isSubmitting"
+              @click="handleAddToCart"
+          >
+            장바구니 담기
+          </BaseButton>
+
+          <BaseButton
+              variant="primary"
+              :disabled="isSubmitting"
+              @click="handleBuyNow"
+          >
+            바로 구매하기
+          </BaseButton>
         </div>
 
         <ul class="product-details-list">
@@ -40,54 +53,66 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+<<script setup>
+import { ref, onMounted, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import BaseButton from '@/components/button/BaseButton.vue';
-import { fetchItemDetail } from '@/api/OrderApi.js';
+import { fetchItemDetail, addToCart } from '@/api/OrderApi.js';
 
 const route = useRoute();
+const router = useRouter();
+
 const productDetails = ref(null);
 const quantity = ref(1);
-const displayPrice = ref(0); // New reactive variable for the price passed from OrderView
+const displayPrice = ref(0);
+const isSubmitting = ref(false);
 
-const increaseQuantity = () => {
-  quantity.value++;
+/* 수량 */
+const increaseQuantity = () => quantity.value++;
+const decreaseQuantity = () => {
+  if (quantity.value > 1) quantity.value--;
 };
 
-const decreaseQuantity = () => {
-  if (quantity.value > 1) {
-    quantity.value--;
+/* 총 금액 */
+const totalPrice = computed(() => displayPrice.value * quantity.value);
+
+/* 장바구니 */
+const handleAddToCart = async () => {
+  if (!productDetails.value || isSubmitting.value) return;
+
+  isSubmitting.value = true;
+  try {
+    await addToCart({
+      skuNo: productDetails.value.skuNo,
+      quantity: quantity.value,
+    });
+    alert('장바구니에 담았습니다 🛒');
+  } catch (e) {
+    alert('장바구니 담기에 실패했습니다.');
+  } finally {
+    isSubmitting.value = false;
   }
+};
+
+/* 바로 구매 */
+const handleBuyNow = () => {
+  router.push({
+    name: 'order',
+    query: {
+      skuNo: productDetails.value.skuNo,
+      quantity: quantity.value,
+    },
+  });
 };
 
 onMounted(async () => {
-  const skuNo = route.params.id; // Assuming skuNo is passed as 'id' in route params
-  const priceQuery = route.query.price; // Get price from query parameter
+  const skuNo = route.params.id;
+  const priceQuery = route.query.price;
 
-  if (priceQuery) {
-    displayPrice.value = parseFloat(priceQuery); // Parse price as a number
-  } else {
-    console.warn('Price not provided in query parameters.');
-  }
+  if (priceQuery) displayPrice.value = Number(priceQuery);
 
-  if (skuNo) {
-    try {
-      const response = await fetchItemDetail(skuNo);
-      if (response && response.success) {
-        productDetails.value = response.data;
-      } else {
-        console.error('상품 상세 정보를 불러오는데 실패했습니다:', response?.message);
-        productDetails.value = null; // Set to null on failure
-      }
-    } catch (error) {
-      console.error('상품 상세 정보를 불러오는 중 에러가 발생했습니다:', error);
-      productDetails.value = null; // Set to null on error
-    }
-  } else {
-    console.error('skuNo가 제공되지 않았습니다.');
-    productDetails.value = null;
-  }
+  const res = await fetchItemDetail(skuNo);
+  if (res?.success) productDetails.value = res.data;
 });
 </script>
 
