@@ -67,15 +67,19 @@ export const authApi = {
     },
 
     // 중요 정보(사업자 정보, 회사명) 수정 요청
-    requestBusinessUpdate: async (updateData) => {
-        // updateData: { requestCompany, requestBusinessNumber, requestFileId }
-        return await http.post('/user/business-update', updateData);
-    },
-    // 파일 단독 업로드 (수정 요청 시 사용)
-    uploadFile: async (file) => {
+    requestBusinessUpdate: async (updateData, file) => {
         const formData = new FormData();
+
+        // 1. JSON 데이터
+        formData.append("data", new Blob([JSON.stringify(updateData)], {
+            type: "application/json"
+        }));
+
+        // 2. 파일
         formData.append("file", file);
-        return await http.post('/api/files/upload', formData, { // 실제 백엔드 파일 업로드 경로로 수정 필요
+
+        // 💡 /user/business-update 경로로 POST 전송
+        return await http.post('/user/business-update', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

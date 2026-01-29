@@ -82,7 +82,7 @@ const mainMenus = [
   {
     key: 'dashboard',
     label: '대시보드',
-    route: 'Dashboard',
+    route: 'dashboard',
     icon: `<svg viewBox="0 0 24 24" width="18" height="18">
       <rect x="3" y="3" width="7" height="7" rx="2" fill="currentColor"/>
       <rect x="14" y="3" width="7" height="7" rx="2" fill="currentColor"/>

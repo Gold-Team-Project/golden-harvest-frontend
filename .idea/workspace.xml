@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7662aefc-30c4-4e1c-8624-a1ce67cf32e2" name="변경" comment="" />
+    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="유저 대시보드">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/AuthApI.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/AuthApI.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -60,7 +66,9 @@
   <component name="ProjectId" id="38S7K04BksA4TP0g6Hxeo145dxo" />
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "git-widget-placeholder": "feat-unit-test-order-and-cart"
+    "git-widget-placeholder": "feat-login",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external"
   }
 }]]></component>
   <component name="TaskManager">
@@ -95,9 +103,9 @@
       <option name="project" value="LOCAL" />
       <updated>1769667276809</updated>
     </task>
-    <task id="LOCAL-00003" summary="feat : 관리자 홈">
+    <task id="LOCAL-00003" summary="수정">
       <option name="closed" value="true" />
-      <created>1769670578344</created>
+      <created>1769653444360</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
