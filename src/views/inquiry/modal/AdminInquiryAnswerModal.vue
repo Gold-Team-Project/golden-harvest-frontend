@@ -44,7 +44,7 @@
             <div class="box multiline">{{ detail.body }}</div>
           </div>
 
-          <div v-if="detail.fileId" class="field">
+          <div v-if="detail.fileName" class="field">
             <label>첨부파일</label>
             <div class="file-box" @click="downloadFile">
               📎 {{ detail.fileName }}
@@ -91,6 +91,7 @@ const fetchDetail = async () => {
 
   try {
     const res = await http.get(`/admin/inquiries/${props.inquiryNo}`)
+    console.log("서버 응답 상세 데이터:", res.data.data)
     detail.value = res.data.data
     comment.value = detail.value?.comment ?? ''
   } catch (error) {
@@ -100,33 +101,42 @@ const fetchDetail = async () => {
 
 /* 📎 파일 다운로드 */
 const downloadFile = async () => {
-  if (!detail.value?.fileId) return
+  // 1. 데이터 검증 (가장 중요)
+  const url = detail.value?.downloadUrl;
+
+  if (!url || url === "-0") {
+    alert("다운로드할 수 있는 파일 경로가 없습니다.");
+    return;
+  }
 
   try {
-    // 404 수정 제외 (원래 경로 유지)
-    const response = await http.get(`/files/${detail.value.fileId}`, {
+    console.log("다운로드 시도 URL:", url);
+
+    // 2. 쿼리 파라미터(?url=...) 방식으로 호출
+    const response = await http.get('/files/download', {
+      params: { url: url }, // 객체 형태로 전달하면 axios가 안전하게 인코딩합니다.
       responseType: 'blob',
-    })
+    });
 
-    const blob = new Blob([response.data], {
-      type: response.headers['content-type'],
-    })
+    // 3. 파일 다운로드 실행
+    const blob = new Blob([response.data], { type: response.headers['content-type'] });
+    const downloadLink = document.createElement('a');
+    const objectUrl = window.URL.createObjectURL(blob);
 
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = detail.value.fileName || 'download_file'
+    downloadLink.href = objectUrl;
+    // detail.value.fileName이 있으면 사용, 없으면 URL에서 추출
+    downloadLink.download = detail.value.fileName || url.split('/').pop();
 
-    document.body.appendChild(link)
-    link.click()
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
 
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
+    document.body.removeChild(downloadLink);
+    window.URL.revokeObjectURL(objectUrl);
   } catch (error) {
-    console.error('파일 다운로드 실패:', error)
-    alert('파일을 다운로드하는 중 오류가 발생했습니다.')
+    console.error('다운로드 중 에러 발생:', error);
+    alert('파일을 찾을 수 없거나 서버 오류가 발생했습니다.');
   }
-}
+};
 
 /* 답변 등록 */
 const submitAnswer = async () => {
