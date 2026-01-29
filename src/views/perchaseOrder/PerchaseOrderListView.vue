@@ -171,7 +171,7 @@ async function fetchMasterSkus() {
       throw new Error(payload?.message || "마스터 리스트 API 오류");
     }
 
-    // ✅ payload.data = 배열
+    // payload.data = 배열
     const rows = Array.isArray(payload.data) ? payload.data : [];
 
     const map = new Map();

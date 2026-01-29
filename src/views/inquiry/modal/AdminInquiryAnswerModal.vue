@@ -101,42 +101,22 @@ const fetchDetail = async () => {
 
 /* 📎 파일 다운로드 */
 const downloadFile = async () => {
-  // 1. 데이터 검증 (가장 중요)
-  const url = detail.value?.downloadUrl;
+  const url = detail.value?.downloadUrl
+  if (!url || url === "-0") return alert("다운로드할 파일이 없습니다.")
 
-  if (!url || url === "-0") {
-    alert("다운로드할 수 있는 파일 경로가 없습니다.");
-    return;
-  }
+  const response = await fetch(url, { method: "GET" }) // 또는 axios.get(url,{responseType:'blob'})
+  const blob = await response.blob()
 
-  try {
-    console.log("다운로드 시도 URL:", url);
+  const a = document.createElement("a")
+  const objectUrl = URL.createObjectURL(blob)
+  a.href = objectUrl
+  a.download = detail.value.fileName || url.split("/").pop()!
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(objectUrl)
+}
 
-    // 2. 쿼리 파라미터(?url=...) 방식으로 호출
-    const response = await http.get('/files/download', {
-      params: { url: url }, // 객체 형태로 전달하면 axios가 안전하게 인코딩합니다.
-      responseType: 'blob',
-    });
-
-    // 3. 파일 다운로드 실행
-    const blob = new Blob([response.data], { type: response.headers['content-type'] });
-    const downloadLink = document.createElement('a');
-    const objectUrl = window.URL.createObjectURL(blob);
-
-    downloadLink.href = objectUrl;
-    // detail.value.fileName이 있으면 사용, 없으면 URL에서 추출
-    downloadLink.download = detail.value.fileName || url.split('/').pop();
-
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-
-    document.body.removeChild(downloadLink);
-    window.URL.revokeObjectURL(objectUrl);
-  } catch (error) {
-    console.error('다운로드 중 에러 발생:', error);
-    alert('파일을 찾을 수 없거나 서버 오류가 발생했습니다.');
-  }
-};
 
 /* 답변 등록 */
 const submitAnswer = async () => {

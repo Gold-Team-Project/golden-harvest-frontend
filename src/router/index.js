@@ -1,4 +1,5 @@
 // src/router/index.js
+import DashboardView from "@/views/admin/DashboardView.vue"; // Admin Dashboard
 import { createRouter, createWebHistory } from 'vue-router'
 import { jwtDecode } from 'jwt-decode' // ✅ 라이브러리 임포트 확인 (없으면 npm install jwt-decode)
 
@@ -101,8 +102,14 @@ const routes = [
     {
         path: '/admin',
         component: AdminDefaultLayout,
-        meta: { requiresAdmin: true }, // ✅ 이 부모가 있는 자식들은 모두 가드에 걸립니다.
+        meta: { requiresAdmin: false }, // ✅ 이 부모가 있는 자식들은 모두 가드에 걸립니다.
         children: [
+            {
+                path: '', // Default child route for /admin
+                name: 'adminDashboard',
+                component: DashboardView,
+                meta: { title: '홈 / 대시보드' },
+            },
             {
                 path: 'orders',
                 name: 'adminOrderList',

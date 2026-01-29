@@ -4,38 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1365d000-85ed-4ee5-9ee1-c2e66a4772c9" name="변경" comment="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 api 우선연동">
-      <change beforePath="$PROJECT_DIR$/src/api/AdminApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/AdminApi.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/AuthApI.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/AuthApI.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/admin/sidebar/AppSidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/admin/sidebar/AppSidebar.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/login/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/login/Login.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/mypage/Mypage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/mypage/Mypage.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/mypage/modal/AddressModal.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/mypage/modal/UserDetailModal.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/password/Password.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/password/Password.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/signup/Signup.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/signup/Signup.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/userapproval/modal/UserApprovalModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/userapproval/modal/UserApprovalModal.vue" afterDir="false" />
-    </list>
+    <list default="true" id="7662aefc-30c4-4e1c-8624-a1ce67cf32e2" name="변경" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="JavaScript File" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="feat/admin-perchase-order" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">
@@ -83,41 +58,11 @@
   &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="38S7K04BksA4TP0g6Hxeo145dxo" />
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;git-widget-placeholder&quot;: &quot;feat-login&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
-  &lt;component name=&quot;ProjectViewState&quot;&gt;
-    &lt;option name=&quot;showLibraryContents&quot; value=&quot;true&quot; /&gt;
-  &lt;/component&gt;
-  &lt;component name=&quot;PropertiesComponent&quot;&gt;{
-  &amp;quot;keyToString&amp;quot;: {
-    &amp;quot;ModuleVcsDetector.initialDetectionPerformed&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;RunOnceActivity.ShowReadmeOnStart&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;RunOnceActivity.git.unshallow&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;git-widget-placeholder&amp;quot;: &amp;quot;dev&amp;quot;,
-    &amp;quot;ignore.virus.scanning.warn.message&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;junie.onboarding.icon.badge.shown&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;kotlin-language-version-configured&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;last_opened_file_path&amp;quot;: &amp;quot;C:/Users/Playdata/Desktop/golden-harvest-frontend&amp;quot;,
-    &amp;quot;node.js.detected.package.eslint&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;node.js.detected.package.tslint&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;node.js.selected.package.eslint&amp;quot;: &amp;quot;(autodetect)&amp;quot;,
-    &amp;quot;node.js.selected.package.tslint&amp;quot;: &amp;quot;(autodetect)&amp;quot;,
-    &amp;quot;nodejs_package_manager_path&amp;quot;: &amp;quot;npm&amp;quot;,
-    &amp;quot;to.speed.mode.migration.done&amp;quot;: &amp;quot;true&amp;quot;,
-    &amp;quot;ts.external.directory.path&amp;quot;: &amp;quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&amp;quot;,
-    &amp;quot;vue.rearranger.settings.migration&amp;quot;: &amp;quot;true&amp;quot;
-  },
-  &amp;quot;keyToStringList&amp;quot;: {
-    &amp;quot;vue.recent.templates&amp;quot;: [
-      &amp;quot;Vue Composition API Component&amp;quot;
-    ]
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "git-widget-placeholder": "feat-unit-test-order-and-cart"
   }
-}</component>
+}]]></component>
   <component name="TaskManager">
     <task id="LOCAL-00001" summary="AdminNotificationListView.vue 생성">
       <option name="closed" value="true" />
@@ -142,29 +87,29 @@
       <workItem from="1769483954383" duration="4508000" />
       <workItem from="1769561756583" duration="2348000" />
     </task>
-    <task id="LOCAL-00002" summary="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 api 우선연동">
+    <task id="LOCAL-00002" summary="f">
       <option name="closed" value="true" />
-      <created>1769584207206</created>
+      <created>1769667276809</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1769584207206</updated>
+      <updated>1769667276809</updated>
     </task>
-    <task id="LOCAL-00003" summary="feat: 발주 페이지">
+    <task id="LOCAL-00003" summary="feat : 관리자 홈">
       <option name="closed" value="true" />
-      <created>1768964940535</created>
+      <created>1769670578344</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
-      <updated>1768964940535</updated>
+      <updated>1769670578344</updated>
     </task>
-    <task id="LOCAL-00004" summary="depl: deploy 파일 생성">
+    <task id="LOCAL-00004">
       <option name="closed" value="true" />
-      <created>1769500745080</created>
+      <created>1769673281524</created>
       <option name="number" value="00004" />
       <option name="presentableId" value="LOCAL-00004" />
       <option name="project" value="LOCAL" />
-      <updated>1769500745080</updated>
+      <updated>1769673281524</updated>
     </task>
     <task id="LOCAL-00005" summary="feat: gitignore">
       <option name="closed" value="true" />
@@ -190,15 +135,10 @@
       <option name="project" value="LOCAL" />
       <updated>1769562692579</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 레이아웃 작성" />
-    <MESSAGE value="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 api 우선연동" />
-    <option name="LAST_COMMIT_MESSAGE" value="회원가입, 로그인, 비밀번호 찾기, 관리자 페이지 api 우선연동" />
   </component>
 </project>
