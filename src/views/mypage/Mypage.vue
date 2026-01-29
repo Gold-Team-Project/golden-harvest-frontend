@@ -191,41 +191,25 @@ onMounted(async () => {
 // 4. 중요 정보 수정 요청
 const handleBusinessUpdateReq = async () => {
   try {
-    let finalFileId = info.fileId; // 기존 파일 ID를 기본값으로 설정
-
-    // 1. 새로운 파일이 선택되었다면 업로드 먼저 진행
-    if (selectedFile.value) {
-      console.log("새 파일 업로드 시작...");
-      // signup 로직과 유사하게 파일을 보냅니다.
-      const fileRes = await authApi.uploadFile(selectedFile.value);
-
-      // 서버 응답 구조가 { data: { id: 123 } } 형태라고 가정
-      finalFileId = fileRes.data?.data?.id || fileRes.data?.id;
-      console.log("새로 발급받은 파일 ID:", finalFileId);
-    }
-
-    // 2. 파일 ID가 여전히 없다면 (기존 것도 없고 새 것도 실패한 경우)
-    if (!finalFileId) {
-      alert("사업자 등록증 파일 정보가 없습니다. 파일을 선택해 주세요.");
+    if (!selectedFile.value) {
+      alert("사업자 등록증 파일을 선택해주세요.");
       return;
     }
 
-    if (!confirm("회사명 및 사업자번호 변경은 관리자 승인이 필요합니다. 계속하시겠습니까?")) return;
+    if (!confirm("수정 요청을 보내시겠습니까?")) return;
 
-    // 3. 최종 수정 승인 요청
-    const payload = {
+    const updateData = {
       requestCompany: info.company,
-      requestBusinessNumber: info.businessNumber,
-      requestFileId: finalFileId // 백엔드 승인 시 null이면 에러가 나는 그 필드!
+      requestBusinessNumber: info.businessNumber
     };
 
-    await authApi.requestBusinessUpdate(payload);
-    alert("수정 요청이 전송되었습니다.");
+    // 💡 파일을 따로 올리지 말고, 여기서 데이터와 파일을 한꺼번에 보냅니다!
+    await authApi.requestBusinessUpdate(updateData, selectedFile.value);
 
+    alert("수정 요청이 전송되었습니다.");
   } catch (error) {
-    console.error("처리 중 에러 발생:", error);
-    const msg = error.response?.data?.message || "처리 중 오류가 발생했습니다.";
-    alert(msg);
+    console.error("에러 발생:", error);
+    alert("요청에 실패했습니다. (백엔드 컨트롤러와 파라미터가 맞는지 확인 필요)");
   }
 };
 
