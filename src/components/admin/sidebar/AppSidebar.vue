@@ -33,18 +33,19 @@
         <div
             v-for="group in accordionMenus"
             :key="group.key"
-            :class="['menu-group', { active: isGroupActive(group) }]"
+            :class="{ 'expanded': displayedOpenKey === group.key }"
+            @mouseenter="hoveredMenuKey = group.key"
+            @mouseleave="hoveredMenuKey = null"
         >
           <div
               class="menu-item parent"
-              :class="{ active: isGroupActive(group) }"
-              @click="toggle(group.key)"
+              :class="{ 'expanded': displayedOpenKey === group.key }"
           >
-            <span class="icon" v-html="group.icon" />
+            <span class="icon" v-html="groupIcon(group)" />
             <span class="label">{{ group.label }}</span>
           </div>
 
-          <div v-if="openMenuKey === group.key" class="submenu">
+          <div v-if="displayedOpenKey === group.key" class="submenu">
             <div
                 v-for="child in group.children"
                 :key="child.key"
@@ -68,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -83,6 +84,9 @@ const logoutIcon = `<svg viewBox="0 0 24 24" width="18" height="18">
   <path d="M16 17l5-5-5-5v3H9v4h7v3Z" fill="currentColor"/>
   <path d="M4 4h8v4H6v8h6v4H4V4Z" fill="currentColor"/>
 </svg>`
+
+const tradeDefaultIcon = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 4h18l-2 14H5L3 4Z" fill="currentColor"/></svg>`
+const tradeExpandedIcon = `<svg viewBox="0 0 24 24" width="18" height="18"><rect x="4" y="4" width="16" height="16" rx="2" fill="currentColor"/></svg>` // Filled square icon
 
 /* ===== 단일 메뉴 ===== */
 const singleMenus = [
@@ -104,9 +108,10 @@ const accordionMenus = [
   {
     key: 'trade',
     label: '거래 관리',
-    icon: `<svg viewBox="0 0 24 24" width="18" height="18">
-      <path d="M3 4h18l-2 14H5L3 4Z" fill="currentColor"/>
-    </svg>`,
+    icons: { // Changed from 'icon' to 'icons' object
+        default: tradeDefaultIcon,
+        expanded: tradeExpandedIcon,
+    },
     children: [
       { key: 'order', label: '고객 주문 목록', route: 'adminOrderList' },
       { key: 'sales', label: '판매 매출 목록', route: 'adminSalesList' },
@@ -150,28 +155,90 @@ const accordionMenus = [
 ]
 
 /* ===== 상태 ===== */
-const openMenuKey = ref(null)
 
-const toggle = (key) => {
-  openMenuKey.value = openMenuKey.value === key ? null : key
-}
+const hoveredMenuKey = ref(null);
 
-const isGroupActive = (group) =>
-    openMenuKey.value === group.key ||
-    group.children.some((c) => c.route === route.name)
 
-/* route 변경 시 자동 오픈 */
-watch(
-    () => route.name,
-    () => {
-      accordionMenus.forEach(group => {
-        if (group.children.some(c => c.route === route.name)) {
-          openMenuKey.value = group.key
-        }
-      })
-    },
-    { immediate: true }
-)
+
+const displayedOpenKey = computed(() => {
+
+
+
+    // 1. If currently hovering over a group, that group should be open.
+
+
+
+    if (hoveredMenuKey.value) {
+
+
+
+        return hoveredMenuKey.value;
+
+
+
+    }
+
+
+
+
+
+
+
+    // 2. If not hovering, check if any child route is active.
+
+
+
+    const activeChildGroup = accordionMenus.find(group =>
+
+
+
+        group.children.some(child => child.route === route.name)
+
+
+
+    );
+
+
+
+    if (activeChildGroup) {
+
+
+
+        return activeChildGroup.key;
+
+
+
+    }
+
+
+
+
+
+
+
+    // 3. Otherwise, nothing is open.
+
+
+
+    return null;
+
+
+
+});
+
+
+
+const groupIcon = (group) => {
+
+  if (group.icons) { // Check if 'icons' object exists (for 'trade' group)
+
+    return displayedOpenKey.value === group.key ? group.icons.expanded : group.icons.default;
+
+  }
+
+  return group.icon; // Fallback for other groups that still use single 'icon' string
+
+};
 </script>
 
 <style scoped>
@@ -234,7 +301,7 @@ watch(
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 40px; /* Increased to 40px */
 }
 
 .menu-group.active {
@@ -269,6 +336,10 @@ watch(
 .menu-item.active {
   background: #dcfce7;
   color: #15803d;
+}
+
+.menu-item.parent.expanded .icon {
+    color: #15803d; /* Green color for the icon when parent is expanded */
 }
 
 /* BOTTOM */
