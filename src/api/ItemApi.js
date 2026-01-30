@@ -20,7 +20,8 @@ export async function getAllItems(filters) {
 export async function getLots(filters) {
     try {
         const params = {
-            skuNo: filters.skuNo,
+            lotNo: filters.lotNo || null, // Changed from skuNo to lotNo
+            status: filters.status || null, // Added status filter
             startDate: filters.startDate,
             endDate: filters.endDate,
             limit: filters.size,

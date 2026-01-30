@@ -7,7 +7,7 @@
     <div class="search-card">
       <div class="search-row">
         <div class="field">
-          <input v-model="search.lotId" placeholder="LOT ID"/>
+          <input v-model="search.lotNo" placeholder="LOT 번호"/>
         </div>
         <div class="field">
           <input v-model="search.itemName" placeholder="품목명"/>
@@ -15,10 +15,10 @@
         <div class="field">
           <select v-model="search.status">
             <option value="">상태 전체</option>
-            <option value="available">입고</option>
-            <option value="allocated">출고</option>
-            <option value="depleted">소진</option>
-            <option value="discarded">폐기</option>
+            <option value="AVAILABLE">입고</option>
+            <option value="ALLOCATED">출고</option>
+            <option value="DEPLETED">소진</option>
+            <option value="DISCARDED">폐기</option>
           </select>
         </div>
         <BaseButton class="btn-search" @click="fetchLots">
@@ -85,27 +85,27 @@ const pageSize = 10
 const totalItems = ref(0)
 
 const search = ref({
-  lotId: '',
+  lotNo: '', // Changed from lotId to lotNo
   itemName: '',
-  status: '',
+  status: '', // Added status
 })
 
 const getStatusText = (status) => {
   const statusMap = {
-    available: '입고',
-    allocated: '출고',
-    depleted: '소진',
-    discarded: '폐기',
+    AVAILABLE: '입고',
+    ALLOCATED: '출고',
+    DEPLETED: '소진',
+    DISCARDED: '폐기',
   };
   return statusMap[status] || '알 수 없음';
 };
 
 const getStatusClass = (status) => {
   const classMap = {
-    available: 'status-done', // 입고
-    allocated: 'status-shipping', // 출고
-    depleted: 'status-wait', // 소진
-    discarded: 'status-hold', // 폐기
+    AVAILABLE: 'status-done', // 입고
+    ALLOCATED: 'status-shipping', // 출고
+    DEPLETED: 'status-wait', // 소진
+    DISCARDED: 'status-hold', // 폐기
   };
   return classMap[status] || '';
 };
@@ -117,9 +117,11 @@ const fetchLots = async () => {
       size: pageSize,
 
       // 검색 조건
-      skuNo: search.value.lotId || null,
-      //
-      // startDate: '2025-01-01',
+      lotNo: search.value.lotNo || null, // Changed from skuNo: search.value.lotId to lotNo: search.value.lotNo
+      status: search.value.status || null, // Added status filter
+      itemName: search.value.itemName || null, // Ensure itemName is passed
+
+      // startDate: '2025-01-01', // Example of how to add date filters if needed
       // endDate: '2026-12-31',
     });
 
@@ -128,11 +130,11 @@ const fetchLots = async () => {
         lotId: item.lotNo,
         itemName: item.itemName,
         quantity: item.quantity,
-        status: item.status, // API가 'available', 'allocated' 등을 반환한다고 가정
-        createdAt: item.inboundDate ?? '-',
+        status: item.status, // API가 'AVAILABLE', 'ALLOCATED' 등을 반환한다고 가정
+        createdAt: item.inboundDate ?? '-', // Or correct field from API
       }));
 
-      totalItems.value = response.totalCount ?? response.data.length;
+      totalItems.value = response.data.length; // Corrected total items calculation
       makePages(Math.ceil(totalItems.value / pageSize));
     } else {
       items.value = [];
@@ -159,6 +161,7 @@ const changePage = (page) => {
 }
 
 watch(currentPage, fetchLots)
+// watch(search, fetchLots, { deep: true }) // 검색 필터 변경 시 자동으로 API 호출하는 watch 제거
 onMounted(fetchLots)
 </script>
 
