@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="feat : 가격">
-      <change beforePath="$PROJECT_DIR$/src/api/OrderApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/OrderApi.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/orderHistory/OrderHistoryView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/orderHistory/OrderHistoryView.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/orderlist/AdminOrderDetailView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/orderlist/AdminOrderDetailView.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/orderlist/AdminOrderListView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/orderlist/AdminOrderListView.vue" afterDir="false" />
+    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="유저 대시보드">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/AdminApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/AdminApi.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/userapproval/modal/UserApprovalModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/userapproval/modal/UserApprovalModal.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,7 +76,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "git-widget-placeholder": "refactor-cart-and-order-history",
+    "git-widget-placeholder": "feat-login",
     "node.js.selected.package.tslint": "(autodetect)",
     "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external"
   }
@@ -137,13 +138,13 @@
       <option name="project" value="LOCAL" />
       <updated>1769673281524</updated>
     </task>
-    <task id="LOCAL-00005" summary="feat: gitignore">
+    <task id="LOCAL-00005" summary="유저 대시보드">
       <option name="closed" value="true" />
-      <created>1769501255073</created>
+      <created>1769674563027</created>
       <option name="number" value="00005" />
       <option name="presentableId" value="LOCAL-00005" />
       <option name="project" value="LOCAL" />
-      <updated>1769501255073</updated>
+      <updated>1769674563027</updated>
     </task>
     <task id="LOCAL-00006" summary="depl: 수정">
       <option name="closed" value="true" />
@@ -166,6 +167,17 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat : 가격" />
