@@ -15,8 +15,10 @@
         <div class="field">
           <select v-model="search.status">
             <option value="">상태 전체</option>
-            <option value="ACTIVE">활성화</option>
-            <option value="INACTIVE">비활성화</option>
+            <option value="available">입고</option>
+            <option value="allocated">출고</option>
+            <option value="depleted">소진</option>
+            <option value="discarded">폐기</option>
           </select>
         </div>
         <BaseButton class="btn-search" @click="fetchLots">
@@ -35,7 +37,6 @@
           <th>수량</th>
           <th>상태</th>
           <th>등록일</th>
-          <th>관리</th>
         </tr>
         </thead>
         <tbody>
@@ -45,19 +46,14 @@
           <td class="title">{{ item.itemName }}</td>
           <td>{{ item.quantity }}</td>
           <td>
-            <StatusBadge :class="item.status === 'ACTIVE' ? 'status-done' : 'status-wait'">
-              {{ item.status === 'ACTIVE' ? '활성화' : '비활성화' }}
+            <StatusBadge :class="getStatusClass(item.status)">
+              {{ getStatusText(item.status) }}
             </StatusBadge>
           </td>
           <td>{{ item.createdAt }}</td>
-          <td>
-            <BaseButton class="btn-soft" @click="goDetail(item.lotId)">
-              상세보기
-            </BaseButton>
-          </td>
         </tr>
         <tr v-if="items.length === 0">
-          <td colspan="7">LOT 데이터가 없습니다.</td>
+          <td colspan="6">LOT 데이터가 없습니다.</td>
         </tr>
         </tbody>
       </table>
@@ -94,11 +90,25 @@ const search = ref({
   status: '',
 })
 
-const goDetail = (lotId) => {
-  // Assuming a detail page route exists
-  // router.push({ name: 'adminLotDetail', params: { lotId } })
-  alert(`Navigating to detail for LOT ID: ${lotId}`);
-}
+const getStatusText = (status) => {
+  const statusMap = {
+    available: '입고',
+    allocated: '출고',
+    depleted: '소진',
+    discarded: '폐기',
+  };
+  return statusMap[status] || '알 수 없음';
+};
+
+const getStatusClass = (status) => {
+  const classMap = {
+    available: 'status-done', // 입고
+    allocated: 'status-shipping', // 출고
+    depleted: 'status-wait', // 소진
+    discarded: 'status-hold', // 폐기
+  };
+  return classMap[status] || '';
+};
 
 const fetchLots = async () => {
   try {
@@ -118,22 +128,22 @@ const fetchLots = async () => {
         lotId: item.lotNo,
         itemName: item.itemName,
         quantity: item.quantity,
-        status: 'ACTIVE', // 임시
-        createdAt: item.inboundDate ?? '-', // 있으면 매핑
+        status: item.status, // API가 'available', 'allocated' 등을 반환한다고 가정
+        createdAt: item.inboundDate ?? '-',
       }));
 
       totalItems.value = response.totalCount ?? response.data.length;
       makePages(Math.ceil(totalItems.value / pageSize));
     } else {
       items.value = [];
+      totalItems.value = 0;
+      makePages(0);
     }
   } catch (err) {
     console.error(err);
     items.value = [];
   }
 };
-
-
 
 const makePages = (totalPages) => {
   let temp = [];
@@ -229,15 +239,11 @@ th {
   font-weight: 500;
 }
 
-.status-done {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.status-wait {
-  background: #fef3c7;
-  color: #b45309;
-}
+/* Status Styles */
+.status-done { background: #dcfce7; color: #15803d; } /* 입고 */
+.status-shipping { background: #e0f2fe; color: #0369a1; } /* 출고 */
+.status-wait { background: #f3f4f6; color: #4b5563; } /* 소진 */
+.status-hold { background: #fee2e2; color: #b91c1c; } /* 폐기 */
 
 .btn-soft {
   background: #f0fdf4;
