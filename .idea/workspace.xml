@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="유저 대시보드">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/AuthApI.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/AuthApI.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" afterDir="false" />
+    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="feat : 가격">
+      <change beforePath="$PROJECT_DIR$/src/api/OrderApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/OrderApi.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/orderHistory/OrderHistoryView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/orderHistory/OrderHistoryView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/orderlist/AdminOrderDetailView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/orderlist/AdminOrderDetailView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/orderlist/AdminOrderListView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/orderlist/AdminOrderListView.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,12 +56,12 @@
     <component name="ProjectId" id="38mZ0O6z8PCqsaTyMk0iSDTFid7" />
     }
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Gold-Team-Project/golden-harvest-frontend.git",
-    "accountId": "69c14e35-7d50-461c-b2e3-bbcc9c97fa16"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Gold-Team-Project/golden-harvest-frontend.git&quot;,
+    &quot;accountId&quot;: &quot;69c14e35-7d50-461c-b2e3-bbcc9c97fa16&quot;
   }
-}]]></component>
+}</component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -76,9 +75,9 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "git-widget-placeholder": "feat-login",
+    "git-widget-placeholder": "refactor-cart-and-order-history",
     "node.js.selected.package.tslint": "(autodetect)",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external"
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external"
   }
 }]]></component>
   <component name="SharedIndexes">
@@ -167,5 +166,9 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat : 가격" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat : 가격" />
   </component>
 </project>

@@ -141,7 +141,7 @@ const paginationPages = computed(() => {
         if (response.success && response.data) {
           const mapOrderStatusToKey = (status) => {
             switch (status) {
-              case '주문 접수': return 'PENDING';
+              case '주문 완료': return 'PENDING';
               case '상품 준비중': return 'PAID'; // API sends '상품 준비중' for PAID status
               case '배송 준비중': return 'PREPARING';
               case '배송 중': return 'SHIPPING';
@@ -151,7 +151,7 @@ const paginationPages = computed(() => {
             }
           };
 
-          orders.value = response.data.map(order => {
+          orders.value = response.data.content.map(order => {
             let orderDate = '';
             let orderTime = '';
             if (order.createdAt) {
@@ -189,7 +189,7 @@ const paginationPages = computed(() => {
             };
           }).filter(Boolean); // Remove null entries from filtering
 
-          totalOrders.value = orders.value.length;
+          totalOrders.value = response.data.totalElements;
           currentPage.value = 1; // Reset to first page on new search/filter
         } else {
           error.value = response.message || '주문 내역을 불러오는데 실패했습니다.';
