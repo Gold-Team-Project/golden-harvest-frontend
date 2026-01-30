@@ -100,7 +100,7 @@ const loadOrders = async (filters = {}) => { // loadOrders now accepts filters
     if (response.success && response.data) {
       const mapOrderStatusToKey = (status) => {
         switch (status) {
-          case '주문 접수': return 'PENDING';
+          case '주문 완료': return 'PENDING';
           case '상품 준비중': return 'PAID';
           case '배송 준비중': return 'PREPARING';
           case '배송 중': return 'SHIPPING';

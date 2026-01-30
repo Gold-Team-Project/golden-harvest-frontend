@@ -31,7 +31,7 @@
             variant="primary"
             style="background-color: #2ecc71;"
             @click="handleApproveOrder"
-            :disabled="orderDetail?.orderStatus !== '주문 접수'"
+            :disabled="orderDetail?.orderStatus !== '주문 완료'"
           >승인</BaseButton>
         </div>
       </div>
@@ -167,7 +167,7 @@ const combinedAddress = computed(() => {
 const orderStatusKey = computed(() => {
   if (!orderDetail.value || !orderDetail.value.orderStatus) return 'UNKNOWN';
   switch (orderDetail.value.orderStatus) {
-    case '주문 접수': return 'PENDING';
+    case '주문 완료': return 'PENDING';
     case '상품 준비중': return 'PAID'; // API now sends '상품 준비중' for PAID status
     case '배송 준비중': return 'PREPARING'; // '배송 준비중' remains PREPARING
     case '배송 중': return 'SHIPPING';

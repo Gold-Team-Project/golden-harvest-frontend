@@ -45,7 +45,7 @@ export async function fetchAllOrders(filters) {
 
 export async function fetchProducts(filters) {
     try {
-        const response = await http.get('/item', { params: filters });
+        const response = await http.get('/items', { params: filters });
         return response.data;
     } catch (error) {
         console.error('Error fetching products:', error);
