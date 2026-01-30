@@ -53,3 +53,10 @@ export const updateUserStatus = async (targetEmail, newStatus) => {
         params: { newStatus: newStatus }
     });
 };
+// 권한 변경
+export const updateUserRole = async (targetEmail, newRole) => {
+    // 예시: PATCH /admin/user/{targetEmail}/role?newRole=ROLE_ADMIN
+    return await http.patch(`/admin/user/${targetEmail}/role`, null, {
+        params: { newRole: newRole }
+    });
+};

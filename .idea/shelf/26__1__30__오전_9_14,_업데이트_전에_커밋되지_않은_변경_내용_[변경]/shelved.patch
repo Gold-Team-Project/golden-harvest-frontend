@@ -1,0 +1,70 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"3e83ee6b-a8b3-439e-a4ca-88081de4ae74\" name=\"변경\" comment=\"유저 대시보드\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/api/AuthApI.js\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/api/AuthApI.js\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/router/index.js\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/router/index.js\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/views/userapproval/UserApproval.vue\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/views/userapproval/UserApproval.vue\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">\r\n    {\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;Zane-Jeong&quot;\r\n    <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;okok02110211&quot;\r\n  }\r\n}</component>\r\n    <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;https://github.com/Gold-Team-Project/golden-harvest-frontend.git&quot;,\r\n    &quot;accountId&quot;: &quot;7f22ad36-6ca2-4ee0-9a3e-13cb3b7da4b3&quot;\r\n}&lt;/component&gt;\r\n  &lt;component name=&quot;GithubPullRequestsUISettings&quot;&gt;{\r\n  &amp;quot;selectedUrlAndAccountId&amp;quot;: {\r\n    &amp;quot;url&amp;quot;: &amp;quot;https://github.com/Gold-Team-Project/golden-harvest-frontend.git&amp;quot;,\r\n    &amp;quot;accountId&amp;quot;: &amp;quot;99bf73cb-b918-4e6e-8cce-9bfc8dbee279&amp;quot;\r\n  },\r\n  &amp;quot;recentNewPullRequestHead&amp;quot;: {\r\n    &amp;quot;server&amp;quot;: {\r\n      &amp;quot;useHttp&amp;quot;: false,\r\n      &amp;quot;host&amp;quot;: &amp;quot;github.com&amp;quot;,\r\n      &amp;quot;port&amp;quot;: null,\r\n      &amp;quot;suffix&amp;quot;: null\r\n    },\r\n    &amp;quot;owner&amp;quot;: &amp;quot;Gold-Team-Project&amp;quot;,\r\n    &amp;quot;repository&amp;quot;: &amp;quot;golden-harvest-frontend&amp;quot;\r\n  }\r\n}</component>\r\n    <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 7\r\n}</component>\r\n    <component name=\"ProjectId\" id=\"38mZ0O6z8PCqsaTyMk0iSDTFid7\" />\r\n    }\r\n  </component>\r\n  <component name=\"ProblemsViewState\">\r\n    <option name=\"selectedTabId\" value=\"CurrentFile\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 0\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"38S7K04BksA4TP0g6Hxeo145dxo\" />\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"git-widget-placeholder\": \"feat-login\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"ts.external.directory.path\": \"C:\\\\Program Files\\\\JetBrains\\\\IntelliJ IDEA 2025.2.1\\\\plugins\\\\javascript-plugin\\\\jsLanguageServicesImpl\\\\external\"\r\n  }\r\n}]]></component>\r\n  <component name=\"TaskManager\">\r\n    <task id=\"LOCAL-00001\" summary=\"AdminNotificationListView.vue 생성\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1769564814205</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1769564814205</updated>\r\n    </task>\r\n    <task active=\"true\" id=\"Default\" summary=\"디폴트 작업\">\r\n      <changelist id=\"5baba75e-0ace-47e2-b9de-0b36d69a2384\" name=\"변경\" comment=\"\" />\r\n      <created>1768781051449</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1768781051449</updated>\r\n      <workItem from=\"1768781053201\" duration=\"7193000\" />\r\n      <workItem from=\"1768878763602\" duration=\"11382000\" />\r\n      <workItem from=\"1768953860601\" duration=\"8203000\" />\r\n      <workItem from=\"1768965296619\" duration=\"3042000\" />\r\n      <workItem from=\"1768991596185\" duration=\"571000\" />\r\n      <workItem from=\"1769409565344\" duration=\"2010000\" />\r\n      <workItem from=\"1769483954383\" duration=\"4508000\" />\r\n      <workItem from=\"1769561756583\" duration=\"2348000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"f\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1769667276809</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1769667276809</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"수정\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1769653444360</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1769670578344</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1769673281524</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1769673281524</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"feat: gitignore\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1769501255073</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1769501255073</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00006\" summary=\"depl: 수정\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1769503325259</created>\r\n      <option name=\"number\" value=\"00006\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1769503325259</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00007\" summary=\"depl: secrets.CLOUDFRONT_DISTRIBUTION -&gt; 주석\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1769562692579</created>\r\n      <option name=\"number\" value=\"00007\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1769562692579</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"5\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 8e73f53a4b6d68ae1ea2f56e77365b3fd1f4df32)
++++ b/.idea/workspace.xml	(date 1769731941336)
+@@ -4,13 +4,7 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="유저 대시보드">
+-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/api/AuthApI.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/AuthApI.js" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/user/sidebar/AppSidebar.vue" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.js" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" afterDir="false" />
+-    </list>
++    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="유저 대시보드" />
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -119,13 +113,13 @@
+       <option name="project" value="LOCAL" />
+       <updated>1769673281524</updated>
+     </task>
+-    <task id="LOCAL-00005" summary="feat: gitignore">
++    <task id="LOCAL-00005" summary="유저 대시보드">
+       <option name="closed" value="true" />
+-      <created>1769501255073</created>
++      <created>1769674563027</created>
+       <option name="number" value="00005" />
+       <option name="presentableId" value="LOCAL-00005" />
+       <option name="project" value="LOCAL" />
+-      <updated>1769501255073</updated>
++      <updated>1769674563027</updated>
+     </task>
+     <task id="LOCAL-00006" summary="depl: 수정">
+       <option name="closed" value="true" />
+@@ -143,10 +137,25 @@
+       <option name="project" value="LOCAL" />
+       <updated>1769562692579</updated>
+     </task>
+-    <option name="localTasksCounter" value="5" />
++    <option name="localTasksCounter" value="6" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+     <option name="version" value="3" />
+   </component>
++  <component name="Vcs.Log.Tabs.Properties">
++    <option name="TAB_STATES">
++      <map>
++        <entry key="MAIN">
++          <value>
++            <State />
++          </value>
++        </entry>
++      </map>
++    </option>
++  </component>
++  <component name="VcsManagerConfiguration">
++    <MESSAGE value="유저 대시보드" />
++    <option name="LAST_COMMIT_MESSAGE" value="유저 대시보드" />
++  </component>
+ </project>
+\ No newline at end of file
