@@ -10,34 +10,31 @@
     <div class="card">
       <div class="form-grid">
         <div class="field">
-          <label for="lot-select">LOT 선택</label>
-          <select id="lot-select" v-model="form.lotId" @change="onLotChange">
-            <option value="" disabled>폐기할 LOT을 선택하세요</option>
-            <option v-for="lot in availableLots" :key="lot.lotId" :value="lot.lotId">
-              {{ lot.lotId }} ({{ lot.itemName }})
-            </option>
-          </select>
+          <label for="lot-id">LOT 번호</label>
+          <input id="lot-id" type="text" v-model="form.lotId" placeholder="폐기할 LOT 번호를 입력하세요"/>
         </div>
 
-        <div class="field">
+        <!-- 품목명 입력란 제거 -->
+        <!-- <div class="field">
           <label for="item-name">품목명</label>
           <input id="item-name" type="text" :value="selectedLot?.itemName" disabled placeholder="LOT을 선택하면 자동으로 입력됩니다"/>
-        </div>
+        </div> -->
 
         <div class="field">
           <label for="discard-quantity">폐기 수량</label>
           <input id="discard-quantity" type="number" v-model.number="form.quantity" placeholder="폐기할 수량을 입력하세요"/>
-          <p v-if="selectedLot" class="field-desc">
+          <!-- 현재 재고 설명 제거 -->
+          <!-- <p v-if="selectedLot" class="field-desc">
             현재 재고: {{ selectedLot.quantity }}
-          </p>
+          </p> -->
         </div>
 
         <div class="field">
           <label for="discard-reason">폐기 사유</label>
           <select id="discard-reason" v-model="form.reason">
             <option value="" disabled>사유를 선택하세요</option>
-            <option value="DAMAGE">파손</option>
-            <option value="EXPIRATION">유통기한 만료</option>
+            <option value="DAMAGED">파손</option>
+            <option value="EXPIRED">유통기한 만료</option>
             <option value="OTHER">기타</option>
           </select>
         </div>
@@ -47,10 +44,11 @@
           <textarea id="reason-detail" v-model="form.reasonDetail" placeholder="상세 사유를 입력하세요 (선택)"></textarea>
         </div>
 
-        <div class="field full-width">
+        <!-- 사진 첨부 필드 제거 -->
+        <!-- <div class="field full-width">
           <label for="file-upload">사진 첨부 (선택)</label>
           <input id="file-upload" type="file" @change="onFileChange"/>
-        </div>
+        </div> -->
       </div>
 
       <div class="actions">
@@ -64,7 +62,9 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import http from '@/api/axios';
+import { registerDiscard } from '@/api/DiscardApi';
+// getLots는 더 이상 사용되지 않으므로 제거
+// import { getLots } from '@/api/ItemApi';
 import BaseButton from '@/components/button/BaseButton.vue';
 
 const router = useRouter();
@@ -74,90 +74,84 @@ const form = reactive({
   quantity: null,
   reason: '',
   reasonDetail: '',
-  file: null,
+  // file은 더 이상 사용되지 않으므로 제거
+  // file: null,
 });
 
-const availableLots = ref([]);
+// availableLots, selectedLot, onLotChange, fetchAvailableLots는 더 이상 사용되지 않으므로 제거
+// const availableLots = ref([]);
 
-const selectedLot = computed(() => {
-  return availableLots.value.find(lot => lot.lotId === form.lotId);
-});
+// const selectedLot = computed(() => {
+//   return availableLots.value.find(lot => lot.lotId === form.lotId);
+// });
 
-const onLotChange = () => {
-  if (selectedLot.value) {
-    form.quantity = selectedLot.value.quantity; // Set max quantity initially
-  }
-};
+// const onLotChange = () => {
+//   if (selectedLot.value) {
+//     form.quantity = selectedLot.value.quantity;
+//   }
+// };
 
-const onFileChange = (e) => {
-  form.file = e.target.files[0] || null;
-};
+// onFileChange는 더 이상 사용되지 않으므로 제거
+// const onFileChange = (e) => {
+//   form.file = e.target.files[0] || null;
+// };
 
-const fetchAvailableLots = async () => {
-  // This is a mock implementation.
-  // In a real application, you would fetch this from your backend.
-  // e.g., await http.get('/lots?status=ACTIVE');
-  availableLots.value = Array.from({ length: 5 }, (_, i) => ({
-    lotId: `LOT-${202401 + i}`,
-    itemName: `품목 ${i + 1}`,
-    quantity: Math.floor(Math.random() * 50) + 10,
-  }));
-};
+// fetchAvailableLots 함수 제거
+// const fetchAvailableLots = async () => {
+//   try {
+//     const response = await getLots({ page: 1, size: 100 }); // Adjust page and size as needed
+//     availableLots.value = response.data.content.map(lot => ({
+//       lotId: lot.lotId,
+//       itemName: lot.itemName,
+//       quantity: lot.quantity,
+//     }));
+//   } catch (error) {
+//     console.error('Error fetching available lots:', error);
+//     alert('사용 가능한 LOT 목록을 불러오는 데 실패했습니다.');
+//   }
+// };
 
 const submit = async () => {
   if (!form.lotId) {
-    alert('LOT을 선택해주세요.');
+    alert('LOT 번호를 입력해주세요.');
     return;
   }
   if (!form.quantity || form.quantity <= 0) {
     alert('폐기 수량을 1 이상으로 입력해주세요.');
     return;
   }
-  if (selectedLot.value && form.quantity > selectedLot.value.quantity) {
-    alert('폐기 수량은 현재 재고를 초과할 수 없습니다.');
-    return;
-  }
+  // 현재 재고를 초과할 수 없다는 검증은 LOT 선택 드롭다운이 없으므로 제거
+  // if (selectedLot.value && form.quantity > selectedLot.value.quantity) {
+  //   alert('폐기 수량은 현재 재고를 초과할 수 없습니다.');
+  //   return;
+  // }
   if (!form.reason) {
     alert('폐기 사유를 선택해주세요.');
     return;
   }
 
-  const formData = new FormData();
-  formData.append('lotId', form.lotId);
-  formData.append('quantity', form.quantity);
-  formData.append('reason', form.reason);
-  formData.append('reasonDetail', form.reasonDetail);
-  if (form.file) {
-    formData.append('file', form.file);
-  }
+  // DiscardItemRequest 객체 생성
+  const discardItemRequest = {
+    lotNo: form.lotId,
+    quantity: form.quantity,
+    discardStatus: form.reason,
+    description: form.reasonDetail,
+  };
 
   try {
-    // In a real application, you would post to your backend.
-    // await http.post('/discards', formData);
-    
-    // Mock success
-    console.log('Submitting discard registration:', {
-      lotId: form.lotId,
-      quantity: form.quantity,
-      reason: form.reason,
-      reasonDetail: form.reasonDetail,
-      fileName: form.file?.name,
-    });
+    await registerDiscard(discardItemRequest);
     alert('폐기 등록이 완료되었습니다.');
-    
-    // I will assume there's a list view for discards
-    // For now, navigate back or to a relevant list page
-    router.push({ name: 'adminLotList' }); // Redirecting to lot list for now
-
+    router.push({ name: 'adminDiscardList' }); // Redirect to discard list
   } catch (error) {
     console.error('폐기 등록 실패:', error);
     alert('폐기 등록 중 오류가 발생했습니다.');
   }
 };
 
-onMounted(() => {
-  fetchAvailableLots();
-});
+// onMounted에서 fetchAvailableLots 호출 제거
+// onMounted(() => {
+//   fetchAvailableLots();
+// });
 </script>
 
 <style scoped>
@@ -201,7 +195,12 @@ onMounted(() => {
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px 24px;
+  gap: 20px 32px; /* Increased column gap */
+}
+
+.form-grid .field:not(.full-width) input,
+.form-grid .field:not(.full-width) select {
+  max-width: 300px; /* Apply max-width to inputs/selects in non-full-width fields */
 }
 
 .field {

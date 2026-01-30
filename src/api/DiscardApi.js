@@ -46,3 +46,13 @@ export async function getDiscardRatioByItem() {
         throw error;
     }
 }
+
+export async function registerDiscard(discardItemRequest) {
+    try {
+        const response = await http.post('/admin/discard', discardItemRequest); // Changed endpoint and body type
+        return response.data;
+    } catch (error) {
+        console.error('Error registering discard:', error);
+        throw error;
+    }
+}
