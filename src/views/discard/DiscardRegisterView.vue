@@ -14,19 +14,10 @@
           <input id="lot-id" type="text" v-model="form.lotId" placeholder="폐기할 LOT 번호를 입력하세요"/>
         </div>
 
-        <!-- 품목명 입력란 제거 -->
-        <!-- <div class="field">
-          <label for="item-name">품목명</label>
-          <input id="item-name" type="text" :value="selectedLot?.itemName" disabled placeholder="LOT을 선택하면 자동으로 입력됩니다"/>
-        </div> -->
 
         <div class="field">
           <label for="discard-quantity">폐기 수량</label>
           <input id="discard-quantity" type="number" v-model.number="form.quantity" placeholder="폐기할 수량을 입력하세요"/>
-          <!-- 현재 재고 설명 제거 -->
-          <!-- <p v-if="selectedLot" class="field-desc">
-            현재 재고: {{ selectedLot.quantity }}
-          </p> -->
         </div>
 
         <div class="field">
@@ -35,6 +26,9 @@
             <option value="" disabled>사유를 선택하세요</option>
             <option value="DAMAGED">파손</option>
             <option value="EXPIRED">유통기한 만료</option>
+            <option value="LOST">분실</option>
+            <option value="POLLUTE">오염</option>
+            <option value="RECALL">리콜/반품</option>
             <option value="OTHER">기타</option>
           </select>
         </div>
@@ -43,12 +37,6 @@
           <label for="reason-detail">상세 사유</label>
           <textarea id="reason-detail" v-model="form.reasonDetail" placeholder="상세 사유를 입력하세요 (선택)"></textarea>
         </div>
-
-        <!-- 사진 첨부 필드 제거 -->
-        <!-- <div class="field full-width">
-          <label for="file-upload">사진 첨부 (선택)</label>
-          <input id="file-upload" type="file" @change="onFileChange"/>
-        </div> -->
       </div>
 
       <div class="actions">
@@ -73,43 +61,9 @@ const form = reactive({
   lotId: '',
   quantity: null,
   reason: '',
-  reasonDetail: '',
-  // file은 더 이상 사용되지 않으므로 제거
-  // file: null,
+  reasonDetail: ''
 });
 
-// availableLots, selectedLot, onLotChange, fetchAvailableLots는 더 이상 사용되지 않으므로 제거
-// const availableLots = ref([]);
-
-// const selectedLot = computed(() => {
-//   return availableLots.value.find(lot => lot.lotId === form.lotId);
-// });
-
-// const onLotChange = () => {
-//   if (selectedLot.value) {
-//     form.quantity = selectedLot.value.quantity;
-//   }
-// };
-
-// onFileChange는 더 이상 사용되지 않으므로 제거
-// const onFileChange = (e) => {
-//   form.file = e.target.files[0] || null;
-// };
-
-// fetchAvailableLots 함수 제거
-// const fetchAvailableLots = async () => {
-//   try {
-//     const response = await getLots({ page: 1, size: 100 }); // Adjust page and size as needed
-//     availableLots.value = response.data.content.map(lot => ({
-//       lotId: lot.lotId,
-//       itemName: lot.itemName,
-//       quantity: lot.quantity,
-//     }));
-//   } catch (error) {
-//     console.error('Error fetching available lots:', error);
-//     alert('사용 가능한 LOT 목록을 불러오는 데 실패했습니다.');
-//   }
-// };
 
 const submit = async () => {
   if (!form.lotId) {
@@ -120,17 +74,11 @@ const submit = async () => {
     alert('폐기 수량을 1 이상으로 입력해주세요.');
     return;
   }
-  // 현재 재고를 초과할 수 없다는 검증은 LOT 선택 드롭다운이 없으므로 제거
-  // if (selectedLot.value && form.quantity > selectedLot.value.quantity) {
-  //   alert('폐기 수량은 현재 재고를 초과할 수 없습니다.');
-  //   return;
-  // }
   if (!form.reason) {
     alert('폐기 사유를 선택해주세요.');
     return;
   }
 
-  // DiscardItemRequest 객체 생성
   const discardItemRequest = {
     lotNo: form.lotId,
     quantity: form.quantity,
@@ -148,10 +96,6 @@ const submit = async () => {
   }
 };
 
-// onMounted에서 fetchAvailableLots 호출 제거
-// onMounted(() => {
-//   fetchAvailableLots();
-// });
 </script>
 
 <style scoped>

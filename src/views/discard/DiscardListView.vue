@@ -64,9 +64,12 @@
           <input type="text" placeholder="LOT 번호" v-model="filters.lotNo">
         </div>
         <div class="field">
+          <input type="text" placeholder="품목명" v-model="filters.itemName">
+        </div>
+        <div class="field">
           <select v-model="filters.discardStatus">
             <option value="">전체 사유</option>
-            <option v-for="r in reasonOptions" :key="r" :value="r">{{ r }}</option>
+            <option v-for="(label, value) in reasonMap" :key="value" :value="value">{{ label }}</option>
           </select>
         </div>
         <BaseButton class="btn-search" @click="fetchData">검색</BaseButton>
@@ -79,7 +82,8 @@
             <tr>
                 <th>NO</th>
                 <th>폐기 일자</th>
-                <th>품목 정보 (LOT)</th>
+                <th>LOT 번호</th>
+                <th>품목명</th>
                 <th>폐기량</th>
                 <th>손실율</th>
                 <th>폐기 사유</th>
@@ -91,15 +95,12 @@
             <tr v-for="(item, index) in items" :key="item.discardId">
                 <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                 <td>{{ item.discardedAt ? item.discardedAt.substring(0, 10) : '' }}</td>
-                <td class="product-info">
-                  <div>
-                      <div class="p-name">LOT: {{ item.lotNo }}</div>
-                  </div>
-                </td>
+                <td>LOT: {{ item.lotNo }}</td>
+                <td>{{ item.itemName }}</td>
                 <td><strong>{{ item.quantity }}</strong></td>
                 <td>{{ item.discardRate }}%</td>
                 <td>
-                    <StatusBadge :class="getReasonClass(item.discardStatus)">{{ item.discardStatus }}</StatusBadge>
+                    <StatusBadge :class="getReasonClass(item.discardStatus)">{{ reasonMap[item.discardStatus] || item.discardStatus }}</StatusBadge>
                 </td>
                 <td><span class="handler-badge">{{ item.approvedEmailId }}</span></td>
                 <td>
@@ -107,7 +108,7 @@
                 </td>
             </tr>
             <tr v-if="items.length === 0">
-                <td colspan="8">폐기 내역 데이터가 없습니다.</td>
+                <td :colspan="columnCount">폐기 내역 데이터가 없습니다.</td>
             </tr>
             </tbody>
         </table>
@@ -134,7 +135,7 @@ const isModalOpen = ref(false);
 const selectedItem = ref(null);
 
 const items = ref([]);
-const topDiscardedItems = ref([]); // Renamed from wasteRatios
+const topDiscardedItems = ref([]);
 const discardVolume = ref({ currentMonthVolume: 0, lastMonthVolume: 0 });
 const discardLoss = ref({ currentTotalValue: 0, lastMonthTotalValue: 0 });
 
@@ -142,10 +143,23 @@ const filters = reactive({
     startDate: '',
     endDate: '',
     lotNo: '',
+    itemName: '',
     discardStatus: '',
 });
 
-const reasonOptions = ['파손/손실', '유통기한', '부패/변질'];
+const reasonMap = {
+  'DAMAGED': '파손',
+  'EXPIRED': '유통기한 만료',
+  'LOST': '분실',
+  'OTHER': '기타',
+  'POLLUTE': '오염',
+  'RECALL': '회수/리콜',
+};
+
+const columnCount = computed(() => {
+  // NO, 폐기 일자, LOT 번호, 품목명, 폐기량, 손실율, 폐기 사유, 처리자, 관리 (9 columns)
+  return 9;
+});
 
 const openModal = (item) => {
   selectedItem.value = item;
@@ -159,13 +173,10 @@ const closeModal = () => {
 
 const fetchData = () => {
   fetchListData();
-  // No need to refetch volume and loss data on filter changes unless they are filter-dependent.
-  // Assuming they are monthly/overall summaries, they don't change with item list filters.
 };
 
 const fetchListData = async () => {
   try {
-    // This part still needs proper total pages from API
     const response = await getDiscardList({
       page: currentPage.value,
       size: pageSize.value,
@@ -173,7 +184,7 @@ const fetchListData = async () => {
     });
     if (response.success && Array.isArray(response.data)) {
       items.value = response.data;
-      const totalPages = Math.ceil(response.data.length / pageSize.value); // This needs to be improved with actual total from API
+      const totalPages = Math.ceil(response.data.length / pageSize.value);
       makePages(totalPages > 0 ? totalPages : 1);
     } else {
       items.value = [];
@@ -203,6 +214,7 @@ const fetchLossData = async () => {
     if (response.success) {
       discardLoss.value = response.data;
     }
+    
   } catch (error) {
     console.error('Failed to fetch discard loss:', error);
   }
@@ -212,7 +224,7 @@ const fetchTopDiscardedItemsData = async () => {
   try {
     const response = await getDiscardRatioByItem();
     if (response.success && Array.isArray(response.data)) {
-      topDiscardedItems.value = response.data.slice(0, 3); // Take top 3 as requested
+      topDiscardedItems.value = response.data.slice(0, 3);
     }
   } catch (error) {
     console.error('Failed to fetch top discarded items:', error);
@@ -261,19 +273,22 @@ const topDiscardedItemsWithPercentage = computed(() => {
   if (totalQuantitySum === 0) {
     return [];
   }
-  const colors = ['#ef4444', '#f97316', '#eab308']; // Example colors
+  const colors = ['#ef4444', '#f97316', '#eab308'];
   return topDiscardedItems.value.map((item, index) => ({
     ...item,
     percent: Math.round((item.totalQuantity / totalQuantitySum) * 100),
-    color: colors[index % colors.length], // Assign a color
+    color: colors[index % colors.length],
   }));
 });
 
 
 const getReasonClass = (status) => {
-    if (status === '파손/손실') return 'status-info';
-    if (status === '유통기한') return 'status-warning';
-    if (status === '부패/변질') return 'status-danger';
+    if (status === 'DAMAGED') return 'status-danger'; // 파손
+    if (status === 'EXPIRED') return 'status-warning'; // 유통기한 만료
+    if (status === 'LOST') return 'status-info'; // 분실 (info for neutral)
+    if (status === 'OTHER') return 'status-info'; // 기타 (info for neutral)
+    if (status === 'POLLUTE') return 'status-warning'; // 오염 (warning as it's bad but not critical like damage)
+    if (status === 'RECALL') return 'status-info'; // 회수/리콜 (info for neutral)
     return '';
 };
 
@@ -296,12 +311,11 @@ onMounted(() => {
   fetchListData();
   fetchVolumeData();
   fetchLossData();
-  fetchTopDiscardedItemsData(); // Fetch new data
+  fetchTopDiscardedItemsData();
 });
 
-watch(currentPage, fetchData); // Use fetchData to ensure all relevant data is reloaded if pagination affects summaries
-watch(filters, fetchData); // 검색 조건 변경 시 다시 로드
-
+watch(currentPage, fetchData);
+watch(filters, fetchData, { deep: true }); // 깊은 감시 추가
 </script>
 
 <style scoped>
