@@ -16,7 +16,7 @@
       <div v-else class="card cart-items-card">
         <div class="card-header">
           <div class="select-all">
-            <input type="checkbox" id="select-all" v-model="allSelected" @change="selectAll" />
+            <input type="checkbox" id="select-all" v-model="allSelected" />
             <label for="select-all">전체 선택 ({{ selectedItems.length }}/{{ cartItems.length }})</label>
           </div>
           <button class="delete-selected-btn" @click="deleteSelectedItems">선택 삭제</button>

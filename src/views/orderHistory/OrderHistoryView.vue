@@ -73,7 +73,7 @@ const orders = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 10;
 const totalOrders = ref(0);
-const loading = ref(false);
+const loading = ref(true);
 const error = ref(null);
 
 const startDate = ref('');
