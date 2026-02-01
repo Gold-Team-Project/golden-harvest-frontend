@@ -98,7 +98,7 @@ const searchCompany = ref(''); // API doesn't support company filter, but keepin
 
 // Order List States
 const orders = ref([]);
-const loading = ref(false);
+const loading = ref(true);
 const error = ref(null);
 
 // Pagination States

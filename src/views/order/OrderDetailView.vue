@@ -111,8 +111,16 @@ onMounted(async () => {
 
   if (priceQuery) displayPrice.value = Number(priceQuery);
 
-  const res = await fetchItemDetail(skuNo);
-  if (res?.success) productDetails.value = res.data;
+  try {
+    const res = await fetchItemDetail(skuNo);
+    if (res?.success) {
+      productDetails.value = res.data;
+    } else {
+      console.error('상품 상세 정보 로드 실패:', res?.message);
+    }
+  } catch (error) {
+    console.error('상품 상세 정보 로드 중 오류 발생:', error);
+  }
 });
 </script>
 

@@ -13,14 +13,12 @@ export default defineConfig({
   },
 
   test: {
-    environment: 'jsdom',
     globals: true,
-    clearMocks: true,
-
-    setupFiles: ['./src/test/setup.js'],
-
-    css: true,
-
+    environment: 'jsdom',
+    include: ['src/**/*.spec.js'],
+        clearMocks: true,
+    
+        css: true,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
