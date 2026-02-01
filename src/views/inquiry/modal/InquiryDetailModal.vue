@@ -42,6 +42,7 @@ import { ref, onMounted } from 'vue'
 import http from '@/api/axios'
 
 const props = defineProps<{ inquiryNo: string }>()
+const emit = defineEmits(['close'])
 const detail = ref<any>(null)
 
 onMounted(async () => {

@@ -110,7 +110,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import BaseButton from '@/components/button/BaseButton.vue'
-import { fetchOrderDetail } from '@/api/OrderApi'
+import { fetchOrderDetail } from '@/api/OrderApi.js'
 
 const route = useRoute()
 const orderDetail = ref(null)
