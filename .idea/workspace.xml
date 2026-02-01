@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="feat : 테스트 코드">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/26__1__30___2_11__________.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/html/html.meta.json.gz" beforeDir="false" afterPath="$PROJECT_DIR$/html/html.meta.json.gz" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/inquiry/__tests__/user/InquiryDetailModal.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/__tests__/user/InquiryDetailModal.spec.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/inquiry/__tests__/user/InquiryListView.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/__tests__/user/InquiryListView.spec.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/inquiry/modal/InquiryDetailModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/modal/InquiryDetailModal.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/vite.config.js" afterDir="false" />
-    </list>
+    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="feat : 테스트 코드" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -133,7 +123,7 @@
       <workItem from="1769483954383" duration="4508000" />
       <workItem from="1769561756583" duration="2348000" />
       <workItem from="1769686764270" duration="3710000" />
-      <workItem from="1769929313324" duration="1320000" />
+      <workItem from="1769929313324" duration="2580000" />
     </task>
     <task id="LOCAL-00002" summary="f">
       <option name="closed" value="true" />
@@ -175,15 +165,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769927768780</updated>
     </task>
-    <task id="LOCAL-00007" summary="depl: secrets.CLOUDFRONT_DISTRIBUTION -&gt; 주석">
+    <task id="LOCAL-00007" summary="feat : 테스트 코드">
       <option name="closed" value="true" />
-      <created>1769562692579</created>
+      <created>1769930656347</created>
       <option name="number" value="00007" />
       <option name="presentableId" value="LOCAL-00007" />
       <option name="project" value="LOCAL" />
-      <updated>1769562692579</updated>
+      <updated>1769930656347</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
