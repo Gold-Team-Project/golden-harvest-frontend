@@ -1,33 +1,25 @@
 import { mount, flushPromises } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useRoute, useRouter } from 'vue-router'
-import http from '@/api/axios'
 import MasterDataDetail from '../MasterDataDetail.vue'
+import axiosInstance from '@/api/axios' // Import the actual axios instance
 
-// 1. Mock 함수들을 최상단에서 정의 (변수명은 반드시 'mock'으로 시작해야 호이스팅 시 에러가 안 남)
-const mockRouterPush = vi.fn()
-const mockRouterBack = vi.fn()
+// Mock dependencies
+const mockedRouterPush = vi.fn()
+const mockedRouterBack = vi.fn()
+const mockedUseRoute = vi.mocked(useRoute);
 
-// 2. 모듈 모킹
 vi.mock('vue-router', () => ({
-    useRoute: vi.fn(),
-    useRouter: vi.fn(() => ({
-        push: mockRouterPush,
-        back: mockRouterBack,
-    })),
+  useRoute: vi.fn(),
+  useRouter: vi.fn(() => ({
+    push: mockedRouterPush,
+    back: mockedRouterBack,
+  })),
 }))
 
-vi.mock('@/api/axios', () => ({
-    default: {
-        get: vi.fn(),
-        put: vi.fn(),
-    },
-}))
-
-// 3. 타입 안전하게 Mock 인스턴스 가져오기 (vi.mocked 사용)
-const mockedGet = vi.mocked(http.get)
-const mockedPut = vi.mocked(http.put)
-const mockedUseRoute = vi.mocked(useRoute)
+// Use vi.spyOn to mock methods of the imported axios instance
+const mockedGet = vi.spyOn(axiosInstance, 'get') as vi.Mock;
+const mockedPut = vi.spyOn(axiosInstance, 'put') as vi.Mock;
 
 describe('MasterDataDetail.vue', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,8 +62,8 @@ describe('MasterDataDetail.vue', () => {
                 },
                 mocks: {
                     $router: {
-                        push: mockRouterPush,
-                        back: mockRouterBack,
+                        push: mockedRouterPush, // Changed from mockRouterPush
+                        back: mockedRouterBack,  // Changed from mockRouterBack
                     },
                 },
             },
@@ -108,7 +100,7 @@ describe('MasterDataDetail.vue', () => {
         expect(editButton).toBeTruthy()
         await editButton.trigger('click')
 
-        expect(mockRouterPush).toHaveBeenCalledWith('/admin/masterData/edit/SKU123')
+        expect(mockedRouterPush).toHaveBeenCalledWith('/admin/masterData/edit/SKU123')
     })
 
     it('"목록으로" 버튼 클릭 시 이전 페이지로 돌아갑니다', async () => {
@@ -119,7 +111,7 @@ describe('MasterDataDetail.vue', () => {
         const backButton = buttons.find((b: any) => b.text().includes('목록으로'))
 
         await backButton.trigger('click')
-        expect(mockRouterBack).toHaveBeenCalledTimes(1)
+        expect(mockedRouterBack).toHaveBeenCalledTimes(1)
     })
 
     it('"사용 중지" 버튼 클릭 시 상태 변경 API를 호출하고 UI를 업데이트합니다', async () => {
