@@ -61,7 +61,7 @@ const quantity = ref(1);
 const displayPrice = ref(0);
 const isSubmitting = ref(false);
 
-/* 수량 */
+/* 수량  */
 const increaseQuantity = () => quantity.value++;
 const decreaseQuantity = () => {
   if (quantity.value > 1) quantity.value--;
