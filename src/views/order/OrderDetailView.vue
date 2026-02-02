@@ -25,13 +25,7 @@
             장바구니 담기
           </BaseButton>
 
-          <BaseButton
-              variant="primary"
-              :disabled="isSubmitting"
-              @click="handleBuyNow"
-          >
-            바로 구매하기
-          </BaseButton>
+
         </div>
 
         <ul class="product-details-list">
@@ -67,7 +61,7 @@ const quantity = ref(1);
 const displayPrice = ref(0);
 const isSubmitting = ref(false);
 
-/* 수량 */
+/* 수량  */
 const increaseQuantity = () => quantity.value++;
 const decreaseQuantity = () => {
   if (quantity.value > 1) quantity.value--;
@@ -94,16 +88,7 @@ const handleAddToCart = async () => {
   }
 };
 
-/* 바로 구매 */
-const handleBuyNow = () => {
-  router.push({
-    name: 'order',
-    query: {
-      skuNo: productDetails.value.skuNo,
-      quantity: quantity.value,
-    },
-  });
-};
+
 
 onMounted(async () => {
   const skuNo = route.params.id;
