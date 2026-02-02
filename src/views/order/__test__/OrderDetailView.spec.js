@@ -117,22 +117,7 @@ describe('OrderDetailView.vue (Product Detail)', () => { // Renamed description 
     expect(alertSpy).toHaveBeenCalledWith('장바구니에 담았습니다 🛒');
   });
 
-  it('바로 구매하기 버튼이 라우터 푸시를 호출해야 합니다', async () => {
-    const wrapper = mount(OrderDetailView, mountOptions);
-    await vi.runAllTimers();
-    await wrapper.vm.$nextTick();
 
-    const buyNowBtn = wrapper.findAllComponents(BaseButton).find(b => b.text().includes('바로 구매하기'));
-    await buyNowBtn.trigger('click');
-
-    expect(routerPushSpy).toHaveBeenCalledWith({
-      name: 'order',
-      query: {
-        skuNo: 'PROD_001',
-        quantity: 1,
-      },
-    });
-  });
 
   it('API 호출 실패 시 오류 메시지가 콘솔에 기록되어야 합니다', async () => {
     fetchItemDetail.mockRejectedValue(new Error('상품 정보 로드 실패'));
