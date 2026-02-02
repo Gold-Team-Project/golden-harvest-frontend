@@ -4,14 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="테스트코드 작성완료">
+    <list default="true" id="7662aefc-30c4-4e1c-8624-a1ce67cf32e2" name="변경" comment=".">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/masterdata/__tests__/MasterDataDetail.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/masterdata/__tests__/MasterDataDetail.spec.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="79" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -57,9 +60,13 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Gold-Team-Project/golden-harvest-frontend.git&quot;,
-    &quot;accountId&quot;: &quot;69c14e35-7d50-461c-b2e3-bbcc9c97fa16&quot;
+    &quot;accountId&quot;: &quot;2df266ad-f2e5-4b58-9036-196182c4f774&quot;
   }
 }</component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -73,34 +80,29 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;git-widget-placeholder&quot;: &quot;test/auth-user-inventory&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;test-code-cart-and-order-list&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\zane\Desktop\goldenhavest\golden-harvest-front\golden-harvest-frontend\src\views\admin\__test__" />
-      <recent name="C:\Users\zane\Desktop\goldenhavest\golden-harvest-front\golden-harvest-frontend\src\views\cart\__test__" />
-      <recent name="C:\Users\zane\Desktop\goldenhavest\golden-harvest-front\golden-harvest-frontend\src\views\order\__test__" />
-      <recent name="C:\Users\zane\Desktop\goldenhavest\golden-harvest-front\golden-harvest-frontend\src\views\orderHistory\__test__" />
-      <recent name="C:\Users\zane\Desktop\goldenhavest\golden-harvest-front\golden-harvest-frontend\src\views\orderHistory" />
-    </key>
-  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.26830.84" />
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.30387.90" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.30387.90" />
       </set>
     </attachedChunks>
   </component>
@@ -114,7 +116,7 @@
       <updated>1769564814205</updated>
     </task>
     <task active="true" id="Default" summary="디폴트 작업">
-      <changelist id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="feat : 테스트 코드" />
+      <changelist id="7662aefc-30c4-4e1c-8624-a1ce67cf32e2" name="변경" comment="." />
       <created>1768781051449</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -127,8 +129,9 @@
       <workItem from="1769409565344" duration="2010000" />
       <workItem from="1769483954383" duration="4508000" />
       <workItem from="1769561756583" duration="2348000" />
-      <workItem from="1769686764270" duration="3710000" />
-      <workItem from="1769929313324" duration="2580000" />
+      <workItem from="1769736408122" duration="616000" />
+      <workItem from="1769993264399" duration="617000" />
+      <workItem from="1769994450985" duration="606000" />
     </task>
     <task id="LOCAL-00002" summary="f">
       <option name="closed" value="true" />
@@ -138,9 +141,9 @@
       <option name="project" value="LOCAL" />
       <updated>1769667276809</updated>
     </task>
-    <task id="LOCAL-00003" summary="수정">
+    <task id="LOCAL-00003" summary="feat : 관리자 홈">
       <option name="closed" value="true" />
-      <created>1769653444360</created>
+      <created>1769670578344</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
@@ -154,59 +157,39 @@
       <option name="project" value="LOCAL" />
       <updated>1769673281524</updated>
     </task>
-    <task id="LOCAL-00005" summary="feat : 테스트 코드">
+    <task id="LOCAL-00005" summary=".">
       <option name="closed" value="true" />
-      <created>1769927575522</created>
+      <created>1769677589354</created>
       <option name="number" value="00005" />
       <option name="presentableId" value="LOCAL-00005" />
       <option name="project" value="LOCAL" />
-      <updated>1769927575522</updated>
+      <updated>1769677589354</updated>
     </task>
-    <task id="LOCAL-00006" summary="feat : 테스트 코드">
+    <task id="LOCAL-00006" summary="depl: 수정">
       <option name="closed" value="true" />
-      <created>1769927768780</created>
+      <created>1769503325259</created>
       <option name="number" value="00006" />
       <option name="presentableId" value="LOCAL-00006" />
       <option name="project" value="LOCAL" />
-      <updated>1769927768780</updated>
+      <updated>1769503325259</updated>
     </task>
-    <task id="LOCAL-00007" summary="feat : 테스트 코드">
+    <task id="LOCAL-00007" summary="depl: secrets.CLOUDFRONT_DISTRIBUTION -&gt; 주석">
       <option name="closed" value="true" />
-      <created>1769930656347</created>
+      <created>1769562692579</created>
       <option name="number" value="00007" />
       <option name="presentableId" value="LOCAL-00007" />
       <option name="project" value="LOCAL" />
-      <updated>1769930656347</updated>
+      <updated>1769562692579</updated>
     </task>
-    <task id="LOCAL-00008" summary="테스트코드 작성완료">
-      <option name="closed" value="true" />
-      <created>1769996224564</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1769996224564</updated>
-    </task>
-    <option name="localTasksCounter" value="9" />
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat : 가격" />
-    <MESSAGE value="feat : 테스트 코드" />
-    <MESSAGE value="테스트코드 작성완료" />
-    <option name="LAST_COMMIT_MESSAGE" value="테스트코드 작성완료" />
+    <MESSAGE value="다운로드 수정" />
+    <MESSAGE value="." />
+    <option name="LAST_COMMIT_MESSAGE" value="." />
   </component>
 </project>
