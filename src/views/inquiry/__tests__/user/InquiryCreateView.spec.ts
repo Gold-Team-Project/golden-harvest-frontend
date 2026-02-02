@@ -38,10 +38,14 @@ async function readFormDataJson(formData: FormData, key: string) {
     // 없으면 바로 에러 내서 원인을 명확히
     expect(val, `FormData에 "${key}"가 없습니다`).toBeTruthy()
 
-    // Blob이면 text()로 읽기
+    // Blob이면 FileReader로 읽기
     if (val instanceof Blob) {
-        const text = await val.text()
-        return JSON.parse(text)
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.onload = () => resolve(JSON.parse(reader.result as string))
+            reader.onerror = reject
+            reader.readAsText(val)
+        })
     }
 
     // string이면 그대로 파싱
@@ -78,7 +82,7 @@ describe('InquiryCreateView UI', () => {
         expect(url).toBe('/inquiries')
         expect(formData).toBeInstanceOf(FormData)
 
-        // ✅ request(JSON) 검증 (환경에 따라 Blob/string 둘 다 대응)
+        // request(JSON) 검증 (환경에 따라 Blob/string 둘 다 대응)
         const payload = await readFormDataJson(formData as FormData, 'request')
 
         expect(payload).toEqual({
@@ -105,7 +109,7 @@ describe('InquiryCreateView UI', () => {
             .find('textarea[placeholder="문의하실 내용을 상세히 작성해주세요"]')
             .setValue('파일 포함 테스트')
 
-        // ✅ 파일 업로드 (jsdom 안정 버전)
+        // 파일 업로드 (jsdom 안정 버전)
         const fileInputWrapper = wrapper.find('input[type="file"]')
         const inputEl = fileInputWrapper.element as HTMLInputElement
         const file = new File(['hello'], 'hello.txt', { type: 'text/plain' })
@@ -135,7 +139,7 @@ describe('InquiryCreateView UI', () => {
             salesOrderId: 1,
         })
 
-        // ✅ file 포함 검증
+        // file 포함 검증
         const uploaded = (formData as FormData).get('file') as File
         expect(uploaded).toBeInstanceOf(File)
         expect(uploaded.name).toBe('hello.txt')

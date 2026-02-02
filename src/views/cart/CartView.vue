@@ -64,7 +64,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import BaseButton from '@/components/button/BaseButton.vue';
-import { fetchCartItems, updateCartItemQuantity, deleteCartItem, checkoutCart } from '@/api/OrderApi'; // Import all API functions
+import { fetchCartItems, updateCartItemQuantity, deleteCartItem, checkoutCart } from '@/api/OrderApi';
 
 const cartItems = ref([]); // Initialize as empty array
 const loading = ref(true); // Loading state

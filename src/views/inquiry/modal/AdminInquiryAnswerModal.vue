@@ -99,7 +99,7 @@ const fetchDetail = async () => {
   }
 }
 
-/* 📎 파일 다운로드 */
+/* 파일 다운로드 */
 const downloadFile = async () => {
   const url = detail.value?.downloadUrl
   if (!url || url === "-0") return alert("다운로드할 파일이 없습니다.")

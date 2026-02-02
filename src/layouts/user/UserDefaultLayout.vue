@@ -36,7 +36,7 @@ import AppHeader from '@/components/user/header/AppHeader.vue'
 
 .main {
   flex: 1;
-  overflow: hidden; /* ← 핵심 */
+  overflow: hidden;
   padding: 24px;
   background: #f5f5f5;
 }

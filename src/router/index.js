@@ -1,7 +1,7 @@
 // src/router/index.js
 import DashboardView from "@/views/admin/DashboardView.vue"; // Admin Dashboard
 import { createRouter, createWebHistory } from 'vue-router'
-import { jwtDecode } from 'jwt-decode' // ✅ 라이브러리 임포트 확인 (없으면 npm install jwt-decode)
+import { jwtDecode } from 'jwt-decode'
 
 import UserDefaultLayout from "@/layouts/user/UserDefaultLayout.vue";
 import InquiryListView from "@/views/inquiry/user/InquiryListView.vue";
@@ -109,10 +109,10 @@ const routes = [
     {
         path: '/admin',
         component: AdminDefaultLayout,
-        meta: { requiresAdmin: false }, // ✅ 이 부모가 있는 자식들은 모두 가드에 걸립니다.
+        meta: { requiresAdmin: false }, // 이 부모가 있는 자식들은 모두 가드에 걸림
         children: [
             {
-                path: '', // Default child route for /admin
+                path: '',
                 name: 'adminDashboard',
                 component: DashboardView,
                 meta: { title: '홈 / 대시보드' },
@@ -201,19 +201,28 @@ const router = createRouter({
 // 라우터 가드 작성
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('accessToken');
+    const isAuthenticated = !!token;
 
-    // to.matched를 통해 부모 중 하나라도 requiresAdmin이 있는지 확인합니다.
+    const publicPages = ['/login', '/signup', '/password'];
+    const authRequired = !publicPages.includes(to.path);
+
+    // 인증이 필요하고 사용자가 인증되지 않았다면 로그인 페이지로 리디렉션 (알림 없음)
+    if (authRequired && !isAuthenticated) {
+        return next('/login');
+    }
+
+    // 사용자가 인증되었고 로그인/회원가입/비밀번호 찾기 페이지로 가려 한다면 홈으로 리디렉션
+    if (isAuthenticated && publicPages.includes(to.path)) {
+        return next('/');
+    }
+
+    // --- 기존 관리자 가드 로직 ---
     const isRequiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
 
     if (isRequiresAdmin) {
-        if (!token) {
-            alert('관리자 로그인이 필요한 페이지입니다.');
-            return next('/login');
-        }
-
+        // 이 부분은 인증된 사용자가 관리자 권한이 없을 때만 해당
         try {
-            const decoded = jwtDecode(token);
-            // 백엔드 Role 값(ROLE_ADMIN)과 일치하는지 확인
+            const decoded = jwtDecode(token); // 토큰이 있다는 것은 위에서 확인됨
             if (decoded.role !== 'ROLE_ADMIN') {
                 alert('접근 권한이 없습니다.');
                 return next('/');
@@ -222,10 +231,10 @@ router.beforeEach((to, from, next) => {
         } catch (error) {
             console.error('JWT Decode Error:', error);
             localStorage.removeItem('accessToken');
-            next('/login');
+            next('/login'); // 토큰 오류 시 로그인 페이지로
         }
     } else {
-        next(); // 일반 페이지는 통과
+        next(); // 공용 페이지 또는 인증된 일반 사용자 페이지, 진행
     }
 });
 

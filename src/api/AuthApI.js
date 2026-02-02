@@ -78,7 +78,7 @@ export const authApi = {
         // 2. 파일
         formData.append("file", file);
 
-        // 💡 /user/business-update 경로로 POST 전송
+        // /user/business-update 경로로 POST 전송
         return await http.post('/user/business-update', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'

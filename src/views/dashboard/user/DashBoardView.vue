@@ -91,7 +91,7 @@ const orderSteps = ref([
   { label: '주문 취소', count: 2, icon: CancelIcon },
 ]);
 
-// 🚨 한 줄(5개)을 꽉 채우기 위해 데이터를 5개로 맞춤
+// 데이터를 5개로 맞춤
 const favoriteItems = ref([
   { name: '유기농 현미 햇반 210g x 24개', count: 15, price: '32,400' },
   { name: '제주 삼다수 2L x 12병', count: 12, price: '11,800' },

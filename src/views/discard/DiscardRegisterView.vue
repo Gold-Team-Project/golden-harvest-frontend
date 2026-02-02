@@ -51,8 +51,6 @@
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { registerDiscard } from '@/api/DiscardApi';
-// getLots는 더 이상 사용되지 않으므로 제거
-// import { getLots } from '@/api/ItemApi';
 import BaseButton from '@/components/button/BaseButton.vue';
 
 const router = useRouter();

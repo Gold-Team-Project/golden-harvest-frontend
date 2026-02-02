@@ -97,7 +97,7 @@ const handleSendCode = async () => {
   }
 };
 
-// 2. 인증번호 확인 함수 (추가됨!)
+// 2. 인증번호 확인 함수 (추가됨)
 // Password.vue 내부의 handleVerifyCode 함수
 const handleVerifyCode = async () => {
   if (!form.verifyCode) {

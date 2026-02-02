@@ -113,7 +113,7 @@ const fetchNotifications = async () => {
   try {
     const res = await http.get('/notifications', {
       params: {
-        userEmail: 'admin@teamgold.com', // 여기 바꿈 (지금 데이터 기준)
+        userEmail: 'admin@teamgold.com',
         page: currentPage.value,
         size: pageSize,
       },

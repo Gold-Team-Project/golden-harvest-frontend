@@ -165,7 +165,6 @@ onMounted(async () => {
 
     console.log("4. 매핑할 유저 데이터:", userData);
 
-    // [수정 포인트 1] 데이터 할당
     info.email = userData.email || '';
     info.company = userData.company || '';
     info.businessNumber = userData.businessNumber || '';
@@ -175,12 +174,9 @@ onMounted(async () => {
     info.addressLine2 = userData.addressLine2 || '';
     info.postalCode = userData.postalCode || '';
 
-    // [수정 포인트 2] 파일 ID 매핑 (서버의 다양한 필드명 대응)
     // 서버 응답 로그(4번)를 보고 정확한 키값을 찾아야 하지만, 일단 보편적인 이름들을 다 체크합니다.
     info.fileId = userData.fileId || userData.file_id || userData.businessFileId || null;
 
-    // 만약 여전히 null이라면, 테스트를 위해 현재 DB에 있는 실제 파일 ID 숫자를
-    // 임시로 적어주면 승인 에러를 피할 수 있습니다 (예: info.fileId = userData.fileId || 1;)
 
   } catch (error) {
     console.error(" 데이터 로드 에러:", error);
@@ -203,7 +199,7 @@ const handleBusinessUpdateReq = async () => {
       requestBusinessNumber: info.businessNumber
     };
 
-    // 💡 파일을 따로 올리지 말고, 여기서 데이터와 파일을 한꺼번에 보냅니다!
+    // 파일을 따로 올리지 말고, 여기서 데이터와 파일을 한꺼번에 보냅니다
     await authApi.requestBusinessUpdate(updateData, selectedFile.value);
 
     alert("수정 요청이 전송되었습니다.");
