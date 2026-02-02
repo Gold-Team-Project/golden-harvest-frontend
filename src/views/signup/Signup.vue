@@ -95,7 +95,7 @@
 
 <script setup>
 import { reactive, ref } from 'vue';
-import authApi from '@/api/AuthApI.js'; // 👈 AuthApi 임포트 확인!
+import authApi from '@/api/AuthApI.js';
 
 const form = reactive({
   email: '',
@@ -108,7 +108,7 @@ const form = reactive({
 });
 
 const fileName = ref('');
-const selectedFile = ref(null); // 👈 백엔드 전송용 파일 객체
+const selectedFile = ref(null);
 
 // 1. 파일 선택 핸들러
 const handleFileUpload = (event) => {

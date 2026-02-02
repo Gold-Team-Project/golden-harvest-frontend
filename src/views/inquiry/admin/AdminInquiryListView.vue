@@ -225,7 +225,7 @@ onMounted(fetchAdminInquiries)
 .search-row {
   display: flex;
   gap: 12px;
-  align-items: center; /* ⭐ 핵심 */
+  align-items: center;
 }
 
 .field {
@@ -238,7 +238,7 @@ onMounted(fetchAdminInquiries)
 
 .search-row input,
 .search-row select {
-  width: 100%; /* ❗ 93% 제거 */
+  width: 100%;
   height: 40px;
   border: 1px solid #d1d5db;
   border-radius: 8px;

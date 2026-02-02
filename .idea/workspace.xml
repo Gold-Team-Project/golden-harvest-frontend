@@ -4,7 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="feat : 테스트 코드" />
+    <list default="true" id="3e83ee6b-a8b3-439e-a4ca-88081de4ae74" name="변경" comment="테스트코드 작성">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/html/html.meta.json.gz" beforeDir="false" afterPath="$PROJECT_DIR$/html/html.meta.json.gz" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/AuthApI.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/AuthApI.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/layouts/user/UserDefaultLayout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/layouts/user/UserDefaultLayout.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/stores/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/stores/user.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/cart/CartView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/cart/CartView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/dashboard/user/DashBoardView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/dashboard/user/DashBoardView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/discard/DiscardRegisterView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/discard/DiscardRegisterView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/inquiry/__tests__/user/InquiryCreateView.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/__tests__/user/InquiryCreateView.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/inquiry/__tests__/user/InquiryListView.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/__tests__/user/InquiryListView.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/inquiry/admin/AdminInquiryListView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/admin/AdminInquiryListView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/inquiry/modal/AdminInquiryAnswerModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/modal/AdminInquiryAnswerModal.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/inquiry/modal/InquiryDetailModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/modal/InquiryDetailModal.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/inquiry/user/InquiryCreateView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/user/InquiryCreateView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/login/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/login/Login.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/masterdata/__test__/MasterDataDetail.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/masterdata/__tests__/MasterDataDetail.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/masterdata/__test__/MasterDataEdit.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/masterdata/__tests__/MasterDataEdit.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/masterdata/__test__/MasterDataList.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/masterdata/__tests__/MasterDataList.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/mypage/Mypage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/mypage/Mypage.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/notification/admin/AdminNotificationDetail.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/notification/admin/AdminNotificationListView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/notification/admin/AdminNotificationListView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/order/OrderView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/order/OrderView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/password/Password.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/password/Password.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/signup/Signup.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/signup/Signup.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/vite.config.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -68,20 +95,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "test-code-cart-and-order-list",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;git-widget-placeholder&quot;: &quot;test/auth-user-inventory&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;test-code-cart-and-order-list&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\zane\Desktop\goldenhavest\golden-harvest-front\golden-harvest-frontend\src\views\admin\__test__" />
@@ -194,17 +223,5 @@
     <MESSAGE value="feat : 가격" />
     <MESSAGE value="feat : 테스트 코드" />
     <option name="LAST_COMMIT_MESSAGE" value="feat : 테스트 코드" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/src/views/inquiry/__tests__/admin/AdminInquiryAnswerModal.spec.ts</url>
-          <line>10</line>
-          <properties lambdaOrdinal="-1" />
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

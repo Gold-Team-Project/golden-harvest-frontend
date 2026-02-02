@@ -54,7 +54,7 @@ const title = ref('')
 const body = ref('')
 const file = ref<File | null>(null)
 
-/* ✅ 백엔드용 더미 salesOrderId */
+/* 백엔드용 더미 salesOrderId */
 const SALES_ORDER_ID = 1
 
 const onFileChange = (e: Event) => {
@@ -65,7 +65,7 @@ const submit = async () => {
   const requestPayload = {
     title: title.value,
     body: body.value,
-    salesOrderId: SALES_ORDER_ID, // 🔥 여기서 내부적으로만 세팅
+    salesOrderId: SALES_ORDER_ID, // 여기서 내부적으로만 세팅
   }
 
   const formData = new FormData()

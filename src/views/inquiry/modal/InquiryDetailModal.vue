@@ -52,7 +52,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* 🔹 배경 오버레이 */
+/* 배경 오버레이 */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -63,7 +63,7 @@ onMounted(async () => {
   z-index: 1000;
 }
 
-/* 🔹 모달 본체 */
+/* 모달 본체 */
 .modal {
   width: 640px;                /* Figma 비율 */
   background: #ffffff;
@@ -71,7 +71,7 @@ onMounted(async () => {
   overflow: hidden;
 }
 
-/* 🔹 헤더 */
+/* 헤더 */
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -93,12 +93,12 @@ onMounted(async () => {
   cursor: pointer;
 }
 
-/* 🔹 바디 */
+/* 바디 */
 .modal-body {
   padding: 24px;
 }
 
-/* 🔹 필드 */
+/* 필드 */
 .field {
   margin-bottom: 22px;
 }
@@ -110,7 +110,7 @@ onMounted(async () => {
   margin-bottom: 8px;
 }
 
-/* 🔹 내용 박스 */
+/* 내용 박스 */
 .box {
   background: #f9fafb;
   padding: 14px 16px;
@@ -124,7 +124,7 @@ onMounted(async () => {
   min-height: 96px;
 }
 
-/* 🔹 첨부파일 */
+/* 첨부파일 */
 .file-box {
   background: #f3f4f6;
   padding: 12px 16px;

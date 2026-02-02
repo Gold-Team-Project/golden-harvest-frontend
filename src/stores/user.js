@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import api from '@/api/axios.js' // axios 인스턴스
+import api from '@/api/axios.js'
 
 export const useUserStore = defineStore('user', {
     state: () => ({
         isLogin: false,
-        user: null,        // UserResponse 그대로 저장
-        accessToken: null, // 지금은 안 써도 둔다
+        user: null,
+        accessToken: null,
     }),
 
     getters: {
@@ -14,7 +14,6 @@ export const useUserStore = defineStore('user', {
     },
 
     actions: {
-        // 🔹 핵심: /me 호출
         async fetchMe() {
             try {
                 const res = await api.get('/auth/me')
@@ -27,7 +26,7 @@ export const useUserStore = defineStore('user', {
             }
         },
 
-        // 🔹 나중에 로그인 붙일 때 사용
+        // 나중에 로그인 붙일 때 사용
         login(user, token) {
             this.user = user
             this.accessToken = token

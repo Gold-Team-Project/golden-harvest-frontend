@@ -57,7 +57,7 @@
 <script setup>
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { jwtDecode } from 'jwt-decode'; // ✅ 추가
+import { jwtDecode } from 'jwt-decode';
 import authApi from '@/api/AuthApI.js';
 
 const router = useRouter();
@@ -74,7 +74,7 @@ const handleLogin = async () => {
 
     // 2. 토큰 해독하여 권한 확인
     const decoded = jwtDecode(accessToken);
-    console.log('디코딩된 토큰:', decoded); // 👈 여기서 role 필드명을 확인하세요 (예: role, auth, roles 등)
+    console.log('디코딩된 토큰:', decoded);
 
     // 3. 권한에 따른 라우팅 (백엔드 Role 이름과 대조하세요)
     if (decoded.role === 'ROLE_ADMIN') {

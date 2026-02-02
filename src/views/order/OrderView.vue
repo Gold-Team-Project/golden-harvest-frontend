@@ -81,10 +81,10 @@ const products = ref([]);
 const loadProducts = async () => {
   try {
     const response = await fetchProducts();
-    // ✅ response.data가 null이거나 빈 배열일 경우에 대비한 안전 장치
+    // response.data가 null이거나 빈 배열일 경우에 대비한 안전 장치
     if (response && response.success && Array.isArray(response.data)) {
       products.value = response.data.map(item => ({
-        // ✅ 데이터가 비어있을 경우(null/undefined) 기본값 처리
+        // 데이터가 비어있을 경우(null/undefined) 기본값 처리
         id: item.skuNo || Math.random().toString(36).substr(2, 9),
         name: item.itemName || '상품명 준비중',
         price: item.customerPrice || 0, // 0으로 처리하여 toLocaleString() 에러 방지
