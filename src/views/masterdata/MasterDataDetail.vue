@@ -118,7 +118,7 @@
     <div class="page-footer">
       <div class="footer-left">
         <BaseButton
-            :class="info?.isActive ? 'btn-red' : 'btn-green'"
+            :class="info?.isActive ? 'btn-stop' : 'btn-use'"
             @click="toggleStatus"
         >
           {{ info?.isActive ? '사용 중지' : '사용 전환' }}
@@ -126,7 +126,7 @@
       </div>
 
       <div class="footer-right">
-        <BaseButton class="btn-blue" @click="goToEdit">
+        <BaseButton class="btn-edit" @click="goToEdit">
           수정하기
         </BaseButton>
         <BaseButton class="btn-white" @click="$router.back()">
@@ -435,9 +435,9 @@ onMounted(fetchDetail)
 }
 
 .status-badge {
-  font-size: 12px;
+  font-size: 15px;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 20px;
   font-weight: 600;
 }
 
@@ -484,9 +484,9 @@ onMounted(fetchDetail)
   background-color: #f9fafb;
 }
 
-.btn-blue {
-  background: #10b981;
-  border: 1px solid #10b981;
+.btn-edit {
+  background: #11D411;
+  border: 1px solid #11D411;
   color: #fff;
   padding: 10px 20px;
   border-radius: 6px;
@@ -494,11 +494,10 @@ onMounted(fetchDetail)
   font-weight: 600;
 }
 
-.btn-blue:hover {
-  background: #1d4ed8;
-}
+.btn-edit:hover { background-color: #0fb80f; }
+.btn-edit:active { transform: scale(0.98); }
 
-.btn-red {
+.btn-stop {
   background: #ef4444;
   border: 1px solid #ef4444;
   color: #fff;
@@ -508,13 +507,14 @@ onMounted(fetchDetail)
   font-weight: 600;
 }
 
-.btn-red:hover {
+.btn-stop:hover {
   background: #dc2626;
 }
+.btn-stop:active { transform: scale(0.98); }
 
-.btn-green {
-  background: #10b981;
-  border: 1px solid #10b981;
+.btn-use {
+  background: #11D411;
+  border: 1px solid #11D411;
   color: #fff;
   padding: 10px 20px;
   border-radius: 6px;
@@ -522,7 +522,6 @@ onMounted(fetchDetail)
   font-weight: 600;
 }
 
-.btn-green:hover {
-  background: #059669;
-}
+.btn-use:hover { background-color: #0fb80f; }
+.btn-use:active { transform: scale(0.98); }
 </style>

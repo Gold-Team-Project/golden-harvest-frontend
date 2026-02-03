@@ -35,6 +35,7 @@
             <option value="">전체</option>
             <option value="PENDING">대기</option>
             <option value="ACTIVE">활성화</option>
+            <option value="INACTIVE">비활성화</option>
           </select>
         </div>
         <button class="search-btn" @click="fetchData">검색</button>
@@ -128,18 +129,17 @@ import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { fetchAllUsers, fetchPendingUpdateRequests, updateUserStatus } from '@/api/AdminApi.js';
 import UserApprovalModal from '@/views/userapproval/modal/UserApprovalModal.vue';
 
-
 // 1. 상태 관리
 const activeTab = ref('all');
 const isModalOpen = ref(false);
 const selectedData = ref(null);
 const currentPage = ref(1);
+const itemsPerPage = 5; // 한 페이지당 보여줄 아이템 수
 const filters = reactive({ companyName: '', ceoName: '', phone: '', status: '' });
 
 // 2. 데이터 저장소
-const rawUsers = ref([]);           // UserAdminResponse 원본
-const rawUpdateRequests = ref([]);  // UserUpdateApprovalResponse 원본
-
+const rawUsers = ref([]);
+const rawUpdateRequests = ref([]);
 const currentUserEmail = ref(localStorage.getItem('userEmail') || '');
 
 // 3. 날짜 포맷팅 유틸
@@ -148,19 +148,13 @@ const formatDate = (dateStr) => {
   return dateStr.split('T')[0];
 };
 
-// 4. 데이터 가공 및 필터링 (기존 디자인 변수명에 맞게 매핑)
-const displayList = computed(() => {
-  // 1. 전체 유저 데이터가 없을 경우 처리
-  if (!rawUsers.value || rawUsers.value.length === 0) {
-    // 수정 요청 탭은 rawUpdateRequests가 있으면 보여줘야 하므로,
-    // 유저 데이터가 없더라도 바로 리턴하지 않고 아래 로직을 타게 합니다.
-  }
-
+// 4. [페이징 전단계] 데이터 가공 및 필터링 로직
+const filteredList = computed(() => {
   // --- 가입 승인 및 전체 회원 탭 ---
   if (activeTab.value === 'all' || activeTab.value === 'join') {
     if (!rawUsers.value || rawUsers.value.length === 0) return [];
 
-    const list = rawUsers.value.map(u => ({
+    let list = rawUsers.value.map(u => ({
       ...u,
       date: formatDate(u.createdAt),
       company: u.userCompany || u.company || '-',
@@ -171,31 +165,52 @@ const displayList = computed(() => {
     }));
 
     if (activeTab.value === 'join') {
-      return list.filter(u => u.userStatus === 'PENDING');
+      list = list.filter(u => u.userStatus === 'PENDING');
     }
-    return list;
+
+    return list.filter(u => {
+      const matchCompany = !filters.companyName || u.company.toLowerCase().includes(filters.companyName.toLowerCase());
+      const matchCeo = !filters.ceoName || u.ceo.toLowerCase().includes(filters.ceoName.toLowerCase());
+      const matchPhone = !filters.phone || u.phone.includes(filters.phone);
+      const matchStatus = !filters.status || u.userStatus === filters.status;
+      return matchCompany && matchCeo && matchPhone && matchStatus;
+    });
   }
 
   // --- 정보 수정 요청 탭 ---
   if (activeTab.value === 'update') {
     if (!rawUpdateRequests.value || rawUpdateRequests.value.length === 0) return [];
 
-    return rawUpdateRequests.value.map(req => {
-      // 백엔드에서 보내주는 이메일 필드명(userEmail 또는 email)을 확인하세요.
-      const currentUser = rawUsers.value.find(u => (u.userEmail || u.email) === (req.userEmail || req.email));
-
-      return {
-        ...req,
-        date: formatDate(req.createdAt),
-        company: req.requestCompany || '-',
-        updateField: '사업자 정보 수정',
-        oldValue: currentUser ? (currentUser.userCompany || currentUser.company || '-') : '기존 정보 없음',
-        newValue: req.requestCompany || '-'
-      };
-    });
+    return rawUpdateRequests.value
+        .map(req => {
+          const currentUser = rawUsers.value.find(u => (u.userEmail || u.email) === (req.userEmail || req.email));
+          return {
+            ...req,
+            date: formatDate(req.createdAt),
+            company: req.requestCompany || '-',
+            updateField: '사업자 정보 수정',
+            oldValue: currentUser ? (currentUser.userCompany || currentUser.company || '-') : '기존 정보 없음',
+            newValue: req.requestCompany || '-'
+          };
+        })
+        .filter(req => {
+          return !filters.companyName || req.company.toLowerCase().includes(filters.companyName.toLowerCase());
+        });
   }
 
   return [];
+});
+
+// 5. [최종 결과] 현재 페이지에 해당하는 데이터만 잘라서 반환
+const displayList = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return filteredList.value.slice(start, end);
+});
+
+// 6. [페이지 계산] 총 페이지 수 계산
+const totalPages = computed(() => {
+  return Math.ceil(filteredList.value.length / itemsPerPage) || 1;
 });
 
 const tabTitle = computed(() => {
@@ -208,12 +223,10 @@ const tabTitle = computed(() => {
 const joinPendingCount = computed(() => rawUsers.value.filter(u => u.status === 'PENDING').length);
 const updatePendingCount = computed(() => rawUpdateRequests.value.length);
 
-// 5. API 데이터 호출
+// 7. API 데이터 호출
 const fetchData = async () => {
   try {
     const userRes = await fetchAllUsers();
-    console.log(" 원본 유저 데이터:", userRes);
-    // userRes 자체가 { success: true, data: [...] } 형태이므로 .data를 담아야 함
     if (userRes.success) {
       rawUsers.value = userRes.data;
     }
@@ -227,9 +240,8 @@ const fetchData = async () => {
   }
 };
 
-// 6. 이벤트 핸들러
+// 8. 이벤트 핸들러
 const openModal = (data) => {
-  // 모달에 넘길 데이터에 '본인 여부' 플래그 추가
   selectedData.value = {
     ...data,
     isMe: (data.userEmail || data.email) === currentUserEmail.value
@@ -237,17 +249,26 @@ const openModal = (data) => {
   isModalOpen.value = true;
 };
 
+// 페이지 변경 함수
+const changePage = (page) => {
+  if (page < 1 || page > totalPages.value) return;
+  currentPage.value = page;
+};
+
 onMounted(fetchData);
 
 watch(activeTab, () => {
   currentPage.value = 1;
-  // 필요 시 fetchData() 재호출 가능하나,
-  // 위 fetchData에서 두 데이터를 다 가져오므로 즉시 반영됩니다.
+  filters.status = '';
+  filters.companyName = '';
+  filters.ceoName = '';
+  filters.phone = '';
 });
 </script>
 
 <style scoped>
-.admin-container { padding: 30px 50px; background-color: #f8f9fb; min-height: 100vh; box-sizing: border-box; }
+.admin-container { padding: 20px 50px; background-color: #f8f9fb; mheight: 100vh;
+  overflow: hidden; box-sizing: border-box; }
 .breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; }
 
 /* 탭 디자인 */

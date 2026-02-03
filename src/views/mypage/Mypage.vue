@@ -287,7 +287,7 @@ const handleChangePassword = async () => {
 
 .password-bg-area { background-color: #fcfcfc; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; margin: 20px 0; }
 .pw-action-btn {
-  margin-top: 20px; background: #333; color: white; border: none;
+  margin-top: 20px; background: #374151; color: white; border: none;
   padding: 12px 25px; border-radius: 8px; font-weight: 600; cursor: pointer;
 }
 
