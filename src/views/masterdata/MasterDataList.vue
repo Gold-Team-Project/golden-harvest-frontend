@@ -1,93 +1,129 @@
 <template>
-  <section class="admin-page">
-    <div class="page-header">
-      <p class="desc">홈 / 마스터 관리 / 품목 리스트</p>
-    </div>
+  <div class="admin-container">
+    <div class="breadcrumb">홈 / 마스터 관리 / <strong>품목 리스트</strong></div>
 
-    <div class="search-card">
-      <div class="search-row">
-        <div class="field">
-          <input v-model="search.itemName" placeholder="품목명"/>
+    <div class="filter-card">
+      <div class="filter-grid">
+        <div class="filter-item flex-2">
+          <label>품목명</label>
+          <div class="search-input-wrapper">
+            <img src="@/assets/search.svg" class="search-icon-svg" alt="search" />
+            <input
+                type="text"
+                placeholder="품목명 검색"
+                v-model="search.itemName"
+                @keyup.enter="fetchItems"
+            />
+          </div>
         </div>
-        <div class="field">
-          <input v-model="search.varietyName" placeholder="품종명"/>
+        <div class="filter-item">
+          <label>품종명</label>
+          <input
+              type="text"
+              placeholder="품종명 입력"
+              v-model="search.varietyName"
+              class="basic-input"
+          />
         </div>
-        <div class="field">
-          <input v-model="search.grade" placeholder="등급"/>
+        <div class="filter-item">
+          <label>등급</label>
+          <input
+              type="text"
+              placeholder="등급 입력"
+              v-model="search.grade"
+              class="basic-input"
+          />
         </div>
-        <div class="field">
-          <select v-model="search.status">
+        <div class="filter-item">
+          <label>상태</label>
+          <select v-model="search.status" class="basic-select">
             <option value="">상태 전체</option>
             <option :value="true">활성화</option>
             <option :value="false">비활성화</option>
           </select>
         </div>
-        <BaseButton class="btn-search" @click="fetchItems">
-          검색
-        </BaseButton>
+        <button class="search-btn" @click="fetchItems">검색</button>
       </div>
     </div>
 
-    <div class="card">
-      <table class="table">
-        <thead>
-        <tr>
-          <th>No</th>
-          <th>품목명</th>
-          <th>품종명</th>
-          <th>등급</th>
-          <th>상태</th>
-          <th>등록일</th>
-          <th>관리</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="item in items" :key="item.skuNo">
-          <td>{{ item.no }}</td>
-          <td class="title">{{ item.itemName }}</td>
-          <td>{{ item.varietyName }}</td>
-          <td>{{ item.grade }}</td>
-          <td>
-            <StatusBadge :class="item.isActive ? 'status-done' : 'status-wait'">
-              {{ item.isActive ? '활성화' : '비활성화' }}
-            </StatusBadge>
-          </td>
-          <td>{{ item.createdAt }}</td>
-          <td>
-            <BaseButton class="btn-soft" @click="goDetail(item.skuNo)">
-              상세보기
-            </BaseButton>
-          </td>
-        </tr>
-        <tr v-if="items.length === 0">
-          <td colspan="7">품목 데이터가 없습니다.</td>
-        </tr>
-        </tbody>
-      </table>
+    <div class="list-card">
+      <div class="card-header">
+        <img src="@/assets/master-list.svg" class="title-icon-svg" alt="list" />
+        <h3>품목 내역 목록</h3>
+      </div>
 
-      <Pagination
-          :pages="pages"
-          :current="currentPage"
-          @update:current="changePage"
-      />
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+          <tr>
+            <th style="width: 8%">No</th>
+            <th style="width: 20%">품목명</th>
+            <th style="width: 18%">품종명</th>
+            <th style="width: 12%">등급</th>
+            <th style="width: 15%">상태</th>
+            <th style="width: 15%">등록일</th>
+            <th style="width: 12%">관리</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="item in items" :key="item.skuNo">
+            <td>{{ item.no }}</td>
+            <td class="text-left"><strong>{{ item.itemName }}</strong></td>
+            <td>{{ item.varietyName }}</td>
+            <td>{{ item.grade }}</td>
+            <td>
+              <span :class="['status-badge', item.isActive ? 'ACTIVE' : 'INACTIVE']">
+                {{ item.isActive ? '활성화' : '비활성화' }}
+              </span>
+            </td>
+            <td>{{ item.createdAt }}</td>
+            <td>
+              <button class="detail-btn" @click="goDetail(item.skuNo)">상세보기</button>
+            </td>
+          </tr>
+          <tr v-if="items.length === 0">
+            <td colspan="7" style="padding: 50px; color: #999; text-align: center;">품목 데이터가 없습니다.</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-wrapper">
+        <div class="pagination">
+          <button
+              class="arrow"
+              :disabled="currentPage === 1"
+              @click="changePage(currentPage - 1)"
+          >&lt;</button>
+
+          <button
+              v-for="p in pages"
+              :key="p"
+              :class="['page', { active: currentPage === p }]"
+              @click="changePage(p)"
+          >
+            {{ p }}
+          </button>
+
+          <button
+              class="arrow"
+              :disabled="items.length < pageSize"
+              @click="changePage(currentPage + 1)"
+          >&gt;</button>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted, watch} from 'vue'
-import {useRouter} from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import http from '@/api/axios'
 
-import Pagination from '@/components/pagination/Pagination.vue'
-import StatusBadge from '@/components/status/StatusBadge.vue'
-import BaseButton from '@/components/button/BaseButton.vue'
-
-/* 타입 정의 */
 interface MasterItem {
   no: number
   skuNo: string
-  itemCode: string
   itemName: string
   varietyName: string
   grade: string
@@ -96,15 +132,13 @@ interface MasterItem {
 }
 
 const router = useRouter()
-
 const items = ref<MasterItem[]>([])
 const currentPage = ref(1)
 const pages = ref<number[]>([])
-const pageSize = 10
+const pageSize = 7
 
 const search = ref({
   itemName: '',
-  itemCode: '',
   varietyName: '',
   grade: '',
   status: '' as '' | boolean,
@@ -113,7 +147,7 @@ const search = ref({
 const goDetail = (skuNo: string) => {
   router.push({
     name: 'adminMasterDataDetail',
-    params: {skuNo}
+    params: { skuNo }
   })
 }
 
@@ -125,26 +159,19 @@ const fetchItems = async () => {
         size: pageSize,
         itemName: search.value.itemName || undefined,
         varietyName: search.value.varietyName || undefined,
-        itemCode: search.value.itemCode || undefined,
         grade: search.value.grade || undefined,
         status: search.value.status === '' ? undefined : search.value.status,
       },
     })
 
     const payload = res.data?.data?.content ?? res.data?.data ?? []
-    console.log(payload)
     items.value = payload.map((item: any, index: number) => ({
       no: (currentPage.value - 1) * pageSize + index + 1,
       skuNo: item.skuNo,
-      varietyName: item.varietyName,
       itemName: item.itemName,
+      varietyName: item.varietyName,
       grade: item.gradeName,
-      isActive: item.status === true
-          || item.status === 'true'
-          || item.status === 'TRUE'
-          || item.status === 'Y'
-          || item.status === 1,
-
+      isActive: [true, 'true', 'Y', 1].includes(item.status),
       createdAt: item.createdAt?.substring(0, 10),
     }))
 
@@ -153,7 +180,6 @@ const fetchItems = async () => {
     console.error(err)
   }
 }
-
 
 const makePages = (size: number) => {
   const temp: number[] = []
@@ -164,7 +190,7 @@ const makePages = (size: number) => {
 }
 
 const changePage = (page: number) => {
-  if (page === currentPage.value) return
+  if (page < 1) return
   currentPage.value = page
 }
 
@@ -173,87 +199,61 @@ onMounted(fetchItems)
 </script>
 
 <style scoped>
-.admin-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* 디자인 가이드 적용 */
+.admin-container { padding: 20px 50px; background-color: #f8f9fb; min-height: 95vh; box-sizing: border-box; display: flex; flex-direction: column; }
+.breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; flex-shrink: 0; }
+
+/* 필터 카드 스타일 */
+.filter-card {
+  background: #fff; padding: 25px 30px; border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px; border: 1px solid #e0e0e0; flex-shrink: 0;
+}
+.filter-grid { display: flex; gap: 15px; align-items: flex-end; }
+.filter-item { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; }
+.filter-item.flex-2 { flex: 1.5; }
+.filter-item label { font-size: 14px; font-weight: 700; color: #444; }
+
+/* 공통 인풋 스타일 및 포커스 효과 */
+.search-input-wrapper { position: relative; width: 100%; }
+.search-icon-svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 18px; }
+.search-input-wrapper input, .basic-input, .basic-select {
+  width: 100%; height: 45px; padding: 0 15px; border: 1px solid #C8E4C8;
+  border-radius: 10px; background: white; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;
+}
+.search-input-wrapper input { padding-left: 45px; }
+.search-input-wrapper input:focus, .basic-input:focus, .basic-select:focus {
+  border-color: #11D411 !important; box-shadow: 0 0 0 3px rgba(17, 212, 17, 0.05);
 }
 
-.desc {
-  font-size: 13px;
-  color: #6b7280;
-}
+.search-btn { background: #11D411; color: #fff; border: none; padding: 0 35px; height: 45px; border-radius: 10px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
+.search-btn:hover { background-color: #0fb80f; }
 
-.page-header {
-  margin-bottom: 8px;
+/* 리스트 카드 및 테이블 */
+.list-card {
+  background: #fff; border-radius: 20px; padding: 25px 30px; border: 1px solid #e0e0e0;
+  flex: 1; display: flex; flex-direction: column;
 }
+.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.title-icon-svg { width: 22px; }
 
-.search-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px 20px;
-}
+.table-container { flex: 1; overflow-y: auto; width: 100%; }
+.admin-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.admin-table th { padding: 15px; text-align: center; color: #888; border-bottom: 2px solid #f4f4f4; font-size: 14px; background: #fff; position: sticky; top: 0; }
+.admin-table td { padding: 15px 10px; font-size: 14px; border-bottom: 1px solid #f9f9f9; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admin-table td.text-left { text-align: left; }
 
-.search-row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
+/* 배지 및 상세 버튼 */
+.status-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; }
+.status-badge.ACTIVE { background: #eefdee; color: #11D411; border: 1px solid #11D411; }
+.status-badge.INACTIVE { background: #fff8ee; color: #f39c12; border: 1px solid #f39c12; }
 
-.field {
-  flex: 1;
-}
+.detail-btn { background: #f1f3f5; border: 1px solid #dee2e6; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
+.detail-btn:hover { background: #e9ecef; }
 
-.search-row input, .search-row select {
-  width: 100%;
-  height: 40px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 0 12px;
-  box-sizing: border-box;
-}
-
-.btn-search {
-  height: 40px;
-  padding: 0 20px;
-  background: #22c55e;
-  color: #fff;
-  white-space: nowrap;
-}
-
-.card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table th, .table td {
-  padding: 12px;
-  border-bottom: 1px solid #e5e7eb;
-  text-align: center;
-}
-
-.title {
-  text-align: left;
-}
-
-.status-done {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.status-wait {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.btn-soft {
-  background: #22c55e;
-  color: #fff;
-}
+/* 페이지네이션 */
+.pagination-wrapper { margin-top: auto; padding-top: 20px; flex-shrink: 0; }
+.pagination { display: flex; justify-content: center; gap: 5px; }
+.page, .arrow { min-width: 32px; height: 32px; border-radius: 6px; border: 1px solid #eee; background: transparent; cursor: pointer; font-size: 13px; }
+.page.active { background: #11D411; color: #fff; border-color: #11D411; font-weight: 700; }
+.arrow:disabled { cursor: not-allowed; opacity: 0.5; }
 </style>

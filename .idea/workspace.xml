@@ -6,6 +6,22 @@
   <component name="ChangeListManager">
     <list default="true" id="7662aefc-30c4-4e1c-8624-a1ce67cf32e2" name="변경" comment=".">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/html/html.meta.json.gz" beforeDir="false" afterPath="$PROJECT_DIR$/html/html.meta.json.gz" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/cart/CartView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/cart/CartView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/discard/DiscardListView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/discard/DiscardListView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/discard/DiscardRegisterView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/discard/DiscardRegisterView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/inquiry/admin/AdminInquiryListView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/admin/AdminInquiryListView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/inquiry/modal/AdminInquiryAnswerModal.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/inquiry/modal/AdminInquiryAnswerModal.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/lot/LotListView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/lot/LotListView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/masterdata/MasterDataDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/masterdata/MasterDataDetail.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/masterdata/MasterDataEdit.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/masterdata/MasterDataEdit.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/masterdata/MasterDataList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/masterdata/MasterDataList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/mypage/Mypage.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/mypage/Mypage.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/order/OrderDetailView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/order/OrderDetailView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/order/OrderView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/order/OrderView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/orderlist/AdminOrderDetailView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/orderlist/AdminOrderDetailView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/orderlist/AdminOrderListView.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/orderlist/AdminOrderListView.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/userapproval/UserApproval.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,6 +114,15 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\golen-harvest-frontend\src\assets" />
+      <recent name="C:\Users\zane\Desktop\goldenhavest\golden-harvest-front\golden-harvest-frontend\src\views\admin\__test__" />
+      <recent name="C:\Users\zane\Desktop\goldenhavest\golden-harvest-front\golden-harvest-frontend\src\views\cart\__test__" />
+      <recent name="C:\Users\zane\Desktop\goldenhavest\golden-harvest-front\golden-harvest-frontend\src\views\order\__test__" />
+      <recent name="C:\Users\zane\Desktop\goldenhavest\golden-harvest-front\golden-harvest-frontend\src\views\orderHistory\__test__" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -182,6 +207,31 @@
       <updated>1769562692579</updated>
     </task>
     <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00008" summary="테스트코드 작성완료">
+      <option name="closed" value="true" />
+      <created>1769996224564</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1769996224564</updated>
+    </task>
+    <task id="LOCAL-00009" summary="테스트코드 작성완료">
+      <option name="closed" value="true" />
+      <created>1770003594902</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1770003594902</updated>
+    </task>
+    <task id="LOCAL-00010" summary="테스트코드 작성완료">
+      <option name="closed" value="true" />
+      <created>1770003606275</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1770003606275</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -98,8 +98,8 @@
     <div class="page-footer">
       <div class="footer-left"></div>
       <div class="footer-right">
-        <BaseButton class="btn-white" @click="$router.back()">취소</BaseButton>
-        <BaseButton class="btn-blue" @click="submitUpdate">저장하기</BaseButton>
+        <BaseButton class="btn-cancel" @click="$router.back()">취소</BaseButton>
+        <BaseButton class="btn-save" @click="submitUpdate">저장하기</BaseButton>
       </div>
     </div>
   </section>
@@ -341,7 +341,7 @@ input, textarea {
 
 input:focus, textarea:focus {
   outline: none;
-  border-color: #2563eb;
+  border-color: #11D411;
   ring: 2px solid #bfdbfe;
 }
 
@@ -393,7 +393,7 @@ input:focus, textarea:focus {
 }
 
 /* 버튼 */
-.btn-white {
+.btn-cancel {
   background: #fff;
   border: 1px solid #d1d5db;
   color: #374151;
@@ -402,10 +402,11 @@ input:focus, textarea:focus {
   cursor: pointer;
   font-weight: 600;
 }
+.btn-cancel:active { transform: scale(0.98); }
 
-.btn-blue {
-  background: #10b981;
-  border: 1px solid #10b981;
+.btn-save {
+  background: #11D411;
+  border: 1px solid #11D411;
   color: #fff;
   padding: 10px 20px;
   border-radius: 6px;
@@ -413,7 +414,6 @@ input:focus, textarea:focus {
   font-weight: 600;
 }
 
-.btn-blue:hover {
-  background: #1d4ed8;
-}
+.btn-save:hover { background-color: #0fb80f; }
+.btn-save:active { transform: scale(0.98); }
 </style>
