@@ -1,33 +1,23 @@
 <template>
-  <div class="order-progress">
+  <div class="order-progress-vertical">
     <h3 class="title">주문 진행 상태</h3>
-
-    <!-- 취소 상태일 때 -->
-    <div v-if="isCancelled" class="cancelled-bar">
+    
+    <div v-if="isCancelled" class="cancelled-message">
       {{ displayText }}
     </div>
-
-    <!-- 진행 상태일 때 -->
-    <template v-else>
-      <!-- 진행 바 -->
-      <div class="progress-bar">
-        <div
-          class="progress-bar__active"
-          :style="{ width: progressPercent + '%' }"
-        ></div>
-      </div>
-
-      <!-- 단계 라벨 -->
-      <div class="steps">
-        <span
-          v-for="step in steps"
-          :key="step.key"
-          :class="['step', { active: step.index <= currentStepIndex }]"
-        >
-          {{ step.label }}
-        </span>
-      </div>
-    </template>
+    
+    <ul v-else class="steps-list">
+      <li 
+        v-for="step in steps" 
+        :key="step.key" 
+        :class="['step-item', { 'active': step.index <= currentStepIndex }]"
+      >
+        <div class="status-dot"></div>
+        <div class="status-text">
+          <p>{{ step.label }}</p>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -41,96 +31,99 @@ const props = defineProps({
   }
 })
 
-// Define the steps for sequential progress
 const steps = [
   { key: 'PENDING', label: '주문 접수', index: 0 },
-  { key: 'PAID', label: '상품 준비중', index: 1 }, // Changed from '결제 완료' to '상품 준비중'
-  { key: 'PREPARING', label: '배송 준비중', index: 2 }, // Changed from '상품 준비중' to '배송 준비중'
+  { key: 'PAID', label: '상품 준비중', index: 1 },
+  { key: 'PREPARING', label: '배송 준비중', index: 2 },
   { key: 'SHIPPING', label: '배송 중', index: 3 },
   { key: 'DELIVERED', label: '배송 완료', index: 4 }
 ]
 
-// Check if the order is cancelled
 const isCancelled = computed(() => props.status === 'CANCELLED');
 
-// Display text for cancelled status
 const displayText = computed(() => {
-  if (isCancelled.value) return '주문 취소';
-  // Fallback, though typically not used if isCancelled handles it
+  if (isCancelled.value) return '주문이 취소되었습니다.';
   return steps.find(s => s.key === props.status)?.label || '알 수 없음';
 });
 
-
 const currentStepIndex = computed(() => {
-  const step = steps.find(s => s.key === props.status)
-  // If cancelled or unknown, don't highlight any step (or show a special state)
-  return step ? step.index : -1 // -1 means no step is active for standard progress
-})
-
-const progressPercent = computed(() => {
-  if (isCancelled.value) return 0; // No progress for cancelled state
-  if (currentStepIndex.value === -1) return 0; // No progress for unknown state
-  return (currentStepIndex.value / (steps.length - 1)) * 100
+  const step = steps.find(s => s.key === props.status);
+  return step ? step.index : -1;
 })
 </script>
 
 <style scoped>
-.order-progress {
+.order-progress-vertical {
   background: #ffffff;
   padding: 16px 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .title {
   font-size: 15px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 
-/* 진행 바 */
-.progress-bar {
+.steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   position: relative;
-  height: 8px;
-  background: #eaecef;
-  border-radius: 4px;
-  overflow: hidden;
 }
 
-.progress-bar__active {
-  height: 100%;
-  background: #2ecc71; /* Green for active progress */
-  transition: width 0.3s ease;
+/* The vertical line */
+.steps-list::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  bottom: 5px;
+  width: 2px;
+  background-color: #e5e7eb;
 }
 
-/* 단계 텍스트 */
-.steps {
+.step-item {
   display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
+  align-items: flex-start;
+  gap: 16px;
+  position: relative;
+  padding-bottom: 24px;
 }
 
-.step {
-  font-size: 12px;
-  color: #b0b0b0;
+.step-item:last-child {
+  padding-bottom: 0;
 }
 
-.step.active {
-  color: #2ecc71; /* Green for active step text */
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  border: 2px solid #ffffff;
+  z-index: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.step-item.active .status-dot {
+  background-color: #2ecc71; /* Green for active step */
+}
+
+.status-text p {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.step-item.active .status-text p {
+  color: #111827;
   font-weight: 600;
 }
 
-/* 취소 상태 바 */
-.cancelled-bar {
-  height: 8px; /* Same height as progress bar */
-  background: #ef4444; /* Red color for cancelled */
-  border-radius: 4px;
-  display: flex; /* To center text if needed */
-  align-items: center;
-  justify-content: center;
-  color: white; /* White text on red bar */
-  font-size: 12px;
+.cancelled-message {
+  color: #ef4444;
   font-weight: 600;
-  margin-top: 8px; /* Space from title */
+  font-size: 14px;
 }
 </style>

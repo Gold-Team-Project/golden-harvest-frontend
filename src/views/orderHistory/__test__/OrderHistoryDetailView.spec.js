@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import OrderHistoryDetailView from '../OrderHistoryDetailView.vue';
 import { fetchOrderDetail } from '@/api/OrderApi.js';
 import { useRoute } from 'vue-router';
+import OrderProgress from '@/views/orderlist/OrderProgress.vue'; // Import OrderProgress component for stubbing
 
 // Mock dependencies
 vi.mock('@/api/OrderApi', () => ({
@@ -17,8 +18,19 @@ const mockOrderDetailData = {
   success: true,
   data: {
     salesOrderId: 'ORDER123',
+    orderStatus: '주문 완료', // Default status for general tests
     createdAt: '2023-10-27T10:00:00',
     totalAmount: 75000,
+    customerInfo: {
+      email: 'test@example.com',
+      company: '테스트 컴퍼니',
+      businessNumber: '123-45-67890',
+      name: '박규진',
+      phoneNumber: '010-0101-0101',
+      addressLine1: '서울특별시 강남구',
+      addressLine2: '테헤란로 123',
+      postalCode: '12345',
+    },
     orderItems: [
       {
         itemName: '맛있는 사과',
@@ -41,8 +53,8 @@ const mockOrderDetailData = {
 const mountOptions = {
   global: {
     stubs: {
-      // Stub out child components if they are not the focus of this test
       BaseButton: true,
+      OrderProgress: true, // Stub OrderProgress component
     },
   },
 };
@@ -88,6 +100,18 @@ describe('OrderHistoryDetailView.vue', () => {
     expect(firstItemRow.text()).toContain('50,000원');
   });
 
+  it('배송 정보가 올바르게 렌더링되어야 합니다', async () => {
+    fetchOrderDetail.mockResolvedValue(mockOrderDetailData);
+    const wrapper = mount(OrderHistoryDetailView, mountOptions);
+    await vi.runAllTimers();
+    await wrapper.vm.$nextTick();
+
+    const deliveryInfo = wrapper.find('.sidebar-content .card:first-child');
+    expect(deliveryInfo.text()).toContain('수령인 : 박규진');
+    expect(deliveryInfo.text()).toContain('연락처 : 010-0101-0101');
+    expect(deliveryInfo.text()).toContain('주소 : (12345) 서울특별시 강남구 테헤란로 123');
+  });
+
   it('총 합계 금액이 올바르게 표시되어야 합니다', async () => {
     fetchOrderDetail.mockResolvedValue(mockOrderDetailData);
     const wrapper = mount(OrderHistoryDetailView, mountOptions);
@@ -95,6 +119,20 @@ describe('OrderHistoryDetailView.vue', () => {
     await wrapper.vm.$nextTick();
     
     expect(wrapper.find('.total-amount').text()).toBe('75,000원');
+  });
+  
+  it('OrderProgress 컴포넌트가 올바른 상태로 렌더링되어야 합니다', async () => {
+    const specificData = JSON.parse(JSON.stringify(mockOrderDetailData));
+    specificData.data.orderStatus = '배송 완료'; // Test with a specific status
+    fetchOrderDetail.mockResolvedValue(specificData);
+    
+    const wrapper = mount(OrderHistoryDetailView, mountOptions);
+    await vi.runAllTimers();
+    await wrapper.vm.$nextTick();
+
+    const orderProgressComponent = wrapper.findComponent(OrderProgress);
+    expect(orderProgressComponent.exists()).toBe(true);
+    expect(orderProgressComponent.props().status).toBe('DELIVERED');
   });
 
   it('API 호출 실패 시 오류 메시지를 표시해야 합니다', async () => {

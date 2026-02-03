@@ -57,37 +57,19 @@
       </div>
     </div>
 
-    <div class="sidebar-content">
+    <div class="sidebar-content" v-if="orderDetail">
       <div class="card">
         <h3 class="section-title">배송 정보</h3>
-        <div class="info-grid">
-          <p><span class="label">수령인</span> : 홍길동</p>
-          <p><span class="label">연락처</span> : 010-1234-5678</p>
-          <p><span class="label">주소</span> : (99999) 서울특별시 겁나게 하기싫다 999-99 하나로마트 1층</p>
-          <p><span class="label">배송요청사항</span> : 공동현관 비밀번호 1234</p>
+        <div v-if="orderDetail.customerInfo" class="info-grid">
+          <p><span class="label">수령인</span> : {{ orderDetail.customerInfo.name }}</p>
+          <p><span class="label">연락처</span> : {{ orderDetail.customerInfo.phoneNumber }}</p>
+          <p><span class="label">주소</span> : {{ customerAddress }}</p>
+        </div>
+        <div v-else>
+          <p>배송 정보를 불러올 수 없습니다.</p>
         </div>
         <div class="shipping-status">
-          <ul>
-            <li class="status-item done">
-              <div class="status-dot"></div>
-              <div class="status-text">
-                <p>주문 완료</p>
-                <p class="status-date">2025.12.31</p>
-              </div>
-            </li>
-            <li class="status-item">
-              <div class="status-dot"></div>
-              <div class="status-text">상품준비중</div>
-            </li>
-            <li class="status-item">
-              <div class="status-dot"></div>
-              <div class="status-text">배송중</div>
-            </li>
-            <li class="status-item">
-              <div class="status-dot"></div>
-              <div class="status-text">배송완료</div>
-            </li>
-          </ul>
+          <OrderProgress :status="orderStatusKey" />
         </div>
       </div>
       <div class="card">
@@ -110,6 +92,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import BaseButton from '@/components/button/BaseButton.vue'
+import OrderProgress from '@/views/orderlist/OrderProgress.vue' // Import OrderProgress
 import { fetchOrderDetail } from '@/api/OrderApi.js'
 
 const route = useRoute()
@@ -135,6 +118,31 @@ const items = computed(() => {
 const totalAmount = computed(() => {
   return orderDetail.value ? orderDetail.value.totalAmount : 0
 })
+
+const customerAddress = computed(() => {
+  if (!orderDetail.value?.customerInfo) {
+    return '주소 정보 없음';
+  }
+  const { postalCode, addressLine1, addressLine2 } = orderDetail.value.customerInfo;
+  if (!addressLine1 && !addressLine2) {
+    return '주소 정보 없음';
+  }
+  return `(${postalCode || ''}) ${addressLine1 || ''} ${addressLine2 || ''}`.trim();
+});
+
+// New computed property for order status key, mirroring AdminOrderDetailView
+const orderStatusKey = computed(() => {
+  if (!orderDetail.value || !orderDetail.value.orderStatus) return 'UNKNOWN';
+  switch (orderDetail.value.orderStatus) {
+    case '주문 완료': return 'PENDING';
+    case '상품 준비중': return 'PAID';
+    case '배송 준비중': return 'PREPARING';
+    case '배송 중': return 'SHIPPING';
+    case '배송 완료': return 'DELIVERED';
+    case '주문 취소': return 'CANCELLED';
+    default: return 'UNKNOWN';
+  }
+});
 
 const loadOrderDetail = async () => {
   loading.value = true
