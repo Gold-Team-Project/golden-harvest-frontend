@@ -32,6 +32,7 @@ export async function getLots(filters) {
         const params = {
             lotNo: filters.lotNo || null, // Changed from skuNo to lotNo
             status: filters.status || null, // Added status filter
+            itemName: filters.itemName || null,
             startDate: filters.startDate,
             endDate: filters.endDate,
             limit: filters.size,

@@ -30,6 +30,14 @@
             <option value="DISCARDED">폐기</option>
           </select>
         </div>
+        <div class="filter-item">
+          <label>등록일</label>
+          <div class="date-range-picker">
+            <input type="date" v-model="search.startDate" class="basic-input" />
+            <span>~</span>
+            <input type="date" v-model="search.endDate" class="basic-input" />
+          </div>
+        </div>
         <button class="search-btn" @click="fetchLots">검색</button>
       </div>
     </div>
@@ -107,6 +115,8 @@ const search = ref({
   lotNo: '',
   itemName: '',
   status: '',
+  startDate: '',
+  endDate: '',
 })
 
 const getStatusText = (status) => {
@@ -127,6 +137,8 @@ const fetchLots = async () => {
       lotNo: search.value.lotNo || null,
       status: search.value.status || null,
       itemName: search.value.itemName || null,
+      startDate: search.value.startDate || null,
+      endDate: search.value.endDate || null,
     });
 
     if (response.success && response.data) {
