@@ -83,15 +83,8 @@
       <div class="pagination-wrapper">
         <div class="pagination">
           <button class="arrow" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">&lt;</button>
-          <button
-              v-for="page in pages"
-              :key="page"
-              :class="['page', { active: currentPage === page }]"
-              @click="changePage(page)"
-          >
-            {{ page }}
-          </button>
-          <button class="arrow" :disabled="currentPage === pages.length" @click="changePage(currentPage + 1)">&gt;</button>
+          <span class="page-info">Page {{ currentPage }}</span>
+          <button class="arrow" :disabled="!hasNextPage" @click="changePage(currentPage + 1)">&gt;</button>
         </div>
       </div>
     </div>
@@ -107,9 +100,8 @@ const router = useRouter()
 
 const items = ref([])
 const currentPage = ref(1)
-const pages = ref([])
 const pageSize = 10
-const totalItems = ref(0)
+const hasNextPage = ref(true)
 
 const search = ref({
   lotNo: '',
@@ -149,30 +141,21 @@ const fetchLots = async () => {
         status: item.status,
         createdAt: item.inboundDate ? item.inboundDate.split('T')[0] : '-',
       }));
-
-      totalItems.value = response.data.length; // 실제 총 개수 필드가 있다면 교체 권장
-      makePages(Math.ceil(totalItems.value / pageSize));
+      // 다음 페이지가 있는지 확인: 반환된 아이템 수가 페이지 크기와 같으면 다음 페이지가 있을 가능성이 있음
+      hasNextPage.value = response.data.length === pageSize;
     } else {
       items.value = [];
-      totalItems.value = 0;
-      makePages(0);
+      hasNextPage.value = false;
     }
   } catch (err) {
     console.error(err);
     items.value = [];
+    hasNextPage.value = false;
   }
 };
 
-const makePages = (totalPages) => {
-  let temp = [];
-  for (let i = 1; i <= Math.max(1, totalPages); i++) {
-    temp.push(i);
-  }
-  pages.value = temp;
-}
-
 const changePage = (page) => {
-  if (page < 1 || (pages.value.length > 0 && page > pages.value.length)) return;
+  if (page < 1) return;
   currentPage.value = page
 }
 
@@ -234,8 +217,9 @@ onMounted(fetchLots)
 
 /* 페이지네이션 */
 .pagination-wrapper { margin-top: auto; padding-top: 30px; }
-.pagination { display: flex; justify-content: center; gap: 5px; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 15px; }
 .page, .arrow { min-width: 32px; height: 32px; border-radius: 6px; border: 1px solid #eee; background: transparent; cursor: pointer; font-size: 13px; }
 .page.active { background: #11D411; color: #fff; border-color: #11D411; font-weight: 700; }
 .arrow:disabled { cursor: not-allowed; opacity: 0.5; }
+.page-info { font-size: 14px; color: #555; }
 </style>

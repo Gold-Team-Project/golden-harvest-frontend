@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import http from '@/api/axios'
 
@@ -87,7 +87,10 @@ import BaseButton from '@/components/button/BaseButton.vue'
 import Pagination from '@/components/pagination/Pagination.vue'
 import InquiryDetailModal from '@/views/inquiry/modal/InquiryDetailModal.vue'
 
+import { useUserStore } from '@/stores/user'
+
 const router = useRouter()
+const userStore = useUserStore()
 
 interface Inquiry {
   id: number
@@ -98,39 +101,58 @@ interface Inquiry {
   status: 'WAIT' | 'DONE'
 }
 
+const inquiryTypeMap = {
+  PRODUCT: '상품 문의',
+  DELIVERY: '배송 문의',
+  ORDER: '주문 문의',
+  ETC: '기타 문의',
+}
+
 /* =====================
    상태값
 ===================== */
 const inquiries = ref<Inquiry[]>([])
 const currentPage = ref(1)
-const pages = ref<number[]>([])
+const totalPages = ref(1)
+const pageSize = 10
+
+const pages = computed(() => {
+  const pageArray = []
+  for (let i = 1; i <= totalPages.value; i++) {
+    pageArray.push(i)
+  }
+  return pageArray
+})
+
 
 /* 상세 모달 */
 const showDetailModal = ref(false)
 const selectedInquiryNo = ref('')
 
-/* 임시 userId */
-const userId = 'rrrr@naver.com'
-const pageSize = 10
-
 /* =====================
    API 호출
 ===================== */
 const fetchInquiries = async () => {
+  const userId = userStore.user?.email
+  if (!userId) {
+    inquiries.value = []
+    totalPages.value = 1
+    return
+  }
+
   try {
     const res = await http.get('/inquiries', {
       params: {
-        userId,
         page: currentPage.value, // ✅ 백엔드 1-based
         size: pageSize,
       },
     })
 
-    const payload = res.data?.data ?? res.data ?? []
+    const payload = res.data?.data?.content ?? res.data?.content ?? []
+    totalPages.value = res.data?.data?.totalPages ?? res.data?.totalPages ?? 1
 
     if (!Array.isArray(payload)) {
       inquiries.value = []
-      pages.value = [currentPage.value]
       return
     }
 
@@ -138,46 +160,24 @@ const fetchInquiries = async () => {
     inquiries.value = payload.map((item: any, index: number) => ({
       id: (currentPage.value - 1) * pageSize + index + 1,
       inquiryNo: item.InquiryNo,
-      type: '상품 문의',
+      type: inquiryTypeMap[item.type] || item.type,
       title: item.title,
       createdAt: item.createdAt?.substring(0, 10),
       status: item.processingStatus === 'Y' ? 'DONE' : 'WAIT',
     }))
 
-    makePages(payload.length)
   } catch (e) {
     console.error('문의 목록 조회 실패', e)
     inquiries.value = []
-    pages.value = [currentPage.value]
+    totalPages.value = 1
   }
-}
-
-/* =====================
-   임시 페이징 로직 (2번 방식 핵심)
-===================== */
-const makePages = (currentSize: number) => {
-  const temp: number[] = []
-
-  // 이전 페이지
-  if (currentPage.value > 1) {
-    temp.push(currentPage.value - 1)
-  }
-
-  // 현재 페이지
-  temp.push(currentPage.value)
-
-  // 다음 페이지 "있는 척"
-  if (currentSize === pageSize) {
-    temp.push(currentPage.value + 1)
-  }
-
-  pages.value = temp
 }
 
 /* =====================
    페이지 이동
 ===================== */
 const changePage = (page: number) => {
+  if (page < 1 || page > totalPages.value) return
   if (page === currentPage.value) return
   currentPage.value = page
 }
