@@ -14,7 +14,7 @@ import MasterDataList from "@/views/masterdata/MasterDataList.vue";
 import MasterDataDetail from "@/views/masterdata/MasterDataDetail.vue";
 import MasterDataEdit from "@/views/masterdata/MasterDataEdit.vue";
 import AdminNotificationListView from "@/views/notification/admin/AdminNotificationListView.vue";
-import PerchaseOrderListView from "@/views/perchaseOrder/PerchaseOrderListView.vue";
+import PurchaseOrderListView from "@/views/purchaseOrder/PurchaseOrderListView.vue";
 import LotListView from "@/views/lot/LotListView.vue";
 import DiscardRegisterView from "@/views/discard/DiscardRegisterView.vue";
 import DiscardListView from "@/views/discard/DiscardListView.vue";
@@ -159,9 +159,9 @@ const routes = [
                 meta: { title: '알림' },
             },
             {
-                path: 'perchaseOrder',
-                name: 'perchaseOrder',
-                component: PerchaseOrderListView,
+                path: 'purchaseOrder',
+                name: 'purchaseOrder',
+                component: PurchaseOrderListView,
                 meta: { title: '알림' },
             },
             {
