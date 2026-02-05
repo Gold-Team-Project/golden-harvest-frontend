@@ -1,5 +1,15 @@
 import http from './axios.js'
 
+export async function getMetrics() {
+    try {
+        const response = await http.get('/items/metrics');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching metrics:', error);
+        throw error;
+    }
+}
+
 export async function getAllItems(filters) {
     try {
         const params = {

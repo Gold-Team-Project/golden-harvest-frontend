@@ -2,21 +2,7 @@
   <div class="admin-dashboard">
     <div class="dashboard-content">
       <div class="metric-cards-grid">
-        <!-- 총 재고 (Total Stock) -->
-        <div class="card metric-card">
-          <div class="metric-icon total-stock-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2Z" fill="#E0F2F1"/>
-              <path d="M16 11V13H8V11H16Z" fill="#00796B"/>
-            </svg>
-          </div>
-          <p class="metric-label">총 재고</p>
-          <p class="metric-value">45,200kg</p>
-          <p class="metric-sub-value">1,240 활성 LOT</p>
-          <div class="progress-bar-container">
-            <div class="progress-bar" style="width: 70%;"></div>
-          </div>
-        </div>
+
 
         <!-- 오늘의 흐름 (Today's Flow) -->
         <div class="card metric-card">
@@ -29,12 +15,12 @@
           <p class="metric-label">오늘의 흐름</p>
           <div class="flow-details-container">
             <div class="flow-values">
-              <span class="flow-in">입고 <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20V4" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 13L12 20L19 13" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>15</span></span>
-              <span class="flow-out">출고 <span>42<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V20" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 11L12 4L5 11" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+              <span class="flow-in">입고 <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20V4" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 13L12 20L19 13" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>{{ metrics?.inbounds }}</span></span>
+              <span class="flow-out">출고 <span>{{ metrics?.outbounds }}<svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V20" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 11L12 4L5 11" stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
             </div>
             <div class="progress-bar-container flow-progress">
-              <div class="progress-bar in" style="width: 30%;"></div>
-              <div class="progress-bar out" style="width: 70%;"></div>
+              <div class="progress-bar in" :style="{ width: flowInProgressWidth }"></div>
+              <div class="progress-bar out" :style="{ width: flowOutProgressWidth }"></div>
             </div>
           </div>
         </div>
@@ -49,10 +35,10 @@
             </svg>
           </div>
           <p class="metric-label">유통기한 임박</p>
-          <p class="metric-value">28개 LOT</p>
+          <p class="metric-value">{{ formatNumber(metrics?.expireDueLot) }}개 LOT</p>
           <p class="metric-sub-value">7일 이내 만료 예정</p>
           <div class="progress-bar-container">
-            <div class="progress-bar yellow" style="width: 50%;"></div>
+            <div class="progress-bar yellow" :style="{ width: expiringProgressWidth }"></div>
           </div>
         </div>
 
@@ -69,10 +55,10 @@
             </svg>
           </div>
           <p class="metric-label">예상 폐기량</p>
-          <p class="metric-value">120 kg</p>
+          <p class="metric-value">{{ formatNumber(metrics?.discardQuantity) }} kg</p>
           <p class="metric-sub-value">이번 주 폐기 예상</p>
           <div class="progress-bar-container">
-            <div class="progress-bar red" style="width: 30%;"></div>
+            <div class="progress-bar red" :style="{ width: disposalProgressWidth }"></div>
           </div>
         </div>
       </div>
@@ -110,7 +96,58 @@
 </template>
 
 <script setup>
-// No script logic needed for now, just static content
+import { ref, onMounted, computed } from 'vue';
+import { getMetrics } from '../../api/ItemApi.js';
+
+const metrics = ref(null);
+
+onMounted(async () => {
+  try {
+    const response = await getMetrics();
+    if (response.success) {
+      metrics.value = response.data;
+    }
+  } catch (error) {
+    console.error('Failed to fetch metrics:', error);
+  }
+});
+
+const formatNumber = (value) => {
+  if (value === null || typeof value === 'undefined') return 0;
+  return value.toLocaleString();
+};
+
+const flowInProgressWidth = computed(() => {
+  if (!metrics.value || (metrics.value.inbounds + metrics.value.outbounds === 0)) {
+    return '50%';
+  }
+  const percentage = (metrics.value.inbounds / (metrics.value.inbounds + metrics.value.outbounds)) * 100;
+  return `${percentage}%`;
+});
+
+const flowOutProgressWidth = computed(() => {
+  if (!metrics.value || (metrics.value.inbounds + metrics.value.outbounds === 0)) {
+    return '50%';
+  }
+  const percentage = (metrics.value.outbounds / (metrics.value.inbounds + metrics.value.outbounds)) * 100;
+  return `${percentage}%`;
+});
+
+const expiringProgressWidth = computed(() => {
+  if (!metrics.value || metrics.value.availableLot === 0) {
+    return '0%';
+  }
+  const percentage = (metrics.value.expireDueLot / metrics.value.availableLot) * 100;
+  return `${percentage}%`;
+});
+
+const disposalProgressWidth = computed(() => {
+  if (!metrics.value || metrics.value.availableQuantity === 0) {
+    return '0%';
+  }
+  const percentage = (metrics.value.discardQuantity / metrics.value.availableQuantity) * 100;
+  return `${percentage}%`;
+});
 </script>
 
 <style scoped>
@@ -143,7 +180,7 @@
 
 .metric-cards-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* Four columns */
+  grid-template-columns: repeat(3, 1fr); /* Three columns */
   gap: 20px; /* Gap between cards */
   margin-bottom: 30px;
 }
@@ -176,12 +213,6 @@
   width: 24px;
   height: 24px;
 }
-
-.total-stock-icon {
-  background-color: #E0F2F1; /* Light teal */
-}
-.total-stock-icon svg path:first-child { fill: #E0F2F1; }
-.total-stock-icon svg path:last-child { fill: #00796B; } /* Darker teal */
 
 
 .today-flow-icon {
