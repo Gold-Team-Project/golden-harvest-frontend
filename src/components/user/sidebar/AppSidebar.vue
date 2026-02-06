@@ -129,8 +129,8 @@ const accountMenus = [
     </svg>`,
   },
   {
-    key: 'setting',
-    label: '설정',
+    key: 'inquiry',
+    label: '문의',
     route: 'inquiryList',
     icon: `<svg viewBox="0 0 24 24" width="18" height="18">
       <circle cx="12" cy="12" r="3" fill="currentColor"/>
