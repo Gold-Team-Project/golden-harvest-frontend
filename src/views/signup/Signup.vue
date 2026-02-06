@@ -96,6 +96,7 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import authApi from '@/api/AuthApI.js';
+import Swal from 'sweetalert2';
 
 const form = reactive({
   email: '',
@@ -116,64 +117,136 @@ const handleFileUpload = (event) => {
   if (file) {
     fileName.value = file.name;
     selectedFile.value = file; // 파일 객체 저장
+
+    // 파일 선택 시 가벼운 토스트 알림 (선택 사항)
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+    });
+    Toast.fire({
+      icon: 'success',
+      title: '파일이 선택되었습니다.'
+    });
   }
 };
 
 // 2. 이메일 인증번호 발송
 const handleSendVerification = async () => {
   if (!form.email) {
-    alert("이메일을 먼저 입력해주세요.");
-    return;
+    return Swal.fire({
+      title: '이메일 미입력',
+      text: '인증번호를 받을 이메일을 입력해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
   }
   try {
     const res = await authApi.sendEmail({
       email: form.email,
       type: 'signup'
     });
-    alert(res.message || "인증번호가 발송되었습니다.");
+    Swal.fire({
+      title: '발송 완료',
+      text: res.message || "인증번호가 발송되었습니다. 메일을 확인해주세요.",
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
   } catch (error) {
-    console.error("인증번호 발송 실패:", error);
-    alert(error.response?.data?.message || "발송 실패");
+    Swal.fire({
+      title: '발송 실패',
+      text: error.response?.data?.message || "인증번호 발송에 실패했습니다.",
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 };
 
 // 3. 이메일 인증번호 확인
 const handleVerifyCode = async () => {
   try {
-    const res = await authApi.verifyEmail(form.email, form.verifyCode);
-    alert("이메일 인증에 성공하였습니다.");
+    await authApi.verifyEmail(form.email, form.verifyCode);
+    Swal.fire({
+      title: '인증 성공',
+      text: '이메일 인증이 완료되었습니다.',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
   } catch (error) {
-    alert("인증번호가 일치하지 않습니다.");
+    Swal.fire({
+      title: '인증 실패',
+      text: "인증번호가 일치하지 않습니다.",
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 };
 
 // 4. 회원가입 제출
 const handleSignup = async () => {
   if (form.password !== form.passwordConfirm) {
-    alert("비밀번호가 일치하지 않습니다.");
-    return;
+    return Swal.fire({
+      title: '비밀번호 불일치',
+      text: '입력하신 두 비밀번호가 서로 다릅니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
   if (!selectedFile.value) {
-    alert("사업자 등록증 파일을 업로드해주세요.");
-    return;
+    return Swal.fire({
+      title: '서류 미첨부',
+      text: '사업자 등록증 파일을 업로드해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
   }
 
   try {
-    // 백엔드 DTO 필드명(SignUpRequest)에 맞춰 데이터 구성
     const signUpData = {
       email: form.email,
       password: form.password,
       company: form.businessName,
-      businessNumber: '1234567890', // 예시 (패턴 @Pattern(regexp = "^\\d{10}$") 준수 필요)
+      businessNumber: '1234567890',
       name: form.managerName,
       phoneNumber: form.phone
     };
 
+    // 가입 진행 중 로딩 표시
+    Swal.fire({
+      title: '가입 신청 중...',
+      text: '잠시만 기다려주세요.',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
     const res = await authApi.signup(signUpData, selectedFile.value);
-    alert(res.message || "회원가입 신청이 완료되었습니다.");
+
+    await Swal.fire({
+      title: '신청 완료',
+      text: res.message || "회원가입 신청이 완료되었습니다. 관리자 승인 후 이용 가능합니다.",
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+    // 확인 버튼 누르면 이동
+    location.href = '/login';
   } catch (error) {
-    console.error("회원가입 실패:", error);
-    alert(error.response?.data?.message || "회원가입 중 에러가 발생했습니다.");
+    Swal.fire({
+      title: '가입 실패',
+      text: error.response?.data?.message || "회원가입 중 에러가 발생했습니다.",
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 };
 </script>

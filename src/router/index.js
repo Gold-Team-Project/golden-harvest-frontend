@@ -1,5 +1,4 @@
-// src/router/index.js
-import DashboardView from "@/views/admin/DashboardView.vue"; // Admin Dashboard
+import DashboardView from "@/views/admin/DashboardView.vue";
 import { createRouter, createWebHistory } from 'vue-router'
 import { jwtDecode } from 'jwt-decode'
 
@@ -109,7 +108,7 @@ const routes = [
     {
         path: '/admin',
         component: AdminDefaultLayout,
-        meta: { requiresAdmin: false }, // 이 부모가 있는 자식들은 모두 가드에 걸림
+        meta: { requiresAdmin: true },
         children: [
             {
                 path: '',
@@ -160,7 +159,7 @@ const routes = [
             },
             {
                 path: 'purchaseOrder',
-                name: 'purchaseOrder',
+                name: 'adminPurchaseRegister',
                 component: PurchaseOrderListView,
                 meta: { title: '알림' },
             },
@@ -186,56 +185,66 @@ const routes = [
                 path: 'approval',
                 name: 'adminMemberList',
                 component: UserApproval,
-                meta: { title: '홈 / 재고 관리 / 폐기 내역' },
+                meta: { title: '홈 / 회원 승인 관리' },
             },
         ]
     }
 ]
 
-// 라우터 생성
 const router = createRouter({
     history: createWebHistory(),
     routes
 })
 
-// 라우터 가드 작성
+// [수정] 모든 페이지 접근 허용을 위한 가드 주석 처리
 router.beforeEach((to, from, next) => {
-    const token = localStorage.getItem('accessToken');
-    const isAuthenticated = !!token;
-
+    // 자유로운 페이지 이동을 위해 모든 차단 로직을 주석 처리했습니다.
+    /*
+    const accessToken = localStorage.getItem('accessToken');
     const publicPages = ['/login', '/signup', '/password'];
-    const authRequired = !publicPages.includes(to.path);
+    const isPublicPage = publicPages.includes(to.path);
 
-    // 인증이 필요하고 사용자가 인증되지 않았다면 로그인 페이지로 리디렉션 (알림 없음)
-    if (authRequired && !isAuthenticated) {
+    // 1. 토큰 만료 체크
+    if (accessToken) {
+        try {
+            const decoded = jwtDecode(accessToken);
+            const currentTime = Math.floor(Date.now() / 1000);
+            if (decoded.exp < currentTime) {
+                alert('로그인 세션이 만료되었습니다.');
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                return next('/login');
+            }
+        } catch (e) {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            return next('/login');
+        }
+    }
+
+    // 2. 비로그인 사용자 차단
+    if (!accessToken && !isPublicPage) {
         return next('/login');
     }
 
-    // 사용자가 인증되었고 로그인/회원가입/비밀번호 찾기 페이지로 가려 한다면 홈으로 리디렉션
-    if (isAuthenticated && publicPages.includes(to.path)) {
+    // 3. 이미 로그인한 사용자 차단
+    if (accessToken && isPublicPage) {
         return next('/');
     }
 
-    // --- 기존 관리자 가드 로직 ---
+    // 4. 관리자 권한 체크
     const isRequiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
-
-    if (isRequiresAdmin) {
-        // 이 부분은 인증된 사용자가 관리자 권한이 없을 때만 해당
-        try {
-            const decoded = jwtDecode(token); // 토큰이 있다는 것은 위에서 확인됨
-            if (decoded.role !== 'ROLE_ADMIN') {
-                alert('접근 권한이 없습니다.');
-                return next('/');
-            }
-            next(); // 관리자라면 통과
-        } catch (error) {
-            console.error('JWT Decode Error:', error);
-            localStorage.removeItem('accessToken');
-            next('/login'); // 토큰 오류 시 로그인 페이지로
+    if (isRequiresAdmin && accessToken) {
+        const decoded = jwtDecode(accessToken);
+        if (decoded.role !== 'ROLE_ADMIN') {
+            alert('접근 권한이 없습니다.');
+            return next('/');
         }
-    } else {
-        next(); // 공용 페이지 또는 인증된 일반 사용자 페이지, 진행
     }
+    */
+
+    // 무조건 다음 페이지로 이동 허용
+    next();
 });
 
 export default router;

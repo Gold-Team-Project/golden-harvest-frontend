@@ -1,87 +1,100 @@
 <template>
-  <div class="order-detail-view">
-    <div class="main-content">
-      <div v-if="loading" class="card">
-        <p>주문 상세 정보를 불러오는 중...</p>
-      </div>
-      <div v-else-if="error" class="card">
-        <p style="color: red;">오류: {{ error }}</p>
-      </div>
-      <div v-else-if="orderDetail" class="card">
-        <div class="order-header">
-          <div>
-            <h2 class="order-title">주문 상세</h2>
-            <p class="order-info">{{ orderDetail.createdAt }} 주문 <span class="order-id">주문번호 : {{ orderDetail.salesOrderId }}</span></p>
-          </div>
+  <div class="admin-container">
+    <div class="breadcrumb">홈 / 주문 관리 / <strong>주문 상세 내역</strong></div>
 
+    <div v-if="loading" class="loading-state">
+      <p>주문 상세 정보를 불러오는 중...</p>
+    </div>
+    <div v-else-if="error" class="error-state">
+      <p>오류: {{ error }}</p>
+    </div>
+
+    <div v-else-if="orderDetail" class="order-content-layout">
+      <div class="main-column">
+        <div class="filter-card header-card">
+          <div class="order-title-group">
+            <h2 class="order-id">주문 #{{ orderDetail.salesOrderId }}</h2>
+            <p class="order-date">주문일시: {{ orderDetail.createdAt }}</p>
+          </div>
+          <div class="status-badge-wrap">
+            <span :class="['status-badge', orderStatusKey]">{{ orderDetail.orderStatus }}</span>
+          </div>
         </div>
 
-        <h3 class="section-title">주문 품목 리스트</h3>
-        <div class="table-responsive">
-          <table class="item-table">
-            <thead>
+        <div class="list-card">
+          <div class="card-header">
+            <img src="@/assets/search.svg" class="title-icon-svg" alt="list" />
+            <h3>주문 품목 리스트</h3>
+          </div>
+
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
               <tr>
-                <th>상품 정보</th>
-                <th>단가</th>
-                <th>수량</th>
-                <th>합계</th>
+                <th style="width: 50%">상품 정보</th>
+                <th style="width: 15%">단가</th>
+                <th style="width: 10%">수량</th>
+                <th style="width: 25%">합계</th>
               </tr>
-            </thead>
-            <tbody>
+              </thead>
+              <tbody>
               <tr v-for="item in items" :key="item.id">
                 <td>
-                  <div class="item-info">
-                    <img :src="item.image" alt="item-image" class="item-image" />
-                    <div class="item-details">
-                      <p class="item-name">{{ item.name }}</p>
-                      <p class="item-code">코드: {{ item.code }}</p>
-                      <p class="item-option">옵션: {{ item.option }}</p>
+                  <div class="item-info-box">
+                    <img :src="item.image || '/placeholder.png'" class="item-thumb" />
+                    <div class="item-txt">
+                      <p class="name">{{ item.name }}</p>
+                      <p class="code">코드: {{ item.code }} | 옵션: {{ item.option }}</p>
                     </div>
                   </div>
                 </td>
-                <td>{{ item.price.toLocaleString() }}원</td>
+                <td class="bold">{{ item.price.toLocaleString() }}원</td>
                 <td>{{ item.quantity }}</td>
-                <td>{{ (item.price * item.quantity).toLocaleString() }}원</td>
+                <td class="bold price-text text-right">{{ (item.price * item.quantity).toLocaleString() }}원</td>
               </tr>
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="final-summary">
+            <div class="summary-box">
+              <span class="total-qty">총 수량: <strong>{{ totalQuantity }}개</strong></span>
+              <span class="total-amt">최종 합계: <strong class="green-text">{{ totalAmount.toLocaleString() }}원</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-column">
+        <div class="info-card">
+          <div class="info-header">
+            <img src="@/assets/user-icon.svg" class="info-icon" alt="shipping" />
+            <h4>배송 정보</h4>
+          </div>
+          <div v-if="orderDetail.customerInfo" class="info-content">
+            <div class="info-row"><span class="label">수령인</span><span class="val">{{ orderDetail.customerInfo.name }}</span></div>
+            <div class="info-row"><span class="label">연락처</span><span class="val">{{ orderDetail.customerInfo.phoneNumber }}</span></div>
+            <div class="info-row"><span class="label">주소</span><span class="val address">{{ customerAddress }}</span></div>
+          </div>
+          <div class="progress-section">
+            <OrderProgress :status="orderStatusKey" />
+          </div>
         </div>
 
-        <div class="total-summary">
-          <span>합계 :</span>
-          <span class="total-amount">{{ totalAmount.toLocaleString() }}원</span>
-        </div>
-      </div>
-      <div v-else class="card">
-        <p>주문 정보를 찾을 수 없습니다.</p>
-      </div>
-    </div>
-
-    <div class="sidebar-content" v-if="orderDetail">
-      <div class="card">
-        <h3 class="section-title">배송 정보</h3>
-        <div v-if="orderDetail.customerInfo" class="info-grid">
-          <p><span class="label">수령인</span> : {{ orderDetail.customerInfo.name }}</p>
-          <p><span class="label">연락처</span> : {{ orderDetail.customerInfo.phoneNumber }}</p>
-          <p><span class="label">주소</span> : {{ customerAddress }}</p>
-        </div>
-        <div v-else>
-          <p>배송 정보를 불러올 수 없습니다.</p>
-        </div>
-        <div class="shipping-status">
-          <OrderProgress :status="orderStatusKey" />
-        </div>
-      </div>
-      <div class="card">
-        <h3 class="section-title">결제 정보</h3>
-        <div class="info-grid payment-info">
-          <p><span class="label">결제 수단</span><span class="value">무통장 입금</span></p>
-          <p><span class="label">입금자명</span><span class="value">프레시마켓</span></p>
-          <p><span class="label">결제 상태</span><span class="value">입금 대기</span></p>
-        </div>
-        <div class="total-payment">
-          <span class="label">총 결제 금액</span>
-          <span class="amount">{{ totalAmount.toLocaleString() }}원</span>
+        <div class="info-card">
+          <div class="info-header">
+            <img src="@/assets/card.svg" class="info-icon" alt="payment" />
+            <h4>결제 정보</h4>
+          </div>
+          <div class="info-content">
+            <div class="info-row"><span class="label">결제수단</span><span class="val">무통장 입금</span></div>
+            <div class="info-row"><span class="label">입금자명</span><span class="val">프레시마켓</span></div>
+            <div class="info-row"><span class="label">결제상태</span><span class="val highlight">입금 대기</span></div>
+            <div class="total-payment-row">
+              <span class="label">총 결제 금액</span>
+              <span class="amount">{{ totalAmount.toLocaleString() }}원</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -91,8 +104,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import BaseButton from '@/components/button/BaseButton.vue'
-import OrderProgress from '@/views/orderlist/OrderProgress.vue' // Import OrderProgress
+import OrderProgress from '@/views/orderlist/OrderProgress.vue'
 import { fetchOrderDetail } from '@/api/OrderApi.js'
 
 const route = useRoute()
@@ -101,291 +113,134 @@ const loading = ref(true)
 const error = ref(null)
 
 const items = computed(() => {
-  if (!orderDetail.value || !orderDetail.value.orderItems) {
-    return []
-  }
+  if (!orderDetail.value || !orderDetail.value.orderItems) return []
   return orderDetail.value.orderItems.map((item, index) => ({
-    id: index, // Using index as ID, as no specific item ID is provided in API response
+    id: index,
     name: item.itemName || item.gradeName || item.varietyName || '상품명 없음',
-    code: item.gradeName || '코드 없음', // Placeholder
-    option: item.varietyName || '옵션 없음', // Placeholder
+    code: item.gradeName || '코드 없음',
+    option: item.varietyName || '옵션 없음',
     price: item.price,
     quantity: item.quantity,
-    image: '', // No image URL in API response
+    image: item.itemImage || '',
   }))
 })
 
-const totalAmount = computed(() => {
-  return orderDetail.value ? orderDetail.value.totalAmount : 0
+const totalQuantity = computed(() => {
+  if (!orderDetail.value || !orderDetail.value.orderItems) return 0;
+  return orderDetail.value.orderItems.reduce((sum, item) => sum + item.quantity, 0)
 })
 
+const totalAmount = computed(() => orderDetail.value ? orderDetail.value.totalAmount : 0)
+
 const customerAddress = computed(() => {
-  if (!orderDetail.value?.customerInfo) {
-    return '주소 정보 없음';
-  }
+  if (!orderDetail.value?.customerInfo) return '주소 정보 없음';
   const { postalCode, addressLine1, addressLine2 } = orderDetail.value.customerInfo;
-  if (!addressLine1 && !addressLine2) {
-    return '주소 정보 없음';
-  }
   return `(${postalCode || ''}) ${addressLine1 || ''} ${addressLine2 || ''}`.trim();
 });
 
-// New computed property for order status key, mirroring AdminOrderDetailView
 const orderStatusKey = computed(() => {
   if (!orderDetail.value || !orderDetail.value.orderStatus) return 'UNKNOWN';
-  switch (orderDetail.value.orderStatus) {
-    case '주문 완료': return 'PENDING';
-    case '상품 준비중': return 'PAID';
-    case '배송 준비중': return 'PREPARING';
-    case '배송 중': return 'SHIPPING';
-    case '배송 완료': return 'DELIVERED';
-    case '주문 취소': return 'CANCELLED';
-    default: return 'UNKNOWN';
-  }
+  const statusMap = {
+    '주문 완료': 'PENDING',
+    '상품 준비중': 'PAID',
+    '배송 준비중': 'PREPARING',
+    '배송 중': 'SHIPPING',
+    '배송 완료': 'DELIVERED',
+    '주문 취소': 'CANCELLED'
+  };
+  return statusMap[orderDetail.value.orderStatus] || 'UNKNOWN';
 });
 
 const loadOrderDetail = async () => {
-  loading.value = true
-  error.value = null
+  loading.value = true;
   try {
-    const orderId = route.params.id
-    const response = await fetchOrderDetail(orderId)
-    if (response.success && response.data) {
-      orderDetail.value = response.data
-    } else {
-      error.value = response.message || '주문 상세 정보를 불러오는데 실패했습니다.'
-    }
-  } catch (err) {
-    error.value = 'API 호출 중 오류가 발생했습니다: ' + err.message
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
+    const response = await fetchOrderDetail(route.params.id)
+    if (response.success) orderDetail.value = response.data
+    else error.value = response.message
+  } catch (err) { error.value = err.message }
+  finally { loading.value = false }
 }
 
-onMounted(() => {
-  loadOrderDetail()
-})
+onMounted(loadOrderDetail)
 </script>
 
 <style scoped>
-.order-detail-view {
-  display: flex;
-  gap: 24px;
-}
-.main-content {
-  flex: 1;
-}
-.sidebar-content {
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-.card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-}
-.order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 16px;
-  margin-bottom: 24px;
-}
-.order-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin: 0;
-}
-.order-info {
-  font-size: 14px;
-  color: #6b7280;
-  margin-top: 8px;
-}
-.order-id {
-  color: #22c55e;
-  font-weight: 600;
-  margin-left: 16px;
-}
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0 0 16px 0;
-}
-.item-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.item-table th, .item-table td {
-  padding: 16px 0;
-  border-bottom: 1px solid #f3f4f6;
-  text-align: left;
-}
-.item-table th {
-  font-size: 13px;
-  color: #6b7280;
-  background-color: #f9fafb;
-  padding: 8px;
-}
-.item-table td:nth-child(1) { width: 50%; }
-.item-info {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.item-image {
-  width: 64px;
-  height: 64px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-.item-details p { margin: 0; font-size: 13px; }
-.item-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-.item-code, .item-option { color: #6b7280; }
-.total-summary {
-  text-align: right;
-  margin-top: 24px;
-  font-size: 16px;
-  font-weight: 600;
-}
-.total-amount {
-  font-size: 20px;
-  color: #22c55e;
-  margin-left: 16px;
-}
-.info-grid {
-  display: grid;
-  gap: 12px;
-  font-size: 14px;
-  color: #374151;
-}
-.info-grid .label {
-  color: #6b7280;
-  display: inline-block;
-  width: 90px;
-}
-.payment-info .value {
-  float: right;
-  font-weight: 500;
-}
-.shipping-status {
-  margin-top: 24px;
-}
-.shipping-status ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  position: relative;
-}
-.shipping-status ul::before {
-  content: '';
-  position: absolute;
-  left: 5px;
-  top: 5px;
-  bottom: 5px;
-  width: 2px;
-  background-color: #e5e7eb;
-}
-.status-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  position: relative;
-  padding-bottom: 24px;
-}
-.status-item:last-child {
-  padding-bottom: 0;
-}
-.status-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #e5e7eb;
-  border: 2px solid #ffffff;
-  z-index: 1;
-}
-.status-item.done .status-dot {
-  background-color: #22c55e;
-}
-.status-text {
-  font-size: 14px;
-  color: #6b7280;
-  line-height: 1.2;
-}
-.status-item.done .status-text {
-  color: #111827;
-  font-weight: 600;
-}
-.status-date {
-  font-size: 12px;
-  color: #6b7280;
-  font-weight: 400;
-}
-.total-payment {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 16px;
-  font-weight: 600;
-}
-.total-payment .amount {
-  color: #ef4444;
-  font-size: 20px;
+/* 관리자 시스템 공통 레이아웃 */
+.admin-container { padding: 20px 50px; background-color: #f8f9fb; min-height: 100vh; text-align: left; }
+.breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; }
+
+/* 레이아웃 구성 */
+.order-content-layout { display: flex; gap: 25px; align-items: flex-start; }
+.main-column { flex: 1; display: flex; flex-direction: column; gap: 25px; }
+.side-column { width: 360px; display: flex; flex-direction: column; gap: 25px; }
+
+/* 카드 공통 스타일 */
+.filter-card, .list-card, .info-card {
+  background: #fff; border-radius: 20px; border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03); padding: 30px;
 }
 
-@media (max-width: 768px) {
-  .order-detail-view {
-    flex-direction: column;
-  }
+/* 헤더 카드 */
+.header-card { display: flex; justify-content: space-between; align-items: center; padding: 25px 35px; }
+.order-id { font-size: 22px; font-weight: 800; color: #333; margin: 0; }
+.order-date { font-size: 14px; color: #999; margin-top: 5px; }
 
-  .sidebar-content {
-    width: 100%; /* Make sidebar full width */
-  }
+/* 배지 스타일 */
+.status-badge { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+.status-badge.PENDING { background: #fff8ee; color: #f39c12; border: 1px solid #f39c12; }
+.status-badge.DELIVERED { background: #eefdee; color: #11D411; border: 1px solid #11D411; }
+.status-badge.CANCELLED { background: #fef2f2; color: #ef4444; border: 1px solid #ef4444; }
 
-  .info-grid {
-    grid-template-columns: 1fr; /* Stack info items vertically */
-  }
+/* 정보 카드 (사이드바) */
+.info-card { padding: 25px; }
+.info-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f1f1f1; }
+.info-icon { width: 20px; }
+.info-header h4 { margin: 0; font-size: 16px; font-weight: 700; color: #333; }
+.info-content { display: flex; flex-direction: column; gap: 12px; }
+.info-row { display: flex; justify-content: space-between; font-size: 14px; }
+.info-row .label { color: #888; min-width: 70px; }
+.info-row .val { color: #333; font-weight: 600; text-align: right; }
+.info-row .val.address { font-size: 13px; line-height: 1.4; max-width: 200px; }
+.info-row .val.highlight { color: #f39c12; }
 
-  .info-grid .label {
-    width: auto; /* Allow label to take necessary width */
-    margin-right: 8px; /* Add some space between label and value */
-  }
+.progress-section { margin-top: 25px; padding-top: 20px; border-top: 2px dashed #f1f1f1; }
 
-  .order-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
+.total-payment-row {
+  margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.total-payment-row .label { font-weight: 700; color: #333; }
+.total-payment-row .amount { color: #ef4444; font-size: 20px; font-weight: 800; }
 
-  .order-id {
-    font-size: 20px; /* Adjust font size for smaller screens */
-  }
+/* 테이블 섹션 */
+.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.title-icon-svg { width: 20px; }
+.card-header h3 { font-size: 17px; font-weight: 700; margin: 0; }
 
-  .order-info {
-    margin-top: 4px;
-  }
+.table-container { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th { padding: 15px; background: #fdfdfd; border-bottom: 2px solid #f1f1f1; color: #888; font-size: 14px; text-align: center; }
+.admin-table td { padding: 18px 10px; border-bottom: 1px solid #f9f9f9; font-size: 14px; text-align: center; }
 
-  .actions {
-    flex-wrap: wrap; /* Allow buttons to wrap */
-    width: 100%; /* Make buttons take full width if wrapped */
-    justify-content: flex-start; /* Align buttons to start */
-  }
+.item-info-box { display: flex; align-items: center; gap: 15px; text-align: left; }
+.item-thumb { width: 60px; height: 60px; border-radius: 10px; border: 1px solid #eee; object-fit: cover; }
+.item-txt .name { font-weight: 700; color: #333; margin-bottom: 4px; }
+.item-txt .code { font-size: 12px; color: #999; }
 
-  .actions .BaseButton {
-    flex: 1 1 auto; /* Allow buttons to grow/shrink but keep some base size */
-  }
+.price-text { color: #11D411; }
+.bold { font-weight: 700; }
+.text-right { text-align: right !important; padding-right: 20px !important; }
 
-  /* Table responsiveness */
-  .table-responsive {
-    width: 100%;
-    overflow-x: auto;
-  }
+.final-summary { margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; }
+.summary-box { display: flex; justify-content: flex-end; gap: 40px; align-items: center; }
+.total-qty { font-size: 15px; color: #666; }
+.total-qty strong { color: #333; margin-left: 5px; }
+.green-text { color: #11D411; font-size: 24px; margin-left: 10px; }
+
+.loading-state, .error-state { padding: 100px; text-align: center; color: #666; }
+
+@media (max-width: 1200px) {
+  .order-content-layout { flex-direction: column; }
+  .side-column { width: 100%; }
 }
 </style>

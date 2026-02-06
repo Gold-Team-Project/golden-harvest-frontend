@@ -141,13 +141,14 @@ const filters = reactive({
   endDate: '',
   lotNo: '',
   itemName: '',
-  discardStatus: ''
+  discardStatus: '' // 여기에 담기는 값이 DiscardStatus 엔티티의 ID와 일치해야 합니다.
 });
 
 const currentPage = ref(1);
 const pageSize = ref(10);
 const totalPages = ref(1);
 
+// 백엔드 DiscardStatus 엔티티의 PK(ID) 값과 정확히 일치시켜야 합니다.
 const reasonMap = {
   'DAMAGED': '파손',
   'EXPIRED': '유통기한 만료',
@@ -160,31 +161,47 @@ const reasonMap = {
 const openModal = (item) => { selectedItem.value = item; isModalOpen.value = true; };
 const closeModal = () => { isModalOpen.value = false; selectedItem.value = null; };
 
-// 리스트 호출 함수 (가장 중요)
+// 리스트 호출 함수 (필터링 로직 강화)
 const fetchListData = async () => {
   try {
+    // 백엔드 Pageable 규격에 맞춰 params 구성
     const params = {
-      // 데이터가 사라졌다면 백엔드 사양에 맞게 조정 (0 또는 1)
-      page: currentPage.value,
+      page: currentPage.value, // 백엔드가 0-based라면 currentPage.value - 1 로 수정 필요
       size: pageSize.value,
-      // 빈 문자열 방지 (백엔드가 빈 문자열을 검색어로 인식할 수 있음)
-      startDate: filters.startDate || null,
-      endDate: filters.endDate || null,
-      lotNo: filters.lotNo || null,
-      itemName: filters.itemName || null,
-      discardStatus: filters.discardStatus || null
     };
+
+    // 값이 유효한 경우에만 파라미터 추가
+    if (filters.startDate) params.startDate = filters.startDate;
+    if (filters.endDate) params.endDate = filters.endDate;
+
+    // 문자열 검색 시 공백 제거 및 빈 값 체크
+    if (filters.lotNo && filters.lotNo.trim()) {
+      params.lotNo = filters.lotNo.trim();
+    }
+    if (filters.itemName && filters.itemName.trim()) {
+      params.itemName = filters.itemName.trim();
+    }
+
+    // 사유(Status) 필터링 - 엔티티의 PK 값인 String을 전달
+    if (filters.discardStatus) {
+      params.discardStatus = filters.discardStatus;
+    }
 
     const response = await getDiscardList(params);
 
     if (response.success) {
-      // 서버 응답 구조가 content 안에 배열이 있는지 확인
-      items.value = response.data.content || response.data || [];
-      // 전체 페이지 수 갱신
-      totalPages.value = response.data.totalPages || Math.ceil((response.data.totalElements || items.value.length) / pageSize.value) || 1;
+      const result = response.data;
+      // Spring Data JPA의 Page 객체 구조 대응
+      if (result.content) {
+        items.value = result.content;
+        totalPages.value = result.totalPages || 1;
+      } else {
+        items.value = Array.isArray(result) ? result : [];
+        totalPages.value = 1;
+      }
     }
   } catch (e) {
-    console.error("데이터 로드 실패:", e);
+    console.error("폐기 내역 필터링 중 오류 발생:", e);
     items.value = [];
   }
 };
@@ -206,20 +223,22 @@ const changePage = (p) => {
 };
 
 const handleSearch = () => {
-  currentPage.value = 1; // 검색 시 항상 첫 페이지로
+  currentPage.value = 1;
   fetchListData();
 };
 
-// Trends 계산 로직 (기존 유지)
+// Trends 및 기타 computed 로직은 이전과 동일 (생략 가능)
 const volumeTrend = computed(() => {
   const { currentMonthVolume, lastMonthVolume } = discardVolume.value;
-  const percentage = lastMonthVolume === 0 ? 0 : Math.round(((currentMonthVolume - lastMonthVolume) / lastMonthVolume) * 100);
+  if (!lastMonthVolume) return { percentage: 0, trendClass: 'trend-up', icon: '↗' };
+  const percentage = Math.round(((currentMonthVolume - lastMonthVolume) / lastMonthVolume) * 100);
   return { percentage: Math.abs(percentage), trendClass: percentage >= 0 ? 'trend-up' : 'trend-down', icon: percentage >= 0 ? '↗' : '↘' };
 });
 
 const lossTrend = computed(() => {
   const { currentTotalValue, lastMonthTotalValue } = discardLoss.value;
-  const percentage = lastMonthTotalValue === 0 ? 0 : Math.round(((currentTotalValue - lastMonthTotalValue) / lastMonthTotalValue) * 100);
+  if (!lastMonthTotalValue) return { percentage: 0, trendClass: 'trend-up', icon: '↗' };
+  const percentage = Math.round(((currentTotalValue - lastMonthTotalValue) / lastMonthTotalValue) * 100);
   return { percentage: Math.abs(percentage), trendClass: percentage >= 0 ? 'trend-up' : 'trend-down', icon: percentage >= 0 ? '↗' : '↘' };
 });
 
@@ -245,7 +264,7 @@ onMounted(() => {
   fetchListData();
 });
 
-// 사유 변경 시 즉시 검색 실행을 위한 감시
+// 사유 변경 시 감시하여 즉시 검색
 watch(() => filters.discardStatus, () => {
   handleSearch();
 });

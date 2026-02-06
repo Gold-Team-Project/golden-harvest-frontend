@@ -56,12 +56,29 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import authApi from '@/api/AuthApI'
+import Swal from 'sweetalert2' // 1. Swal 임포트 추가
 
 const route = useRoute()
 const router = useRouter()
 
 const handleLogout = async () => {
-  if (!confirm("로그아웃 하시겠습니까?")) return;
+  // 2. 로그아웃 확인창 (어드민과 동일한 디자인)
+  const result = await Swal.fire({
+    title: '로그아웃 하시겠습니까?',
+    text: "안전하게 로그아웃하고 로그인 페이지로 이동합니다.",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#22c55e',
+    cancelButtonColor: '#ef4444',
+    confirmButtonText: '로그아웃',
+    cancelButtonText: '취소',
+    reverseButtons: true,
+    background: '#ffffff',
+    borderRadius: '12px'
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     await authApi.logout();
   } catch (error) {
@@ -69,7 +86,17 @@ const handleLogout = async () => {
   } finally {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    alert("로그아웃 되었습니다.");
+
+    // 3. 로그아웃 완료 알림
+    await Swal.fire({
+      title: '로그아웃 완료',
+      text: '성공적으로 로그아웃 되었습니다.',
+      icon: 'success',
+      confirmButtonColor: '#22c55e',
+      timer: 1500,
+      showConfirmButton: false
+    });
+
     router.push('/login');
   }
 };
@@ -78,6 +105,7 @@ const go = (name) => {
   router.push({ name })
 }
 
+// ... 이하 메뉴 설정 및 아이콘 코드는 기존과 동일 ...
 const mainMenus = [
   {
     key: 'dashboard',
@@ -129,8 +157,8 @@ const accountMenus = [
     </svg>`,
   },
   {
-    key: 'setting',
-    label: '설정',
+    key: 'inquiry',
+    label: '문의',
     route: 'inquiryList',
     icon: `<svg viewBox="0 0 24 24" width="18" height="18">
       <circle cx="12" cy="12" r="3" fill="currentColor"/>

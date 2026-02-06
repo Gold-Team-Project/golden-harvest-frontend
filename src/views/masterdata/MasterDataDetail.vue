@@ -142,8 +142,9 @@ import {ref, onMounted} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import http from '@/api/axios'
 import BaseButton from '@/components/button/BaseButton.vue'
+import Swal from 'sweetalert2' // 1. Swal 추가
 
-// (기존 인터페이스 및 변수, 함수들 그대로 유지...)
+// (기존 인터페이스 및 변수 유지...)
 interface OriginPriceData {
   originPrice: number
   unit: string
@@ -191,29 +192,14 @@ const handleImgError = (e: Event) => {
 
 const fetchDetail = async () => {
   const skuNo = route.params.skuNo as string
-  console.log('[DETAIL] skuNo:', skuNo)
-
   if (!skuNo) return
 
   try {
     const res = await http.get(`/master-data/items/${skuNo}`)
-    console.log('[DETAIL] raw response:', res)
-
     const data = res.data?.data || res.data
-    console.log('[DETAIL] parsed data:', data)
-
     if (data) {
       info.value = data
       priceList.value = data.originPrices || []
-
-      console.log('[DETAIL] info.fileUrl:', info.value.fileUrl)
-
-      if (info.value.fileUrl) {
-        console.log(
-            '[DETAIL] full image url:',
-            getFullImageUrl(info.value.fileUrl)
-        )
-      }
     }
   } catch (err) {
     console.error('[DETAIL] 상세 정보 조회 실패:', err)
@@ -226,20 +212,58 @@ const goToEdit = () => {
   }
 }
 
+// [수정] 상태 변경 핸들러
 const toggleStatus = async () => {
   if (!info.value) return
-  const actionName = info.value.isActive ? '중지' : '사용'
-  if (!confirm(`해당 품목을 ${actionName} 상태로 변경하시겠습니까?`)) return
+
+  const isCurrentlyActive = info.value.isActive
+  const actionName = isCurrentlyActive ? '중지' : '사용'
+  const confirmColor = isCurrentlyActive ? '#ef4444' : '#11D411' // 중지 시 빨간색, 사용 시 초록색
+
+  // 1. 상태 변경 확인창
+  const result = await Swal.fire({
+    title: `상태를 ${actionName}하시겠습니까?`,
+    text: `품목 상태가 [${isCurrentlyActive ? '사용중' : '사용중지'}]에서 [${actionName}] 상태로 변경됩니다.`,
+    icon: isCurrentlyActive ? 'warning' : 'question',
+    showCancelButton: true,
+    confirmButtonColor: confirmColor,
+    cancelButtonColor: '#9ca3af',
+    confirmButtonText: `네, ${actionName}합니다`,
+    cancelButtonText: '취소',
+    reverseButtons: true,
+    borderRadius: '16px'
+  })
+
+  if (!result.isConfirmed) return
 
   try {
     await http.put(`/master-data/${info.value.itemCode}/status`, {
       isActive: !info.value.isActive
     })
+
     info.value.isActive = !info.value.isActive
-    alert('상태가 변경되었습니다.')
+
+    // 2. 성공 알림
+    Swal.fire({
+      title: '변경 완료',
+      text: `해당 품목이 ${actionName} 상태로 전환되었습니다.`,
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      timer: 1500,
+      showConfirmButton: false,
+      borderRadius: '16px'
+    })
   } catch (err) {
     console.error('상태 변경 실패:', err)
-    alert('상태 변경 중 오류가 발생했습니다.')
+
+    // 3. 에러 알림
+    Swal.fire({
+      title: '변경 실패',
+      text: '상태 변경 중 오류가 발생했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    })
   }
 }
 
