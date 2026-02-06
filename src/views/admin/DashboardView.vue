@@ -67,27 +67,10 @@
       <div class="main-content-cards">
         <div class="card top-order-card">
           <p class="card-subtitle">이번달 최고 주문</p>
-          <p class="top-order-item">감귤 30kg</p>
+          <p class="top-order-item">{{ bestOrder?.itemName }}</p>
           <div class="top-order-stock">
-            <p>4,321 개</p>
-            <p>현재 재고 1,000개</p>
-          </div>
-        </div>
-
-        <div class="card notifications-card">
-          <p class="card-subtitle">알림함</p>
-          <ul class="notification-list">
-            <li class="notification-item" v-for="i in 6" :key="i">
-              <span class="notification-dot"></span>
-              <div class="notification-details">
-                <p class="notification-message">재고 부족 알림</p>
-                <p class="notification-description">사과 15kg</p>
-                <p class="notification-sub-description">재고 10 상자 미만</p>
-              </div>
-            </li>
-          </ul>
-          <div class="view-all-notifications">
-            <a href="#">전체 알림 보기</a>
+            <p>{{ bestOrder?.quantity }} 개</p>
+            <p>{{ bestOrder?.orderCount }} 주문</p>
           </div>
         </div>
       </div>
@@ -97,9 +80,10 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { getMetrics } from '../../api/ItemApi.js';
+import { getMetrics, fetchBestOrder } from '../../api/ItemApi.js';
 
 const metrics = ref(null);
+const bestOrder = ref(null);
 
 onMounted(async () => {
   try {
@@ -109,6 +93,14 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Failed to fetch metrics:', error);
+  }
+  try {
+    const response = await fetchBestOrder();
+    if (response.success) {
+      bestOrder.value = response.data;
+    }
+  } catch (error) {
+    console.error('Failed to fetch best order:', error);
   }
 });
 
