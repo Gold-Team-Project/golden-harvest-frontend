@@ -139,7 +139,7 @@ export async function fetchUserOrderInfo() {
 
 export async function fetchUserFrequentOrders() {
     try {
-        const response = await http.get('/user-frequent-orders');
+        const response = await http.get('/sales/user-frequent-orders');
         return response.data;
     } catch (error) {
         console.error('Error fetching user frequent orders:', error);
