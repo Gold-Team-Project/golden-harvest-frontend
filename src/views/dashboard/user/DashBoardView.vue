@@ -49,13 +49,12 @@
             <span class="box-icon">📦</span>
           </div>
           <div class="item-details">
-            <p class="item-name">{{ item.name }}</p>
-            <div class="price-info">
-              <span class="price"><strong>{{ item.price }}</strong>원</span>
-              <span class="count-tag">{{ item.count }}회 구매</span>
+            <p class="item-name">{{ item.itemName }}</p>
+            <div class="frequent-order-info">
+              <span class="order-count">{{ item.orderCount }}회 주문</span>
+              <span class="quantity">{{ item.quantity }}개</span>
             </div>
           </div>
-          <button class="cart-btn">담기</button>
         </div>
       </div>
     </section>
@@ -63,7 +62,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { fetchUserOrderInfo, fetchUserFrequentOrders } from '@/api/OrderApi';
 import DayIcon from '@/assets/day.svg';
 import WeeklyIcon from '@/assets/weekly.svg';
 import MonthlyIcon from '@/assets/monthly.svg';
@@ -76,29 +76,61 @@ import DeliveryIcon from '@/assets/delivery-completed.svg';
 import CancelIcon from '@/assets/cancel.svg';
 
 const stats = ref([
-  { label: '당일', value: '123', unit: 'orders', icon: DayIcon },
-  { label: '주간', value: '876', unit: 'orders', icon: WeeklyIcon },
-  { label: '월간', value: '3,734', unit: 'orders', icon: MonthlyIcon },
-  { label: '평균 주문 수', value: '121', unit: '/ day', icon: AverageIcon },
-  { label: '총합', value: '177,73', unit: 'YDT', icon: TotalIcon },
+  { label: '당일', value: '0', unit: 'orders', icon: DayIcon },
+  { label: '주간', value: '0', unit: 'orders', icon: WeeklyIcon },
+  { label: '월간', value: '0', unit: 'orders', icon: MonthlyIcon },
+  { label: '평균 주문 수', value: '0', unit: '/ day', icon: AverageIcon },
+  { label: '총합', value: '0', unit: 'YDT', icon: TotalIcon },
 ]);
 
 const orderSteps = ref([
-  { label: '주문 접수', count: 12, icon: OrderIcon },
-  { label: '상품 준비중', count: 5, icon: ProductIcon },
-  { label: '배송중', count: 8, icon: ShippingIcon },
-  { label: '배송 완료', count: 42, icon: DeliveryIcon },
-  { label: '주문 취소', count: 2, icon: CancelIcon },
+  { label: '주문 접수', count: 0, icon: OrderIcon },
+  { label: '상품 준비중', count: 0, icon: ProductIcon },
+  { label: '배송중', count: 0, icon: ShippingIcon },
+  { label: '배송 완료', count: 0, icon: DeliveryIcon },
+  { label: '주문 취소', count: 0, icon: CancelIcon },
 ]);
 
-// 데이터를 5개로 맞춤
-const favoriteItems = ref([
-  { name: '유기농 현미 햇반 210g x 24개', count: 15, price: '32,400' },
-  { name: '제주 삼다수 2L x 12병', count: 12, price: '11,800' },
-  { name: '고당도 스테비아 방울토마토', count: 9, price: '8,900' },
-  { name: '무항생제 신선란 30구', count: 8, price: '7,500' },
-  { name: '대패 삼겹살 1kg (냉동)', count: 5, price: '15,900' },
-]);
+const favoriteItems = ref([]);
+
+onMounted(async () => {
+  try {
+    const userOrderInfoResponse = await fetchUserOrderInfo();
+    const userOrderInfoData = userOrderInfoResponse.result;
+
+    stats.value = [
+      { label: '당일', value: userOrderInfoData.todayOrders, unit: 'orders', icon: DayIcon },
+      { label: '주간', value: userOrderInfoData.weeklyOrders, unit: 'orders', icon: WeeklyIcon },
+      { label: '월간', value: userOrderInfoData.MonthlyOrders, unit: 'orders', icon: MonthlyIcon },
+      { label: '평균 주문 수', value: userOrderInfoData.averageOrders, unit: '/ day', icon: AverageIcon },
+      { label: '총합', value: userOrderInfoData.totalOrders, unit: 'YDT', icon: TotalIcon },
+    ];
+
+    orderSteps.value = [
+      { label: '주문 접수', count: userOrderInfoData.orderReceived, icon: OrderIcon },
+      { label: '상품 준비중', count: userOrderInfoData.productPreparing, icon: ProductIcon },
+      { label: '배송중', count: userOrderInfoData.shipping, icon: ShippingIcon },
+      { label: '배송 완료', count: userOrderInfoData.delivered, icon: DeliveryIcon },
+      { label: '주문 취소', count: userOrderInfoData.cancelled, icon: CancelIcon },
+    ];
+  } catch (error) {
+    console.error('Failed to fetch user order info:', error);
+    // Optional: Add user-facing error handling
+  }
+
+  try {
+    const frequentOrdersResponse = await fetchUserFrequentOrders();
+    // Assuming frequentOrdersResponse.result is an array of items
+    if (frequentOrdersResponse.success && Array.isArray(frequentOrdersResponse.data)) {
+        favoriteItems.value = frequentOrdersResponse.data;
+    } else {
+        console.warn('Frequent orders response data is not an array or success is false:', frequentOrdersResponse);
+        favoriteItems.value = [];
+    }
+  } catch (error) {
+    console.error('Failed to fetch user frequent orders:', error);
+  }
+});
 </script>
 
 <style scoped>
@@ -193,7 +225,7 @@ const favoriteItems = ref([
   background: #fff;
 
   /* 1. 기본 그림자 효과 (은은하게) */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 
   /* 부드러운 전환 효과 */
   transition: all 0.2s ease-in-out;
@@ -235,26 +267,23 @@ const favoriteItems = ref([
   -webkit-box-orient: vertical;
 }
 
-.price-info {
+.frequent-order-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  padding: 0 10px; /* Added padding for consistent spacing */
 }
 
-.price { font-size: 15px; color: #333; }
-.count-tag { font-size: 10px; color: #11D411; font-weight: 700; background: #f0fff0; padding: 2px 6px; border-radius: 4px; }
-
-.cart-btn {
-  width: 100%;
-  padding: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  border: 1px solid #11D411;
+.order-count {
+  font-size: 13px;
+  font-weight: 600;
   color: #11D411;
-  background: white;
-  border-radius: 6px;
-  cursor: pointer;
 }
-.cart-btn:hover { background: #11D411; color: white; }
+
+.quantity {
+  font-size: 13px;
+  color: #555;
+}
+
 </style>
