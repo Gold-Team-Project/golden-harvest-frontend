@@ -1,5 +1,6 @@
 <template>
   <div class="fixed-widget">
+<<<<<<< HEAD
 
     <Transition name="fade">
       <div v-if="!isOpen" class="chat-tooltip">
@@ -7,6 +8,8 @@
       </div>
     </Transition>
 
+=======
+>>>>>>> 7341a76 (refactor: modify chat)
     <Transition name="slide-fade">
       <div v-if="isOpen" class="chat-card">
         <div class="chat-header">
@@ -85,19 +88,32 @@
         <line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
     </button>
-
   </div>
 </template>
 
 <script setup>
 import { ref, nextTick, watch } from 'vue';
 
-const BACKEND_URL = 'http://localhost:8000';
+const BACKEND_URL = 'http://localhost:8080';
+const CHAT_PATH = '/api/ai/chat';
+
 const STORAGE_KEY = 'green-ai-chat-messages';
+const SESSION_KEY = 'green-ai-chat-session-id';
 
 const isOpen = ref(false);
 const userInput = ref('');
 const chatBody = ref(null);
+
+// --- session_id 생성/저장 ---
+const getOrCreateSessionId = () => {
+  let sid = localStorage.getItem(SESSION_KEY);
+  if (!sid) {
+    sid = `sid_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    localStorage.setItem(SESSION_KEY, sid);
+  }
+  return sid;
+};
+const sessionId = ref(getOrCreateSessionId());
 
 const getCurrentTime = () => {
   const now = new Date();
@@ -108,7 +124,6 @@ const getCurrentTime = () => {
 };
 
 const savedMessages = localStorage.getItem(STORAGE_KEY);
-
 const messages = ref(
     savedMessages
         ? JSON.parse(savedMessages)
@@ -131,16 +146,19 @@ watch(
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value;
-  if (isOpen.value) {
-    nextTick(scrollToBottom);
-  }
+  if (isOpen.value) nextTick(scrollToBottom);
 };
 
+// ✅ 다운로드 URL이 상대경로면 BACKEND_URL 붙여서 이동
 const goDownload = (targetUrl) => {
-  console.log('📂 다운로드 URL:', targetUrl);
-  if (targetUrl) {
-    window.location.href = targetUrl;
-  }
+  if (!targetUrl) return;
+
+  const fullUrl =
+      targetUrl.startsWith('http://') || targetUrl.startsWith('https://')
+          ? targetUrl
+          : `${BACKEND_URL}${targetUrl.startsWith('/') ? '' : '/'}${targetUrl}`;
+
+  window.location.href = fullUrl;
 };
 
 const scrollToBottom = () => {
@@ -149,12 +167,23 @@ const scrollToBottom = () => {
   }
 };
 
+// ✅ FastAPI 에러(detail)가 dict/list/string 어느 형태든 보기 좋게
+const normalizeErrorDetail = (errJson) => {
+  if (!errJson) return '알 수 없는 오류';
+  const d = errJson.detail ?? errJson;
+  if (typeof d === 'string') return d;
+  try {
+    return JSON.stringify(d);
+  } catch (_) {
+    return String(d);
+  }
+};
+
 const sendMessage = async () => {
-  if (!userInput.value.trim()) return;
+  const trimmed = userInput.value.trim();
+  if (!trimmed) return;
 
-  const currentMsg = userInput.value;
-
-  console.log('📤 사용자 메시지:', currentMsg);
+  const currentMsg = trimmed;
 
   messages.value.push({
     text: currentMsg,
@@ -163,33 +192,46 @@ const sendMessage = async () => {
   });
 
   userInput.value = '';
-
   await nextTick();
   scrollToBottom();
 
   try {
-    const response = await fetch(`${BACKEND_URL}/chat`, {
+    // ✅ 반드시 POST + session_id + message
+    const response = await fetch(`${BACKEND_URL}${CHAT_PATH}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: currentMsg })
+      body: JSON.stringify({
+        session_id: sessionId.value,
+        message: currentMsg
+      })
     });
+
+    if (!response.ok) {
+      let detail = `HTTP ${response.status}`;
+      try {
+        const err = await response.json();
+        detail = normalizeErrorDetail(err);
+      } catch (_) {}
+      throw new Error(detail);
+    }
 
     const data = await response.json();
 
-    console.log('📥 서버 응답:', data);
-    console.log('📥 메시지 원문:', data.message);
+    // ✅ 너 FastAPI 응답은 { type, message, download_url ... } 형태
+    const aiText = data?.message ?? '응답 메시지가 없습니다.';
+    const downloadUrl = data?.download_url || data?.downloadUrl || data?.download_url;
 
     messages.value.push({
-      text: data.message || '응답 메시지가 없습니다.',
+      text: aiText,
       time: getCurrentTime(),
       isUser: false,
-      downloadUrl: data.download_url
+      downloadUrl: downloadUrl
     });
 
   } catch (e) {
     console.error('⚠️ 채팅 오류:', e);
     messages.value.push({
-      text: "오류가 발생했습니다.",
+      text: `오류가 발생했습니다: ${e?.message || e}`,
       time: getCurrentTime(),
       isUser: false
     });
