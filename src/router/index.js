@@ -1,5 +1,4 @@
-// src/router/index.js
-import DashboardView from "@/views/admin/DashboardView.vue"; // Admin Dashboard
+import DashboardView from "@/views/admin/DashboardView.vue";
 import { createRouter, createWebHistory } from 'vue-router'
 import { jwtDecode } from 'jwt-decode'
 
@@ -109,7 +108,7 @@ const routes = [
     {
         path: '/admin',
         component: AdminDefaultLayout,
-        meta: { requiresAdmin: false }, // 이 부모가 있는 자식들은 모두 가드에 걸림
+        meta: { requiresAdmin: true },
         children: [
             {
                 path: '',
@@ -160,7 +159,7 @@ const routes = [
             },
             {
                 path: 'purchaseOrder',
-                name: 'purchaseOrder',
+                name: 'adminPurchaseRegister',
                 component: PurchaseOrderListView,
                 meta: { title: '알림' },
             },
@@ -186,52 +185,49 @@ const routes = [
                 path: 'approval',
                 name: 'adminMemberList',
                 component: UserApproval,
-                meta: { title: '홈 / 재고 관리 / 폐기 내역' },
+                meta: { title: '홈 / 회원 승인 관리' },
             },
         ]
     }
 ]
 
-// 라우터 생성
 const router = createRouter({
     history: createWebHistory(),
     routes
 })
 
-// 라우터 가드 작성
+// [수정] 모든 페이지 접근 허용을 위한 가드 주석 처리
 router.beforeEach((to, from, next) => {
+    // 자유로운 페이지 이동을 위해 모든 차단 로직을 주석 처리했습니다.
+    /*
     const accessToken = localStorage.getItem('accessToken');
     const publicPages = ['/login', '/signup', '/password'];
     const isPublicPage = publicPages.includes(to.path);
 
-    // 1. 토큰이 있는 경우, 유효 기간을 먼저 검사
+    // 1. 토큰 만료 체크
     if (accessToken) {
         try {
             const decoded = jwtDecode(accessToken);
-            const currentTime = Math.floor(Date.now() / 1000); // 현재 시간 (초 단위)
-
-            // [핵심] 토큰의 만료 시간(exp)이 현재 시간보다 작다면 (이미 지났다면)
+            const currentTime = Math.floor(Date.now() / 1000);
             if (decoded.exp < currentTime) {
-                alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
+                alert('로그인 세션이 만료되었습니다.');
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                return next('/login'); // 즉시 로그인 페이지로 이동
+                return next('/login');
             }
         } catch (e) {
-            // 토큰이 손상되었거나 해석할 수 없는 경우 안전을 위해 삭제
-            console.error('토큰 검증 에러:', e);
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             return next('/login');
         }
     }
 
-    // 2. 비로그인 사용자가 인증이 필요한 페이지에 접근할 때
+    // 2. 비로그인 사용자 차단
     if (!accessToken && !isPublicPage) {
         return next('/login');
     }
 
-    // 3. 이미 로그인한 사용자가 로그인/회원가입 페이지로 가려고 할 때
+    // 3. 이미 로그인한 사용자 차단
     if (accessToken && isPublicPage) {
         return next('/');
     }
@@ -245,8 +241,10 @@ router.beforeEach((to, from, next) => {
             return next('/');
         }
     }
+    */
 
-    next(); // 모든 검사를 통과하면 이동 허용
+    // 무조건 다음 페이지로 이동 허용
+    next();
 });
 
 export default router;

@@ -1,6 +1,12 @@
 <template>
   <div class="fixed-widget">
 
+    <Transition name="fade">
+      <div v-if="!isOpen" class="chat-tooltip">
+        AI 챗봇을 이용해보세요!
+      </div>
+    </Transition>
+
     <Transition name="slide-fade">
       <div v-if="isOpen" class="chat-card">
         <div class="chat-header">
@@ -194,7 +200,6 @@ const sendMessage = async () => {
 };
 </script>
 
-
 <style scoped>
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
@@ -209,6 +214,46 @@ const sendMessage = async () => {
   align-items: flex-end;
   font-family: 'Pretendard', sans-serif;
   gap: 15px;
+}
+
+/* 2. 말풍선 스타일 추가 */
+.chat-tooltip {
+  position: relative;
+  background-color: #4CD964;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  animation: bounce-slow 2s infinite; /* 통통 튀는 애니메이션 */
+  margin-bottom: 5px;
+}
+
+/* 말풍선 꼬리표 */
+.chat-tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  right: 22px;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid #4CD964;
+}
+
+/* 3. 통통 튀는 애니메이션 정의 */
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* 4. 애니메이션 효과 (Fade) */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
 }
 
 /* 2. 둥둥 버튼 (Floating Button) */
@@ -251,7 +296,6 @@ const sendMessage = async () => {
   overflow: hidden;
 }
 
-/* --- 기존 내부 스타일 --- */
 .chat-header {
   background-color: #4CD964;
   padding: 18px 24px;
@@ -339,7 +383,6 @@ const sendMessage = async () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   max-width: 220px;
   line-height: 1.5;
-
   white-space: pre-line;
 }
 
@@ -371,7 +414,7 @@ const sendMessage = async () => {
   border-radius: 4px;
   text-decoration: none;
   font-weight: bold;
-  cursor: pointer; /* 커서 모양 손가락으로 변경 */
+  cursor: pointer;
 }
 
 .download-link:hover {
@@ -409,7 +452,6 @@ const sendMessage = async () => {
   padding: 5px;
 }
 
-/* --- 애니메이션 --- */
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);

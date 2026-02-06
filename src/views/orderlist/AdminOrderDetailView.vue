@@ -124,11 +124,11 @@
 </template>
 
 <script setup>
-// [스크립트 로직은 기존과 동일하게 유지하되, computed 등만 디자인에 맞춰 확인]
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import OrderProgress from './OrderProgress.vue'
 import { fetchOrderDetail, cancelOrder, approveOrder } from '@/api/OrderApi'
+import Swal from 'sweetalert2' // 1. Swal 추가
 
 const route = useRoute()
 const orderDetail = ref(null)
@@ -184,20 +184,84 @@ const loadOrderDetail = async () => {
   finally { loading.value = false }
 }
 
+// [디자인 변경] 주문 취소 핸들러
 const handleCancelOrder = async () => {
-  if (!confirm('정말 취소하시겠습니까?')) return;
+  const result = await Swal.fire({
+    title: '주문을 취소하시겠습니까?',
+    text: '취소된 주문은 되돌릴 수 없습니다.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#9ca3af',
+    confirmButtonText: '주문 취소',
+    cancelButtonText: '닫기',
+    reverseButtons: true,
+    borderRadius: '16px'
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     const res = await cancelOrder(route.params.id);
-    if (res.success) { alert('취소되었습니다.'); loadOrderDetail(); }
-  } catch (err) { alert('오류가 발생했습니다.'); }
+    if (res.success) {
+      await Swal.fire({
+        title: '취소 완료',
+        text: '주문이 성공적으로 취소되었습니다.',
+        icon: 'success',
+        confirmButtonColor: '#11D411',
+        borderRadius: '16px'
+      });
+      loadOrderDetail();
+    }
+  } catch (err) {
+    Swal.fire({
+      title: '오류 발생',
+      text: '주문 취소 처리 중 문제가 발생했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
+  }
 };
 
+// [디자인 변경] 주문 승인 핸들러
 const handleApproveOrder = async () => {
-  if (!confirm('주문을 승인하시겠습니까?')) return;
+  const result = await Swal.fire({
+    title: '주문을 승인하시겠습니까?',
+    text: '승인 후 상품 준비 단계로 변경됩니다.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#11D411',
+    cancelButtonColor: '#9ca3af',
+    confirmButtonText: '승인하기',
+    cancelButtonText: '취소',
+    reverseButtons: true,
+    borderRadius: '16px'
+  });
+
+  if (!result.isConfirmed) return;
+
   try {
     const res = await approveOrder(route.params.id);
-    if (res.success) { alert('승인되었습니다.'); loadOrderDetail(); }
-  } catch (err) { alert('오류가 발생했습니다.'); }
+    if (res.success) {
+      await Swal.fire({
+        title: '승인 완료',
+        text: '주문이 정상적으로 승인되었습니다.',
+        icon: 'success',
+        confirmButtonColor: '#11D411',
+        borderRadius: '16px'
+      });
+      loadOrderDetail();
+    }
+  } catch (err) {
+    Swal.fire({
+      title: '오류 발생',
+      text: '주문 승인 처리 중 문제가 발생했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
+  }
 };
 
 onMounted(loadOrderDetail)

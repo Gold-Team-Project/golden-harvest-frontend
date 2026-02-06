@@ -102,6 +102,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import OrderStatusBadge from '@/components/status/OrderStatusBadge.vue';
 import { fetchAllOrders } from '@/api/OrderApi';
+import Swal from 'sweetalert2'; // 1. Swal 추가
 
 // 필터 상태
 const startDate = ref('');
@@ -138,8 +139,15 @@ const loadOrders = async () => {
   loading.value = true;
   error.value = null;
 
+  // [디자인 변경] 날짜 유효성 검사 알림 교체
   if (startDate.value && endDate.value && startDate.value > endDate.value) {
-    alert('시작일은 종료일보다 늦을 수 없습니다.');
+    Swal.fire({
+      title: '날짜 범위 오류',
+      text: '시작일은 종료일보다 늦을 수 없습니다.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
     loading.value = false;
     return;
   }
@@ -195,7 +203,7 @@ const loadOrders = async () => {
         };
       }).filter(Boolean);
 
-      totalOrders.value = orders.value.length; // 전체 데이터 길이로 업데이트
+      totalOrders.value = orders.value.length;
       currentPage.value = 1;
     } else {
       error.value = response.message || '데이터를 불러오는데 실패했습니다.';

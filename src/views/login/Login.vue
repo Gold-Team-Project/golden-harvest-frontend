@@ -59,6 +59,7 @@ import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { jwtDecode } from 'jwt-decode';
 import authApi from '@/api/AuthApI.js';
+import Swal from 'sweetalert2'; // 1. Swal 추가
 
 const router = useRouter();
 const loginForm = reactive({ email: '', password: '' });
@@ -76,18 +77,41 @@ const handleLogin = async () => {
     const decoded = jwtDecode(accessToken);
     console.log('디코딩된 토큰:', decoded);
 
-    // 3. 권한에 따른 라우팅 (백엔드 Role 이름과 대조하세요)
+    // 3. 권한에 따른 라우팅
     if (decoded.role === 'ROLE_ADMIN') {
-      alert("관리자 페이지로 이동합니다.");
-      router.push('/admin'); // 관리자 전용 경로
+      // 관리자 로그인 성공 알림 (토스트 형태나 짧은 알림 추천)
+      await Swal.fire({
+        title: '관리자 인증 성공',
+        text: '관리자 전용 페이지로 이동합니다.',
+        icon: 'success',
+        confirmButtonColor: '#11D411',
+        borderRadius: '16px'
+      });
+      router.push('/admin');
     } else {
-      alert("로그인에 성공했습니다!");
-      router.push('/'); // 일반 유저 메인
+      // 일반 유저 로그인 성공 알림 (타이머를 사용하여 자동으로 닫히게 설정 가능)
+      await Swal.fire({
+        title: '로그인 성공',
+        text: '오늘도 즐거운 하루 되세요!',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+        borderRadius: '16px'
+      });
+      router.push('/');
     }
 
   } catch (error) {
     console.error("로그인 실패:", error);
-    alert(error.response?.data?.message || "이메일 또는 비밀번호를 확인하세요.");
+
+    // 실패 알림 (에러 문구 반영)
+    Swal.fire({
+      title: '로그인 실패',
+      text: error.response?.data?.message || "이메일 또는 비밀번호를 확인하세요.",
+      icon: 'error',
+      confirmButtonColor: '#ef4444', // 에러는 빨간색 계열
+      borderRadius: '16px'
+    });
   }
 };
 </script>

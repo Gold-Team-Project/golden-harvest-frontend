@@ -90,9 +90,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { registerDiscard } from '@/api/DiscardApi';
+import Swal from 'sweetalert2'; // 1. Swal 추가
 
 const router = useRouter();
 
@@ -108,26 +109,84 @@ const form = reactive({
 });
 
 const submit = async () => {
-  if (!form.lotId) return alert('LOT 번호를 입력해주세요.');
-  if (!form.quantity || form.quantity <= 0) return alert('폐기 수량을 입력해주세요.');
-  if (!form.reason) return alert('폐기 사유를 선택해주세요.');
+  // [검증 알림창] 유효성 검사 디자인 적용
+  if (!form.lotId) {
+    return Swal.fire({
+      title: '입력 오류',
+      text: 'LOT 번호를 입력해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+  }
+  if (!form.quantity || form.quantity <= 0) {
+    return Swal.fire({
+      title: '입력 오류',
+      text: '폐기 수량을 입력해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+  }
+  if (!form.reason) {
+    return Swal.fire({
+      title: '선택 오류',
+      text: '폐기 사유를 선택해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+  }
+
+  // [확인 알림창] 실제 등록 전 한 번 더 묻기
+  const confirmResult = await Swal.fire({
+    title: '폐기 등록을 진행하시겠습니까?',
+    text: `LOT: ${form.lotId} / 수량: ${form.quantity}건`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#DC2626',
+    cancelButtonColor: '#9ca3af',
+    confirmButtonText: '등록하기',
+    cancelButtonText: '취소',
+    reverseButtons: true,
+    borderRadius: '16px'
+  });
+
+  if (!confirmResult.isConfirmed) return;
 
   const discardItemRequest = {
     lotNo: form.lotId,
     quantity: form.quantity,
     discardStatus: form.reason,
     description: form.reasonDetail,
-    registerDate: form.registerDate, // 추가된 날짜 데이터
-    approver: adminName.value // 추가된 승인자 데이터
+    registerDate: form.registerDate,
+    approver: adminName.value
   };
 
   try {
     await registerDiscard(discardItemRequest);
-    alert('폐기 등록이 완료되었습니다.');
+
+    // [성공 알림창]
+    await Swal.fire({
+      title: '등록 완료',
+      text: '폐기 정보가 성공적으로 등록되었습니다.',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+
     router.push({ name: 'adminDiscardList' });
   } catch (error) {
     console.error('폐기 등록 실패:', error);
-    alert('폐기 등록 중 오류가 발생했습니다.');
+
+    // [실패 알림창]
+    Swal.fire({
+      title: '등록 실패',
+      text: '폐기 등록 중 오류가 발생했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#DC2626',
+      borderRadius: '16px'
+    });
   }
 };
 </script>

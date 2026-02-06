@@ -88,7 +88,7 @@ import { ref, onMounted, watch } from 'vue'
 import http from '@/api/axios'
 import Pagination from '@/components/pagination/Pagination.vue'
 import BaseButton from '@/components/button/BaseButton.vue'
-
+import Swal from 'sweetalert2' // 1. Swal 추가
 
 const items = ref([])
 const currentPage = ref(1)
@@ -125,7 +125,6 @@ const fetchNotifications = async () => {
 
     items.value = payload.map((row, index) => {
       const template = row.notificationTemplate ?? {}
-
       const type = template.type ?? 'DEFAULT'
       const title = template.title ?? ''
       const body = template.body ?? ''
@@ -133,17 +132,11 @@ const fetchNotifications = async () => {
       return {
         userNotificationId: row.userNotificationId,
         no: (currentPage.value - 1) * pageSize + index + 1,
-
         userEmail: row.userEmail,
         type,
-
-        //화면 "내용 요약"은 제목 우선(없으면 body)
         summary: title || body || '알림이 도착했습니다.',
-
         receivedAt: String(row.receivedAt ?? '').replace('T', ' ').slice(0, 16),
         readAt: row.readAt ? String(row.readAt).replace('T', ' ').slice(0, 16) : null,
-
-        // 서버는 read 라는 필드로 내려줌
         isRead: !!row.read,
       }
     })
@@ -155,70 +148,106 @@ const fetchNotifications = async () => {
   }
 }
 
-
-
+// [수정] 단건 확인 처리
 const confirmNotification = async (n) => {
-  // 이미 읽음이면 호출하지 않음
   if (n?.isRead) return
 
-  // UI는 먼저 반영(낙관적 업데이트)하고 실패 시 롤백
   const prev = n.isRead
   n.isRead = true
 
   try {
-    // 백엔드: @PatchMapping("/notifications/{notificationId}")
-    // isRead를 바꾸는 API라고 가정하고 body로 전달 (백엔드가 body를 안 받는다면 {} 로 바꾸면 됩니다)
     await http.patch(`/notifications/${n.userNotificationId}`)
+    // 확인 성공 시 별도의 알림창 없이 조용히 상태만 변경 (UX 배려)
   } catch (e) {
     console.error(e)
     n.isRead = prev
-    alert('알림 확인 처리에 실패했습니다.')
+    Swal.fire({
+      title: '확인 실패',
+      text: '알림 확인 처리에 실패했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    })
   }
 }
 
-
+// [수정] 단건 삭제
 const deleteOne = async (n) => {
-  if (!confirm('해당 알림을 삭제할까요?')) return
+  const result = await Swal.fire({
+    title: '알림 삭제',
+    text: '해당 알림을 삭제하시겠습니까?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#9ca3af',
+    confirmButtonText: '삭제',
+    cancelButtonText: '취소',
+    reverseButtons: true,
+    borderRadius: '16px'
+  })
+
+  if (!result.isConfirmed) return
 
   try {
-    // 예시 API: 단건 삭제
-    // 백엔드에 맞게 URL 수정 필요
     await http.delete(`/notifications/${n.userNotificationId}`, {
-      params: { userEmail: 'alpha@teamgold.com' }, // 필요 없으면 제거
+      params: { userEmail: 'alpha@teamgold.com' },
     })
-
-    // UI 갱신
     await fetchNotifications()
   } catch (e) {
     console.error(e)
+    Swal.fire({
+      title: '삭제 실패',
+      text: '알림 삭제 중 오류가 발생했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    })
   }
 }
 
+// [수정] 전체 삭제
 const deleteAll = async () => {
-  if (!confirm('알림을 전체 삭제할까요?')) return
+  const result = await Swal.fire({
+    title: '전체 삭제하시겠습니까?',
+    text: '모든 알림이 삭제되며 복구할 수 없습니다.',
+    icon: 'error', // 치명적인 작업이므로 error 아이콘 사용
+    showCancelButton: true,
+    confirmButtonColor: '#111827', // 기존 버튼색과 맞춤
+    cancelButtonColor: '#9ca3af',
+    confirmButtonText: '전체 삭제 실행',
+    cancelButtonText: '취소',
+    reverseButtons: true,
+    borderRadius: '16px'
+  })
+
+  if (!result.isConfirmed) return
 
   try {
-    // 예시 API: 전체 삭제
-    // 백엔드에 맞게 URL 수정 필요
     await http.delete('/notifications/deleteAll', {
       params: { userEmail: 'alpha@teamgold.com' },
     })
-
-    // 첫 페이지로 보내고 갱신
     currentPage.value = 1
     await fetchNotifications()
+
+    Swal.fire({
+      title: '삭제 완료',
+      text: '모든 알림이 삭제되었습니다.',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      timer: 1500,
+      showConfirmButton: false,
+      borderRadius: '16px'
+    })
   } catch (e) {
     console.error(e)
+    Swal.fire({
+      title: '오류 발생',
+      text: '전체 삭제 처리에 실패했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    })
   }
-}
-
-
-const makePages = (size) => {
-  const temp = []
-  if (currentPage.value > 1) temp.push(currentPage.value - 1)
-  temp.push(currentPage.value)
-  if (size === pageSize) temp.push(currentPage.value + 1)
-  pages.value = temp
 }
 
 const changePage = (page) => {

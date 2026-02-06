@@ -74,10 +74,10 @@
 </template>
 
 <script setup>
-// 스크립트 로직은 그대로 유지 (변경 없음)
 import { ref, computed, onMounted } from 'vue';
 import BaseButton from '@/components/button/BaseButton.vue';
 import { fetchCartItems, updateCartItemQuantity, deleteCartItem, checkoutCart } from '@/api/OrderApi';
+import Swal from 'sweetalert2'; // 1. Swal 추가
 
 const cartItems = ref([]);
 const loading = ref(true);
@@ -130,24 +130,100 @@ const increaseQuantity = (item) => {
 const callDeleteCartItem = async (skuNo) => {
   try {
     const response = await deleteCartItem(skuNo);
-    if (response.success) { cartItems.value = cartItems.value.filter(item => item.id !== skuNo); }
+    if (response.success) {
+      cartItems.value = cartItems.value.filter(item => item.id !== skuNo);
+    }
   } catch (err) { console.error(err); }
 };
 
+// [수정] 선택 삭제 로직
 const deleteSelectedItems = async () => {
-  if (selectedItems.value.length === 0) return alert('삭제할 상품을 선택해주세요.');
-  if (!confirm(`${selectedItems.value.length}개의 상품을 삭제하시겠습니까?`)) return;
-  const deletePromises = selectedItems.value.map(item => callDeleteCartItem(item.id));
-  await Promise.all(deletePromises);
+  if (selectedItems.value.length === 0) {
+    return Swal.fire({
+      title: '선택된 상품 없음',
+      text: '삭제할 상품을 선택해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+  }
+
+  const result = await Swal.fire({
+    title: '상품 삭제',
+    text: `${selectedItems.value.length}개의 상품을 장바구니에서 삭제하시겠습니까?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#9ca3af',
+    confirmButtonText: '삭제하기',
+    cancelButtonText: '취소',
+    reverseButtons: true,
+    borderRadius: '16px'
+  });
+
+  if (result.isConfirmed) {
+    // 실제 삭제 함수 호출
+    const deletePromises = selectedItems.value.map(item => callDeleteCartItem(item.id));
+    await Promise.all(deletePromises);
+
+    Swal.fire({
+      title: '삭제 완료',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
 };
 
+// [수정] 주문하기 로직
 const placeOrder = async () => {
-  if (selectedItems.value.length === 0) return alert('주문할 상품을 선택해주세요.');
-  if (!confirm(`${selectedItems.value.length}개의 상품을 주문하시겠습니까?`)) return;
-  try {
-    const response = await checkoutCart();
-    if (response.success) { alert(`주문 완료! 주문 번호: ${response.data}`); loadCartItems(); }
-  } catch (err) { console.error(err); }
+  if (selectedItems.value.length === 0) {
+    return Swal.fire({
+      title: '주문 불가',
+      text: '주문할 상품을 선택해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+  }
+
+  const result = await Swal.fire({
+    title: '주문하시겠습니까?',
+    text: `${selectedItems.value.length}개의 상품을 주문합니다.`,
+    icon: 'info',
+    showCancelButton: true,
+    confirmButtonColor: '#11D411',
+    cancelButtonColor: '#9ca3af',
+    confirmButtonText: '주문하기',
+    cancelButtonText: '취소',
+    reverseButtons: true,
+    borderRadius: '16px'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const response = await checkoutCart();
+      if (response.success) {
+        await Swal.fire({
+          title: '주문 완료',
+          html: `성공적으로 주문되었습니다.<br>주문번호: <b>${response.data}</b>`,
+          icon: 'success',
+          confirmButtonColor: '#11D411',
+          borderRadius: '16px'
+        });
+        loadCartItems();
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        title: '오류 발생',
+        text: '주문 처리 중 문제가 발생했습니다.',
+        icon: 'error',
+        confirmButtonColor: '#ef4444'
+      });
+    }
+  }
 };
 
 onMounted(() => { loadCartItems(); });
