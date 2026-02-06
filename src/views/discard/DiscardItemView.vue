@@ -57,6 +57,8 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+
 export default {
   props: {
     isOpen: Boolean,
@@ -76,8 +78,25 @@ export default {
     closeModal() {
       this.$emit('close');
     },
-    handleEdit() {
-      alert('수정 로직 실행');
+    async handleEdit() {
+      // [수정] 수정 로직 실행 전 확인창 혹은 안내창 디자인 적용
+      await Swal.fire({
+        title: '수정 모드 진입',
+        text: '해당 품목의 정보를 수정하시겠습니까?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#11D411', // 프로젝트 포인트 컬러
+        cancelButtonColor: '#9ca3af',
+        confirmButtonText: '수정 시작',
+        cancelButtonText: '취소',
+        reverseButtons: true,
+        borderRadius: '16px'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // 실제 수정 로직이 여기에 들어갑니다.
+          console.log('수정 프로세스 시작');
+        }
+      });
     }
   }
 };

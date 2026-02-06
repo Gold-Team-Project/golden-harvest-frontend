@@ -157,6 +157,7 @@ const accordionMenus = [
         expanded: tradeExpandedIcon,
     },
     children: [
+      { key: 'purchase', label: '발주', route: 'adminPurchaseRegister' },
       { key: 'order', label: '고객 주문 목록', route: 'adminOrderList' },
       { key: 'sales', label: '판매 매출 목록', route: 'adminSalesList' },
     ],

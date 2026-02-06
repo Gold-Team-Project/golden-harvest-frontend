@@ -72,6 +72,7 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import authApi from '@/api/AuthApI';
+import Swal from 'sweetalert2'; // 1. Swal 추가
 
 const router = useRouter();
 const isCodeSent = ref(false); // 인증번호 발송 여부
@@ -86,41 +87,93 @@ const form = reactive({
 
 // 1. 인증번호 발송 함수
 const handleSendCode = async () => {
-  if (!form.email) return alert("이메일을 입력해주세요.");
+  if (!form.email) {
+    return Swal.fire({
+      title: '이메일 미입력',
+      text: '인증번호를 받을 이메일을 입력해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+  }
+
   try {
-    // 백엔드 EmailRequest { email, type } 구조에 맞춤
     await authApi.sendEmail({ email: form.email, type: 'PASSWORD_RESET' });
     isCodeSent.value = true;
-    alert("인증번호가 발송되었습니다. 메일을 확인해주세요.");
+
+    Swal.fire({
+      title: '발송 완료',
+      text: '인증번호가 발송되었습니다. 메일을 확인해주세요.',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
   } catch (error) {
-    alert(error.response?.data?.message || "인증번호 발송에 실패했습니다.");
+    Swal.fire({
+      title: '발송 실패',
+      text: error.response?.data?.message || "인증번호 발송에 실패했습니다.",
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 };
 
-// 2. 인증번호 확인 함수 (추가됨)
-// Password.vue 내부의 handleVerifyCode 함수
+// 2. 인증번호 확인 함수
 const handleVerifyCode = async () => {
   if (!form.verifyCode) {
-    alert("인증번호를 입력해주세요.");
-    return;
+    return Swal.fire({
+      title: '번호 미입력',
+      text: '인증번호 6자리를 입력해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
   }
 
   try {
-    // AuthApI.js 정의에 맞춰 두 개의 인자를 전달 (email, code)
     await authApi.verifyEmail(form.email, form.verifyCode);
-
     isVerified.value = true;
-    alert("이메일 인증에 성공하였습니다.");
+
+    Swal.fire({
+      title: '인증 성공',
+      text: '이메일 인증이 완료되었습니다. 새 비밀번호를 설정해주세요.',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
   } catch (error) {
-    console.error("인증 실패 상세:", error.response?.data);
-    alert(error.response?.data?.message || "인증번호가 일치하지 않습니다.");
+    Swal.fire({
+      title: '인증 실패',
+      text: error.response?.data?.message || "인증번호가 일치하지 않습니다.",
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 };
 
 // 3. 비밀번호 재설정 최종 제출
 const handleResetPassword = async () => {
-  if (!isVerified.value) return alert("이메일 인증을 먼저 완료해주세요.");
-  if (form.newPassword !== form.passwordConfirm) return alert("비밀번호가 일치하지 않습니다.");
+  if (!isVerified.value) {
+    return Swal.fire({
+      title: '인증 필요',
+      text: '이메일 인증을 먼저 완료해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+  }
+
+  if (form.newPassword !== form.passwordConfirm) {
+    return Swal.fire({
+      title: '비밀번호 불일치',
+      text: '입력하신 두 비밀번호가 서로 다릅니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
+  }
 
   try {
     await authApi.resetPassword({
@@ -128,10 +181,23 @@ const handleResetPassword = async () => {
       newPassword: form.newPassword
     });
 
-    alert("비밀번호가 성공적으로 재설정 되었습니다. 다시 로그인해 주세요.");
+    await Swal.fire({
+      title: '재설정 완료',
+      text: '비밀번호가 성공적으로 변경되었습니다. 다시 로그인해 주세요.',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+
     router.push('/login');
   } catch (error) {
-    alert(error.response?.data?.message || "재설정 실패");
+    Swal.fire({
+      title: '재설정 실패',
+      text: error.response?.data?.message || "비밀번호 재설정 중 오류가 발생했습니다.",
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 };
 </script>

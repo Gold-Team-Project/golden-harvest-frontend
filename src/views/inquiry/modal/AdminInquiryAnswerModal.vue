@@ -100,35 +100,78 @@ const fetchDetail = async () => {
 
 // 승인/거절 처리 핸들러
 const handleAction = async (status: 'APPROVED' | 'REJECTED') => {
-  const actionText = status === 'APPROVED' ? '승인' : '거절';
+  const isApprove = status === 'APPROVED';
+  const actionText = isApprove ? '승인' : '거절';
+  const themeColor = isApprove ? '#11D411' : '#666'; // 승인은 초록, 거절은 그레이
 
+  // 1. 사유 미입력 시 경고
   if (!comment.value.trim()) {
-    alert(`${actionText} 사유를 입력해주세요.`);
-    return;
+    return Swal.fire({
+      title: '사유 미입력',
+      text: `${actionText} 사유를 입력해주세요.`,
+      icon: 'warning',
+      confirmButtonColor: themeColor,
+      borderRadius: '16px'
+    });
   }
 
-  if (!confirm(`해당 문의를 ${actionText}하시겠습니까?`)) return;
+  // 2. 처리 확인창
+  const result = await Swal.fire({
+    title: `문의를 ${actionText}하시겠습니까?`,
+    text: `선택하신 내용으로 ${actionText} 처리가 진행됩니다.`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: themeColor,
+    cancelButtonColor: '#9ca3af',
+    confirmButtonText: `네, ${actionText}합니다`,
+    cancelButtonText: '취소',
+    reverseButtons: true,
+    borderRadius: '16px'
+  });
+
+  if (!result.isConfirmed) return;
 
   try {
-    // 백엔드 명세에 맞춰 status와 comment를 함께 전송
     await http.post(`/admin/inquiries/${props.inquiryNo}/process`, {
       status: status,
       comment: comment.value,
     })
 
-    alert(`성공적으로 ${actionText} 처리되었습니다.`);
+    // 3. 성공 알림
+    await Swal.fire({
+      title: '처리 완료',
+      text: `성공적으로 ${actionText} 처리되었습니다.`,
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+
     emit('answered')
     emit('close')
   } catch (error) {
     console.error(`${actionText} 처리 실패:`, error)
-    alert('처리에 실패했습니다.')
+    Swal.fire({
+      title: '처리 실패',
+      text: '서버 통신 중 오류가 발생했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 }
 
-/* 파일 다운로드 로직 유지 */
+/* 파일 다운로드 로직 */
 const downloadFile = async () => {
   const url = detail.value?.downloadUrl
-  if (!url || url === "-0") return alert("다운로드할 파일이 없습니다.")
+  if (!url || url === "-0") {
+    return Swal.fire({
+      title: '파일 없음',
+      text: '다운로드할 파일이 존재하지 않습니다.',
+      icon: 'info',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+  }
   window.open(url, '_blank');
 }
 

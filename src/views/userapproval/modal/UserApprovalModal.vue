@@ -70,7 +70,7 @@
 <script setup>
 import {reactive, computed, watch} from 'vue';
 import { approveUser, approveProfileUpdate, updateUserStatus, updateUserRole } from '@/api/AdminApi.js';
-import Swal from 'sweetalert2';
+import Swal from 'sweetalert2'; // 1. Swal 추가
 
 const props = defineProps(['userData', 'mode']);
 const emit = defineEmits(['close', 'update']);
@@ -78,26 +78,19 @@ const emit = defineEmits(['close', 'update']);
 const isMe = computed(() => props.userData.isMe);
 
 const getInitialRole = (data) => {
-  // 1. 데이터 자체가 없으면 기본값 반환
   if (!data || !data.role) return 'ROLE_USER';
-
-  // 2. role이 객체인 경우 (가장 흔한 원인) -> { id: 'ROLE_USER' }
   if (typeof data.role === 'object') {
     return data.role.id || data.role.roleName || 'ROLE_USER';
   }
-
-  // 3. role이 이미 문자열인 경우 ("ROLE_USER")
   return String(data.role);
 };
 
 const localData = reactive({
   ...props.userData,
   userStatus: props.userData.userStatus || 'PENDING',
-  // 추출 함수를 사용하여 안전하게 할당
   role: getInitialRole(props.userData)
 });
 
-// 부모 데이터가 바뀔 때를 대비한 감시 로직 추가
 watch(() => props.userData, (newVal) => {
   if (newVal) {
     localData.role = getInitialRole(newVal);
@@ -119,79 +112,78 @@ const imageUrl = computed(() => {
 });
 
 const handleAction = async (type) => {
+  const targetEmail = props.userData.userEmail || props.userData.email;
+
+  // 1. 확인창 메시지 설정
+  let confirmTitle = "";
+  let confirmText = "";
+  let confirmBtnColor = "#11D411";
+
+  if (type === 'REJECT') {
+    confirmTitle = props.mode === 'join' ? "가입을 거절하시겠습니까?" : "수정을 반려하시겠습니까?";
+    confirmText = "이 작업은 취소할 수 없습니다.";
+    confirmBtnColor = "#ef4444";
+  } else if (type === 'APPROVE') {
+    confirmTitle = props.mode === 'join' ? "가입을 승인하시겠습니까?" : "정보 수정을 승인하시겠습니까?";
+    confirmText = "승인 후 즉시 반영됩니다.";
+  } else if (type === 'SAVE') {
+    if (isMe.value) return;
+    confirmTitle = "설정을 저장하시겠습니까?";
+    confirmText = "회원의 상태 및 권한이 업데이트됩니다.";
+  }
+
+  // 2. 실행 전 확인
+  if (type !== 'CLOSE') {
+    const result = await Swal.fire({
+      title: confirmTitle,
+      text: confirmText,
+      icon: type === 'REJECT' ? 'warning' : 'question',
+      showCancelButton: true,
+      confirmButtonColor: confirmBtnColor,
+      cancelButtonColor: '#9ca3af',
+      confirmButtonText: '확인',
+      cancelButtonText: '취소',
+      borderRadius: '16px'
+    });
+    if (!result.isConfirmed) return;
+  }
+
+  // 3. API 호출 로직
   try {
-    const targetEmail = props.userData.userEmail || props.userData.email;
+    Swal.fire({ title: '처리 중...', didOpen: () => { Swal.showLoading(); } });
 
     if (props.mode === 'join' && type === 'APPROVE') {
-      if (!confirm("가입을 승인하시겠습니까?")) return;
       await approveUser(targetEmail, 'ACTIVE');
-      alert("성공적으로 승인되었습니다.");
     }
     else if (props.mode === 'update' && type === 'APPROVE') {
-      if (!confirm("정보 수정을 승인하시겠습니까?")) return;
       await approveProfileUpdate(props.userData.id);
-      alert("정보 수정 승인이 완료되었습니다.");
     }
-    // 핵심 수정 부분: 'SAVE' 시 상태와 권한을 모두 업데이트
     else if (type === 'SAVE') {
-      if (isMe.value) return;
-      if (!confirm(`회원 정보를 변경하시겠습니까?`)) return;
-
-      // 1. 상태(Status) 변경 API 호출
       await updateUserStatus(targetEmail, localData.userStatus);
-
-      // 2. 권한(Role) 변경 API 호출 (추가됨)
-      if (updateUserRole) {
-        await updateUserRole(targetEmail, localData.role);
-      }
-
-      alert("회원 설정이 모두 저장되었습니다.");
+      if (updateUserRole) await updateUserRole(targetEmail, localData.role);
     }
+    // REJECT에 대한 API가 있다면 여기에 추가 가능 (현재는 공통 실패 처리로 대체하거나 close)
+
+    await Swal.fire({
+      icon: 'success',
+      title: '완료되었습니다',
+      timer: 1500,
+      showConfirmButton: false,
+      borderRadius: '16px'
+    });
 
     emit('update');
     emit('close');
   } catch (error) {
     console.error("처리 중 에러 발생:", error);
-    const errorMsg = error.response?.data?.message || "처리에 실패했습니다.";
-    alert("오류: " + errorMsg);
-  }
-};
-// 권한 변경 저장 함수
-const handleSaveRole = async () => {
-  try {
-    // 로딩 표시 (선택 사항)
-    Swal.fire({
-      title: '처리 중...',
-      didOpen: () => { Swal.showLoading(); }
-    });
-
-    // API 호출 (targetEmail과 선택된 localData.role 전송)
-    await updateUserRole(localData.userEmail, localData.role);
-
-    // 성공 토스트 메시지
-    Swal.fire({
-      icon: 'success',
-      title: '권한 변경 완료',
-      text: `${localData.name}님의 권한이 성공적으로 변경되었습니다.`,
-      timer: 1500,
-      showConfirmButton: false,
-      toast: true,
-      position: 'top-end' // 우측 상단에 작게 표시
-    });
-
-    emit('update'); // 부모 컴포넌트 리스트 갱신 요청
-  } catch (error) {
-    console.error('권한 변경 실패:', error);
-
-    // 실패 메시지
     Swal.fire({
       icon: 'error',
-      title: '변경 실패',
-      text: error.response?.data?.message || '권한을 변경하는 중 오류가 발생했습니다.',
+      title: '오류 발생',
+      text: error.response?.data?.message || "처리에 실패했습니다.",
+      confirmButtonColor: '#ef4444'
     });
   }
 };
-
 
 const zoomImage = () => { window.open(imageUrl.value, '_blank'); };
 </script>

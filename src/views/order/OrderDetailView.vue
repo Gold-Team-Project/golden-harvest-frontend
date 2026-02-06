@@ -79,11 +79,12 @@
   </div>
 </template>
 
-<<script setup>
+<script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import BaseButton from '@/components/button/BaseButton.vue';
 import { fetchItemDetail, addToCart } from '@/api/OrderApi.js';
+import Swal from 'sweetalert2'; // 1. Swal 추가
 
 const route = useRoute();
 const router = useRouter();
@@ -112,15 +113,28 @@ const handleAddToCart = async () => {
       skuNo: productDetails.value.skuNo,
       quantity: quantity.value,
     });
-    alert('장바구니에 담았습니다 🛒');
+
+    // [디자인 변경] 성공 알림
+    Swal.fire({
+      title: '장바구니 담기 완료',
+      text: '장바구니에 상품을 성공적으로 담았습니다 🛒',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
   } catch (e) {
-    alert('장바구니 담기에 실패했습니다.');
+    // [디자인 변경] 실패 알림
+    Swal.fire({
+      title: '담기 실패',
+      text: '장바구니 담기에 실패했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   } finally {
     isSubmitting.value = false;
   }
 };
-
-
 
 onMounted(async () => {
   const skuNo = route.params.id;

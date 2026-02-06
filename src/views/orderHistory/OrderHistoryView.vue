@@ -85,8 +85,8 @@
 import {ref, computed, onMounted, watch} from 'vue'
 import OrderStatusBadge from '@/components/status/OrderStatusBadge.vue'
 import {fetchMyOrders} from '@/api/OrderApi'
+import Swal from 'sweetalert2'
 
-// --- 로직은 기존과 동일 ---
 const orders = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 10;
@@ -158,7 +158,14 @@ const loadOrders = async (filters = {}) => {
 const applyFilter = () => {
   currentPage.value = 1;
   if (startDate.value && endDate.value && startDate.value > endDate.value) {
-    alert('시작일은 종료일보다 늦을 수 없습니다.');
+    // [디자인 변경] 날짜 유효성 검사 경고창
+    Swal.fire({
+      title: '날짜 설정 오류',
+      text: '시작일은 종료일보다 늦을 수 없습니다.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
     return;
   }
   loadOrders({ startDate: startDate.value, endDate: endDate.value });

@@ -112,8 +112,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import authApi from '@/api/AuthApI';
-
-
+import Swal from 'sweetalert2'; // 1. Swal 추가
 
 const router = useRouter();
 
@@ -149,21 +148,13 @@ const pass = reactive({
   confirm: ''
 });
 
-// 1. 데이터 로드 (onMounted 시점에 실행)
+// 1. 데이터 로드
 onMounted(async () => {
   try {
-    console.log("1. API 호출 시작");
     const response = await authApi.getMyInfo();
-
-    // 백엔드 ApiResponse 구조에 맞춰 데이터 추출
     const userData = response.data?.data || response.data;
 
-    if (!userData) {
-      console.error("데이터가 비어있습니다.");
-      return;
-    }
-
-    console.log("4. 매핑할 유저 데이터:", userData);
+    if (!userData) return;
 
     info.email = userData.email || '';
     info.company = userData.company || '';
@@ -173,43 +164,75 @@ onMounted(async () => {
     info.addressLine1 = userData.addressLine1 || '';
     info.addressLine2 = userData.addressLine2 || '';
     info.postalCode = userData.postalCode || '';
-
-    // 서버 응답 로그(4번)를 보고 정확한 키값을 찾아야 하지만, 일단 보편적인 이름들을 다 체크합니다.
     info.fileId = userData.fileId || userData.file_id || userData.businessFileId || null;
 
-
   } catch (error) {
-    console.error(" 데이터 로드 에러:", error);
-    alert("정보를 불러오는데 실패했습니다.");
+    console.error("데이터 로드 에러:", error);
+    Swal.fire({
+      title: '로드 실패',
+      text: '정보를 불러오는데 실패했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 });
 
-// 4. 중요 정보 수정 요청
+// 2. 중요 정보 수정 요청 (사업자 정보)
 const handleBusinessUpdateReq = async () => {
   try {
     if (!selectedFile.value) {
-      alert("사업자 등록증 파일을 선택해주세요.");
-      return;
+      return Swal.fire({
+        title: '파일 미첨부',
+        text: '사업자 등록증 파일을 선택해주세요.',
+        icon: 'warning',
+        confirmButtonColor: '#11D411',
+        borderRadius: '16px'
+      });
     }
 
-    if (!confirm("수정 요청을 보내시겠습니까?")) return;
+    const confirmResult = await Swal.fire({
+      title: '수정 요청을 보내시겠습니까?',
+      text: '관리자 승인 후 정보가 반영됩니다.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#11D411',
+      cancelButtonColor: '#9ca3af',
+      confirmButtonText: '요청하기',
+      cancelButtonText: '취소',
+      reverseButtons: true,
+      borderRadius: '16px'
+    });
+
+    if (!confirmResult.isConfirmed) return;
 
     const updateData = {
       requestCompany: info.company,
       requestBusinessNumber: info.businessNumber
     };
 
-    // 파일을 따로 올리지 말고, 여기서 데이터와 파일을 한꺼번에 보냅니다
     await authApi.requestBusinessUpdate(updateData, selectedFile.value);
 
-    alert("수정 요청이 전송되었습니다.");
+    Swal.fire({
+      title: '요청 완료',
+      text: '수정 요청이 관리자에게 전송되었습니다.',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
   } catch (error) {
     console.error("에러 발생:", error);
-    alert("요청에 실패했습니다. (백엔드 컨트롤러와 파라미터가 맞는지 확인 필요)");
+    Swal.fire({
+      title: '요청 실패',
+      text: '요청 처리 중 오류가 발생했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 };
 
-// 2. 일반 프로필 수정 저장
+// 3. 일반 프로필 수정 저장
 const handleUpdateProfile = async () => {
   try {
     await authApi.updateProfile({
@@ -219,30 +242,75 @@ const handleUpdateProfile = async () => {
       addressLine2: info.addressLine2,
       postalCode: info.postalCode
     });
-    alert("개인 정보가 성공적으로 수정되었습니다.");
+
+    Swal.fire({
+      title: '저장 완료',
+      text: '개인 정보가 성공적으로 수정되었습니다.',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      timer: 1500,
+      showConfirmButton: false,
+      borderRadius: '16px'
+    });
   } catch (error) {
-    alert(error.response?.data?.message || "정보 수정에 실패했습니다.");
+    Swal.fire({
+      title: '저장 실패',
+      text: error.response?.data?.message || "정보 수정에 실패했습니다.",
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 };
 
-// 3. 비밀번호 변경 로직
+// 4. 비밀번호 변경 로직
 const handleChangePassword = async () => {
-  if (!pass.oldPassword || !pass.newPassword) return alert("비밀번호를 입력해주세요.");
-  if (pass.newPassword !== pass.confirm) return alert("새 비밀번호 확인이 일치하지 않습니다.");
+  if (!pass.oldPassword || !pass.newPassword) {
+    return Swal.fire({
+      title: '입력 오류',
+      text: '비밀번호를 입력해주세요.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+  }
+
+  if (pass.newPassword !== pass.confirm) {
+    return Swal.fire({
+      title: '일치 확인',
+      text: '새 비밀번호 확인이 일치하지 않습니다.',
+      icon: 'warning',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+  }
 
   try {
     await authApi.changePassword({
       oldPassword: pass.oldPassword,
       newPassword: pass.newPassword
     });
-    alert("비밀번호가 변경되었습니다. 보안을 위해 다시 로그인해주세요.");
+
+    await Swal.fire({
+      title: '변경 완료',
+      text: '보안을 위해 다시 로그인해주세요.',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    });
+
     localStorage.clear();
     router.push('/login');
   } catch (error) {
-    alert(error.response?.data?.message || "비밀번호 변경 실패");
+    Swal.fire({
+      title: '변경 실패',
+      text: error.response?.data?.message || "비밀번호 변경에 실패했습니다.",
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 };
-
 </script>
 
 <style scoped>

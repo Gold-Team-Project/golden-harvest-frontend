@@ -110,10 +110,11 @@ import {ref, onMounted, reactive} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import http from '@/api/axios'
 import BaseButton from '@/components/button/BaseButton.vue'
+import Swal from 'sweetalert2' // 1. Swal 추가
 
 const route = useRoute()
 const router = useRouter()
-const skuNo = route.params.skuNo as string // URL 파라미터
+const skuNo = route.params.skuNo as string
 
 const BACKEND_URL = 'http://localhost:8088'
 
@@ -169,8 +170,23 @@ const fetchDetail = async () => {
   }
 }
 
+// [수정] 수정 내용 저장 핸들러
 const submitUpdate = async () => {
-  if (!confirm('수정 내용을 저장하시겠습니까?')) return
+  // 1. 저장 확인창
+  const result = await Swal.fire({
+    title: '변경 내용을 저장하시겠습니까?',
+    text: '수정된 정보가 마스터 데이터에 반영됩니다.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#11D411', // 포인트 컬러
+    cancelButtonColor: '#9ca3af',
+    confirmButtonText: '저장하기',
+    cancelButtonText: '취소',
+    reverseButtons: true,
+    borderRadius: '16px'
+  })
+
+  if (!result.isConfirmed) return
 
   try {
     const formData = new FormData()
@@ -193,11 +209,27 @@ const submitUpdate = async () => {
       headers: {'Content-Type': 'multipart/form-data'}
     })
 
-    alert('성공적으로 수정되었습니다.')
+    // 2. 성공 알림
+    await Swal.fire({
+      title: '수정 완료',
+      text: '품목 정보가 성공적으로 수정되었습니다.',
+      icon: 'success',
+      confirmButtonColor: '#11D411',
+      borderRadius: '16px'
+    })
+
     router.push(`/admin/masterData/${skuNo}`)
   } catch (err) {
     console.error('수정 실패:', err)
-    alert('수정 중 오류가 발생했습니다.')
+
+    // 3. 에러 알림
+    Swal.fire({
+      title: '수정 실패',
+      text: '수정 처리 중 오류가 발생했습니다.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    })
   }
 }
 
