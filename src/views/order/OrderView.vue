@@ -29,7 +29,7 @@
             <input type="text" placeholder="찾으시는 상품명을 입력해주세요." @keyup.enter="loadProducts" />
           </div>
         </div>
-        <button class="search-btn">필터 적용</button>
+        <button class="search-btn" @click="loadProducts">필터 적용</button>
       </div>
     </div>
 
@@ -42,9 +42,9 @@
         <span class="total-count">총 <strong>{{ products.length }}</strong>개의 상품</span>
       </div>
 
-      <div class="product-grid">
+      <div class="product-grid" v-if="displayProducts.length > 0">
         <router-link
-            v-for="product in products"
+            v-for="product in displayProducts"
             :key="product.id"
             :to="{ name: 'ProductDetail', params: { id: product.id }, query: { price: product.price } }"
             class="product-link"
@@ -73,12 +73,20 @@
           </div>
         </router-link>
       </div>
+      <div v-else class="empty-msg">상품이 존재하지 않습니다.</div>
 
       <div class="pagination-wrapper">
         <div class="pagination">
-          <button class="arrow" :disabled="true">&lt;</button>
-          <button class="page active">1</button>
-          <button class="arrow">&gt;</button>
+          <button class="arrow" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">&lt;</button>
+          <button
+              v-for="page in totalPages"
+              :key="page"
+              :class="['page', { active: currentPage === page }]"
+              @click="changePage(page)"
+          >
+            {{ page }}
+          </button>
+          <button class="arrow" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">&gt;</button>
         </div>
       </div>
     </div>
@@ -86,11 +94,34 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { fetchProducts } from '@/api/OrderApi.js';
 
+// 상태 관리 변수들
 const products = ref([]);
+const currentPage = ref(1);
+const itemsPerPage = 5; // 한 페이지에 5개씩 표시
 
+// [계산] 현재 페이지에 보여줄 상품들만 잘라내기
+const displayProducts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  return products.value.slice(start, end);
+});
+
+// [계산] 전체 페이지 수 계산
+const totalPages = computed(() => {
+  return Math.ceil(products.value.length / itemsPerPage) || 1;
+});
+
+// [함수] 페이지 이동
+const changePage = (page) => {
+  if (page < 1 || page > totalPages.value) return;
+  currentPage.value = page;
+  window.scrollTo({ top: 0, behavior: 'smooth' }); // 상단으로 부드럽게 이동
+};
+
+// [함수] API 데이터 로드
 const loadProducts = async () => {
   try {
     const response = await fetchProducts();
@@ -103,9 +134,10 @@ const loadProducts = async () => {
         category: item.varietyName ? `${item.varietyName} | ${item.gradeName}` : '일반 품목',
         image: item.fileUrl || '',
       }));
+      currentPage.value = 1; // 검색이나 로드 시 1페이지로 초기화
     }
   } catch (error) {
-    console.error('에러:', error);
+    console.error('데이터 로드 중 에러 발생:', error);
   }
 };
 
@@ -113,7 +145,11 @@ onMounted(loadProducts);
 </script>
 
 <style scoped>
-/* 필터 카드 스타일 (회원 관리 페이지와 동일) */
+/* 관리자 공통 레이아웃 스타일 */
+.admin-container { padding: 20px 50px; background-color: #f8f9fb; min-height: 100vh; text-align: left; box-sizing: border-box; }
+.breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; }
+
+/* 필터 카드 스타일 */
 .filter-card {
   background: #fff; padding: 30px; border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #e0e0e0;
@@ -137,7 +173,7 @@ onMounted(loadProducts);
 .search-btn { background: #11D411; color: #fff; border: none; padding: 0 30px; height: 45px; border-radius: 10px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
 .search-btn:hover { background-color: #0fb80f; }
 
-/* 상품 리스트 영역 */
+/* 상품 그리드 스타일 */
 .list-card-transparent { display: flex; flex-direction: column; }
 .card-header-inline { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 10px; }
 .header-left { display: flex; align-items: center; gap: 10px; }
@@ -146,12 +182,7 @@ onMounted(loadProducts);
 .total-count { font-size: 14px; color: #666; }
 .total-count strong { color: #11D411; }
 
-/* 상품 그리드 & 카드 */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 25px;
-}
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
 .product-link { text-decoration: none; color: inherit; }
 
 .product-item-card {
@@ -159,16 +190,10 @@ onMounted(loadProducts);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
-.product-item-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
-  outline: 5px solid #11D411;
-}
+.product-item-card:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); outline: 5px solid #11D411; }
 
 .image-area { position: relative; height: 220px; overflow: hidden; background: #f9f9f9; }
 .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-.product-item-card:hover .product-img { transform: scale(1.05); }
-
 .best-badge {
   position: absolute;
   top: 15px;
@@ -190,7 +215,7 @@ onMounted(loadProducts);
   overflow: hidden; /* 빛 효과가 배지 안에서만 보이도록 */
 }
 
-/* 반짝이는 빛 효과 (애니메이션) */
+/* 🌟 반짝이는 빛 효과 (애니메이션) */
 .best-badge::after {
   content: '';
   position: absolute;
@@ -210,7 +235,7 @@ onMounted(loadProducts);
   100% { left: 150%; }
 }
 
-/* 카드를 호버했을 때 더 역동적인 반응 */
+/* 🖱️ 카드를 호버했을 때 더 역동적인 반응 */
 .product-item-card:hover .best-badge {
   transform: scale(1.2) translateY(-3px) rotate(-5deg); /* 더 커지고 위로 살짝 뜸 */
   box-shadow: 0 0 25px rgba(255, 69, 0, 0.8); /* 호버 시 네온 효과 강화 */
@@ -219,8 +244,7 @@ onMounted(loadProducts);
 
 .info-area { padding: 20px; text-align: left; }
 .cat-text { font-size: 12px; color: #999; margin-bottom: 8px; }
-.item-name { font-size: 17px; font-weight: 700; color: #333; margin: 0 0 12px 0;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-name { font-size: 17px; font-weight: 700; color: #333; margin: 0 0 12px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .price-box { margin-bottom: 15px; display: flex; align-items: baseline; gap: 4px; }
 .price-val { font-size: 20px; font-weight: 800; color: #11D411; }
@@ -232,11 +256,18 @@ onMounted(loadProducts);
   display: flex; align-items: center; justify-content: center; gap: 8px;
   cursor: pointer; transition: all 0.2s;
 }
-.cart-add-btn:hover { background: #11D411; color: #fff; border-color: #11D411; }
+.cart-add-btn:hover { background: #11D411; color: #fff; }
 
-/* 페이지네이션 */
-.pagination-wrapper { margin-top: 40px; }
-.pagination { display: flex; justify-content: center; gap: 5px; }
-.page, .arrow { min-width: 32px; height: 32px; border-radius: 8px; border: 1px solid #eee; background: #fff; cursor: pointer; }
+.empty-msg { padding: 100px 0; text-align: center; color: #999; font-size: 16px; }
+
+/* 페이지네이션 스타일 */
+.pagination-wrapper { margin-top: 40px; padding-bottom: 50px; }
+.pagination { display: flex; justify-content: center; gap: 8px; }
+.page, .arrow {
+  min-width: 36px; height: 36px; border-radius: 8px; border: 1px solid #eee;
+  background: #fff; cursor: pointer; font-weight: 600; color: #666; transition: all 0.2s;
+}
 .page.active { background: #11D411; color: #fff; border-color: #11D411; }
+.page:hover:not(.active), .arrow:hover:not(:disabled) { background: #f0fdf0; color: #11D411; border-color: #11D411; }
+.arrow:disabled { opacity: 0.3; cursor: not-allowed; }
 </style>

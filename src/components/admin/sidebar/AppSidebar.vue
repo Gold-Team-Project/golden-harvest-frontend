@@ -72,6 +72,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import authApi from '@/api/AuthApI'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
@@ -81,15 +82,43 @@ const go = (name) => {
 }
 
 const handleLogout = async () => {
-  if (!confirm("로그아웃 하시겠습니까?")) return;
+  // 1. 로그아웃 확인창 띄우기
+  const result = await Swal.fire({
+    title: '로그아웃 하시겠습니까?',
+    text: "안전하게 로그아웃하고 로그인 페이지로 이동합니다.",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#22c55e', // 로고 아이콘 색상과 맞춘 초록색
+    cancelButtonColor: '#ef4444',
+    confirmButtonText: '로그아웃',
+    cancelButtonText: '취소',
+    reverseButtons: true, // 취소 버튼을 왼쪽으로
+    background: '#ffffff',
+    borderRadius: '12px'
+  });
+
+  // 사용자가 취소를 눌렀다면 함수 종료
+  if (!result.isConfirmed) return;
+
   try {
-    await authApi.logout(); // 백엔드 Redis 토큰 삭제 및 블랙리스트 등록
+    // 2. 백엔드 로그아웃 요청
+    await authApi.logout();
   } catch (error) {
     console.error("로그아웃 요청 중 오류:", error);
   } finally {
+    // 3. 로컬 저장소 정리 및 알림
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    alert("로그아웃 되었습니다.");
+
+    await Swal.fire({
+      title: '로그아웃 완료',
+      text: '성공적으로 로그아웃 되었습니다.',
+      icon: 'success',
+      confirmButtonColor: '#22c55e',
+      timer: 1500, // 1.5초 후 자동 닫힘
+      showConfirmButton: false
+    });
+
     router.push('/login');
   }
 };
