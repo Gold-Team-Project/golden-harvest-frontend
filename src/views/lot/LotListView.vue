@@ -81,27 +81,21 @@
       </div>
 
       <div class="pagination-wrapper">
-        <div class="pagination">
-          <button class="arrow" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">&lt;</button>
-          <span class="page-info">Page {{ currentPage }}</span>
-          <button class="arrow" :disabled="!hasNextPage" @click="changePage(currentPage + 1)">&gt;</button>
-        </div>
+        <Pagination :current="currentPage" :pages="pages" @update:current="changePage" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import {ref, onMounted, watch} from 'vue'
-import {useRouter} from 'vue-router'
+import {ref, watch} from 'vue'
 import {getLots} from '@/api/ItemApi.js'
-
-const router = useRouter()
+import Pagination from '@/components/pagination/Pagination.vue'
 
 const items = ref([])
 const currentPage = ref(1)
 const pageSize = 10
-const hasNextPage = ref(true)
+const pages = ref([])
 
 const search = ref({
   lotNo: '',
@@ -126,11 +120,7 @@ const fetchLots = async () => {
     const response = await getLots({
       page: currentPage.value,
       size: pageSize,
-      lotNo: search.value.lotNo || null,
-      status: search.value.status || null,
-      itemName: search.value.itemName || null,
-      startDate: search.value.startDate || null,
-      endDate: search.value.endDate || null,
+      ...search.value
     });
 
     if (response.success && response.data) {
@@ -141,26 +131,32 @@ const fetchLots = async () => {
         status: item.status,
         createdAt: item.inboundDate ? item.inboundDate.split('T')[0] : '-',
       }));
-      // 다음 페이지가 있는지 확인: 반환된 아이템 수가 페이지 크기와 같으면 다음 페이지가 있을 가능성이 있음
-      hasNextPage.value = response.data.length === pageSize;
+      makePages(response.data.length);
     } else {
       items.value = [];
-      hasNextPage.value = false;
+      pages.value = [];
     }
   } catch (err) {
     console.error(err);
     items.value = [];
-    hasNextPage.value = false;
+    pages.value = [];
   }
 };
+
+const makePages = (size) => {
+  const temp = []
+  if (currentPage.value > 1) temp.push(currentPage.value - 1)
+  temp.push(currentPage.value)
+  if (size === pageSize) temp.push(currentPage.value + 1)
+  pages.value = temp
+}
 
 const changePage = (page) => {
   if (page < 1) return;
   currentPage.value = page
 }
 
-watch(currentPage, fetchLots)
-onMounted(fetchLots)
+watch(currentPage, fetchLots, { immediate: true });
 </script>
 
 <style scoped>
@@ -217,9 +213,4 @@ onMounted(fetchLots)
 
 /* 페이지네이션 */
 .pagination-wrapper { margin-top: auto; padding-top: 30px; }
-.pagination { display: flex; justify-content: center; align-items: center; gap: 15px; }
-.page, .arrow { min-width: 32px; height: 32px; border-radius: 6px; border: 1px solid #eee; background: transparent; cursor: pointer; font-size: 13px; }
-.page.active { background: #11D411; color: #fff; border-color: #11D411; font-weight: 700; }
-.arrow:disabled { cursor: not-allowed; opacity: 0.5; }
-.page-info { font-size: 14px; color: #555; }
 </style>
