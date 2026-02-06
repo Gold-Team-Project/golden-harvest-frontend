@@ -1,15 +1,10 @@
 <template>
   <div class="fixed-widget">
-<<<<<<< HEAD
-
     <Transition name="fade">
       <div v-if="!isOpen" class="chat-tooltip">
         AI 챗봇을 이용해보세요!
       </div>
     </Transition>
-
-=======
->>>>>>> 7341a76 (refactor: modify chat)
     <Transition name="slide-fade">
       <div v-if="isOpen" class="chat-card">
         <div class="chat-header">
