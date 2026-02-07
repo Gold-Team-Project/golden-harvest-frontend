@@ -2,7 +2,7 @@ import axios from 'axios'
 import router from '@/router'
 
 const http = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: 'http://api.gharvest.shop:80/api',
     timeout: 5000,
 });
 
