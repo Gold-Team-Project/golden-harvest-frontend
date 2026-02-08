@@ -48,3 +48,12 @@ export async function getLots(filters) {
     }
 }
 
+export async function fetchBestOrder() {
+    try {
+        const response = await http.get('/sales/best-order');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching best order:', error);
+        throw error;
+    }
+}

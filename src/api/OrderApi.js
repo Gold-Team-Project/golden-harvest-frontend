@@ -115,6 +115,7 @@ export async function cancelOrder(orderId) {
 export function addToCart(payload) {
     return http.post('/cart/items', payload);
 }
+
 export async function approveOrder(orderId) {
     try {
         const response = await http.patch(`/sales/orders/${orderId}/approve`, {}); // Send an empty JSON body
@@ -124,4 +125,24 @@ export async function approveOrder(orderId) {
         throw error;
     }
 
+}
+
+export async function fetchUserOrderInfo() {
+    try {
+        const response = await http.get('/sales/user-order');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user order info:', error);
+        throw error;
+    }
+}
+
+export async function fetchUserFrequentOrders() {
+    try {
+        const response = await http.get('/sales/user-frequent-orders');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user frequent orders:', error);
+        throw error;
+    }
 }
