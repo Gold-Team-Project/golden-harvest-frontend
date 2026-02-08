@@ -70,7 +70,7 @@
 <script setup>
 import {reactive, computed, watch} from 'vue';
 import { approveUser, approveProfileUpdate, updateUserStatus, updateUserRole } from '@/api/AdminApi.js';
-import Swal from 'sweetalert2'; // 1. Swal 추가
+import Swal from 'sweetalert2';
 
 const props = defineProps(['userData', 'mode']);
 const emit = defineEmits(['close', 'update']);
@@ -132,7 +132,7 @@ const handleAction = async (type) => {
     confirmText = "회원의 상태 및 권한이 업데이트됩니다.";
   }
 
-  // 2. 실행 전 확인
+  // 2. 실행 전 확인 (didOpen으로 z-index 강제 조정)
   if (type !== 'CLOSE') {
     const result = await Swal.fire({
       title: confirmTitle,
@@ -143,14 +143,24 @@ const handleAction = async (type) => {
       cancelButtonColor: '#9ca3af',
       confirmButtonText: '확인',
       cancelButtonText: '취소',
-      borderRadius: '16px'
+      borderRadius: '16px',
+      // 모달(3000)보다 위에 뜨도록 설정
+      didOpen: () => {
+        Swal.getContainer().style.zIndex = "4000";
+      }
     });
     if (!result.isConfirmed) return;
   }
 
   // 3. API 호출 로직
   try {
-    Swal.fire({ title: '처리 중...', didOpen: () => { Swal.showLoading(); } });
+    Swal.fire({
+      title: '처리 중...',
+      didOpen: () => {
+        Swal.showLoading();
+        Swal.getContainer().style.zIndex = "4000";
+      }
+    });
 
     if (props.mode === 'join' && type === 'APPROVE') {
       await approveUser(targetEmail, 'ACTIVE');
@@ -162,14 +172,16 @@ const handleAction = async (type) => {
       await updateUserStatus(targetEmail, localData.userStatus);
       if (updateUserRole) await updateUserRole(targetEmail, localData.role);
     }
-    // REJECT에 대한 API가 있다면 여기에 추가 가능 (현재는 공통 실패 처리로 대체하거나 close)
 
     await Swal.fire({
       icon: 'success',
       title: '완료되었습니다',
       timer: 1500,
       showConfirmButton: false,
-      borderRadius: '16px'
+      borderRadius: '16px',
+      didOpen: () => {
+        Swal.getContainer().style.zIndex = "4000";
+      }
     });
 
     emit('update');
@@ -180,7 +192,10 @@ const handleAction = async (type) => {
       icon: 'error',
       title: '오류 발생',
       text: error.response?.data?.message || "처리에 실패했습니다.",
-      confirmButtonColor: '#ef4444'
+      confirmButtonColor: '#ef4444',
+      didOpen: () => {
+        Swal.getContainer().style.zIndex = "4000";
+      }
     });
   }
 };

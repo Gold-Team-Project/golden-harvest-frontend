@@ -165,19 +165,35 @@ const fetchItems = async () => {
     })
 
     const payload = res.data?.data?.content ?? res.data?.data ?? []
-    items.value = payload.map((item: any, index: number) => ({
-      no: (currentPage.value - 1) * pageSize + index + 1,
-      skuNo: item.skuNo,
-      itemName: item.itemName,
-      varietyName: item.varietyName,
-      grade: item.gradeName,
-      isActive: [true, 'true', 'Y', 1].includes(item.status),
-      createdAt: item.createdAt?.substring(0, 10),
-    }))
+
+    items.value = payload.map((item: any, index: number) => {
+      // [완벽 통일] 문자열 "true" 및 다양한 활성 신호를 처리
+      const rawValue = item.status !== undefined ? item.status : item.isActive;
+      const normalizedValue = String(rawValue).toLowerCase();
+
+      // 상세 페이지와 100% 동일한 판단 로직
+      const isActuallyActive = (
+          normalizedValue === 'true' ||
+          normalizedValue === 'y' ||
+          normalizedValue === 'active' ||
+          rawValue === 1 ||
+          rawValue === true
+      );
+
+      return {
+        no: (currentPage.value - 1) * pageSize + index + 1,
+        skuNo: item.skuNo,
+        itemName: item.itemName,
+        varietyName: item.varietyName,
+        grade: item.gradeName || item.grade,
+        isActive: isActuallyActive,
+        createdAt: item.createdAt?.substring(0, 10),
+      }
+    })
 
     makePages(payload.length)
   } catch (err) {
-    console.error(err)
+    console.error("데이터 로드 실패:", err)
   }
 }
 
@@ -199,58 +215,34 @@ onMounted(fetchItems)
 </script>
 
 <style scoped>
-/* 디자인 가이드 적용 */
+/* 스타일은 기존과 동일 */
 .admin-container { padding: 20px 50px; background-color: #f8f9fb; min-height: 95vh; box-sizing: border-box; display: flex; flex-direction: column; }
 .breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; flex-shrink: 0; }
-
-/* 필터 카드 스타일 */
-.filter-card {
-  background: #fff; padding: 25px 30px; border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px; border: 1px solid #e0e0e0; flex-shrink: 0;
-}
+.filter-card { background: #fff; padding: 25px 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 25px; border: 1px solid #e0e0e0; flex-shrink: 0; }
 .filter-grid { display: flex; gap: 15px; align-items: flex-end; }
 .filter-item { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; }
 .filter-item.flex-2 { flex: 1.5; }
 .filter-item label { font-size: 14px; font-weight: 700; color: #444; }
-
-/* 공통 인풋 스타일 및 포커스 효과 */
 .search-input-wrapper { position: relative; width: 100%; }
 .search-icon-svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 18px; }
-.search-input-wrapper input, .basic-input, .basic-select {
-  width: 100%; height: 45px; padding: 0 15px; border: 1px solid #C8E4C8;
-  border-radius: 10px; background: white; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;
-}
+.search-input-wrapper input, .basic-input, .basic-select { width: 100%; height: 45px; padding: 0 15px; border: 1px solid #C8E4C8; border-radius: 10px; background: white; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box; }
 .search-input-wrapper input { padding-left: 45px; }
-.search-input-wrapper input:focus, .basic-input:focus, .basic-select:focus {
-  border-color: #11D411 !important; box-shadow: 0 0 0 3px rgba(17, 212, 17, 0.05);
-}
-
+.search-input-wrapper input:focus, .basic-input:focus, .basic-select:focus { border-color: #11D411 !important; box-shadow: 0 0 0 3px rgba(17, 212, 17, 0.05); }
 .search-btn { background: #11D411; color: #fff; border: none; padding: 0 35px; height: 45px; border-radius: 10px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
 .search-btn:hover { background-color: #0fb80f; }
-
-/* 리스트 카드 및 테이블 */
-.list-card {
-  background: #fff; border-radius: 20px; padding: 25px 30px; border: 1px solid #e0e0e0;
-  flex: 1; display: flex; flex-direction: column;
-}
+.list-card { background: #fff; border-radius: 20px; padding: 25px 30px; border: 1px solid #e0e0e0; flex: 1; display: flex; flex-direction: column; }
 .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
 .title-icon-svg { width: 22px; }
-
 .table-container { flex: 1; overflow-y: auto; width: 100%; }
 .admin-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .admin-table th { padding: 15px; text-align: center; color: #888; border-bottom: 2px solid #f4f4f4; font-size: 14px; background: #fff; position: sticky; top: 0; }
 .admin-table td { padding: 15px 10px; font-size: 14px; border-bottom: 1px solid #f9f9f9; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .admin-table td.text-left { text-align: left; }
-
-/* 배지 및 상세 버튼 */
 .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; }
 .status-badge.ACTIVE { background: #eefdee; color: #11D411; border: 1px solid #11D411; }
 .status-badge.INACTIVE { background: #fff8ee; color: #f39c12; border: 1px solid #f39c12; }
-
 .detail-btn { background: #f1f3f5; border: 1px solid #dee2e6; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
 .detail-btn:hover { background: #e9ecef; }
-
-/* 페이지네이션 */
 .pagination-wrapper { margin-top: auto; padding-top: 20px; flex-shrink: 0; }
 .pagination { display: flex; justify-content: center; gap: 5px; }
 .page, .arrow { min-width: 32px; height: 32px; border-radius: 6px; border: 1px solid #eee; background: transparent; cursor: pointer; font-size: 13px; }
