@@ -88,9 +88,10 @@
 
 <script setup>
 import { ref, nextTick, watch } from 'vue';
+import http from '@/api/http'; // ✅ 작성하신 Axios 인스턴스 import
 
-const BACKEND_URL = 'http://localhost:8080';
-const CHAT_PATH = '/api/ai/chat';
+// ✅ 파일 다운로드용 Base URL (API 요청은 http 인스턴스가 처리하지만, href 이동은 전체 주소가 필요할 수 있음)
+const FILE_BASE_URL = 'http://localhost:8080';
 
 const STORAGE_KEY = 'green-ai-chat-messages';
 const SESSION_KEY = 'green-ai-chat-session-id';
@@ -144,14 +145,15 @@ const toggleChat = () => {
   if (isOpen.value) nextTick(scrollToBottom);
 };
 
-// ✅ 다운로드 URL이 상대경로면 BACKEND_URL 붙여서 이동
+// ✅ 다운로드 URL 처리 (Axios와 무관하게 브라우저 이동용)
 const goDownload = (targetUrl) => {
   if (!targetUrl) return;
 
+  // http나 https로 시작하면 그대로 사용, 아니면 FILE_BASE_URL 결합
   const fullUrl =
-      targetUrl.startsWith('http://') || targetUrl.startsWith('https://')
+      targetUrl.startsWith('http')
           ? targetUrl
-          : `${BACKEND_URL}${targetUrl.startsWith('/') ? '' : '/'}${targetUrl}`;
+          : `${FILE_BASE_URL}${targetUrl.startsWith('/') ? '' : '/'}${targetUrl}`;
 
   window.location.href = fullUrl;
 };
@@ -162,15 +164,19 @@ const scrollToBottom = () => {
   }
 };
 
-// ✅ FastAPI 에러(detail)가 dict/list/string 어느 형태든 보기 좋게
-const normalizeErrorDetail = (errJson) => {
-  if (!errJson) return '알 수 없는 오류';
-  const d = errJson.detail ?? errJson;
-  if (typeof d === 'string') return d;
+// ✅ Axios 에러 객체 처리용으로 수정
+const normalizeErrorDetail = (err) => {
+  if (!err) return '알 수 없는 오류';
+
+  // Axios는 error.response.data에 서버 응답이 들어있음
+  const data = err.response?.data || err;
+  const detail = data.detail || data.message || data;
+
+  if (typeof detail === 'string') return detail;
   try {
-    return JSON.stringify(d);
+    return JSON.stringify(detail);
   } catch (_) {
-    return String(d);
+    return String(detail);
   }
 };
 
@@ -180,6 +186,7 @@ const sendMessage = async () => {
 
   const currentMsg = trimmed;
 
+  // 1. 사용자 메시지 즉시 화면에 표시
   messages.value.push({
     text: currentMsg,
     time: getCurrentTime(),
@@ -191,30 +198,18 @@ const sendMessage = async () => {
   scrollToBottom();
 
   try {
-    // ✅ 반드시 POST + session_id + message
-    const response = await fetch(`${BACKEND_URL}${CHAT_PATH}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        session_id: sessionId.value,
-        message: currentMsg
-      })
+    // ✅ 2. http 인스턴스 사용 (토큰 자동 포함, 401 자동 재발급)
+    // http.js에 baseURL: '/api'가 있으므로 '/ai/chat'만 쓰면 '/api/ai/chat'으로 요청됨
+    const response = await http.post('/ai/chat', {
+      session_id: sessionId.value,
+      message: currentMsg
     });
 
-    if (!response.ok) {
-      let detail = `HTTP ${response.status}`;
-      try {
-        const err = await response.json();
-        detail = normalizeErrorDetail(err);
-      } catch (_) {}
-      throw new Error(detail);
-    }
+    // Axios는 response.data에 실제 바디가 있음 (json() 불필요)
+    const data = response.data;
 
-    const data = await response.json();
-
-    // ✅ 너 FastAPI 응답은 { type, message, download_url ... } 형태
     const aiText = data?.message ?? '응답 메시지가 없습니다.';
-    const downloadUrl = data?.download_url || data?.downloadUrl || data?.download_url;
+    const downloadUrl = data?.download_url || data?.downloadUrl;
 
     messages.value.push({
       text: aiText,
@@ -225,8 +220,11 @@ const sendMessage = async () => {
 
   } catch (e) {
     console.error('⚠️ 채팅 오류:', e);
+    // 에러 메시지 추출
+    const errorMessage = normalizeErrorDetail(e);
+
     messages.value.push({
-      text: `오류가 발생했습니다: ${e?.message || e}`,
+      text: `오류가 발생했습니다: ${errorMessage}`,
       time: getCurrentTime(),
       isUser: false
     });
@@ -253,7 +251,7 @@ const sendMessage = async () => {
   gap: 15px;
 }
 
-/* 2. 말풍선 스타일 추가 */
+/* 2. 말풍선 스타일 */
 .chat-tooltip {
   position: relative;
   background-color: #4CD964;
@@ -264,11 +262,10 @@ const sendMessage = async () => {
   font-weight: 700;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
-  animation: bounce-slow 2s infinite; /* 통통 튀는 애니메이션 */
+  animation: bounce-slow 2s infinite;
   margin-bottom: 5px;
 }
 
-/* 말풍선 꼬리표 */
 .chat-tooltip::after {
   content: "";
   position: absolute;
@@ -279,13 +276,11 @@ const sendMessage = async () => {
   border-top: 7px solid #4CD964;
 }
 
-/* 3. 통통 튀는 애니메이션 정의 */
 @keyframes bounce-slow {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
 
-/* 4. 애니메이션 효과 (Fade) */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.3s;
 }
@@ -293,7 +288,7 @@ const sendMessage = async () => {
   opacity: 0;
 }
 
-/* 2. 둥둥 버튼 (Floating Button) */
+/* 3. 둥둥 버튼 (Floating Button) */
 .floating-btn {
   width: 60px;
   height: 60px;
@@ -321,7 +316,7 @@ const sendMessage = async () => {
   background-color: #333;
 }
 
-/* 3. 채팅창 (Card) */
+/* 4. 채팅창 (Card) */
 .chat-card {
   width: 360px;
   height: 550px;
