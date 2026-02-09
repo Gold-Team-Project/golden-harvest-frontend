@@ -26,7 +26,7 @@
           <label>상품 검색</label>
           <div class="search-input-wrapper">
             <img src="@/assets/search.svg" class="search-icon-svg" alt="search" />
-            <input type="text" placeholder="찾으시는 상품명을 입력해주세요." @keyup.enter="loadProducts" />
+            <input type="text" placeholder="찾으시는 상품명을 입력해주세요." v-model="searchKeyword" @keyup.enter="loadProducts" />
           </div>
         </div>
         <button class="search-btn" @click="loadProducts">필터 적용</button>
@@ -61,7 +61,7 @@
                 <span class="price-val">{{ (product.price || 0).toLocaleString() }}원</span>
                 <span class="unit-text">/ {{ product.unit }}</span>
               </div>
-              <button class="cart-add-btn">
+              <button class="cart-add-btn" @click.stop.prevent="handleAddToCart(product)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="9" cy="21" r="1"></circle>
                   <circle cx="20" cy="21" r="1"></circle>
@@ -95,12 +95,14 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { fetchProducts } from '@/api/OrderApi.js';
+import { fetchProducts, addToCart } from '@/api/OrderApi.js';
+import Swal from 'sweetalert2';
 
 // 상태 관리 변수들
 const products = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 5; // 한 페이지에 5개씩 표시
+const searchKeyword = ref(''); // 검색어 상태 추가
 
 // [계산] 현재 페이지에 보여줄 상품들만 잘라내기
 const displayProducts = computed(() => {
@@ -124,7 +126,10 @@ const changePage = (page) => {
 // [함수] API 데이터 로드
 const loadProducts = async () => {
   try {
-    const response = await fetchProducts();
+    const params = {
+      itemName: searchKeyword.value || undefined
+    };
+    const response = await fetchProducts(params);
     if (response && response.success && Array.isArray(response.data)) {
       products.value = response.data.map(item => ({
         id: item.skuNo || Math.random().toString(36).substr(2, 9),
@@ -138,6 +143,34 @@ const loadProducts = async () => {
     }
   } catch (error) {
     console.error('데이터 로드 중 에러 발생:', error);
+  }
+};
+
+const handleAddToCart = async (product) => {
+  try {
+    const payload = {
+      skuNo: product.id,
+      quantity: 1 // 리스트에서는 기본 1개로 설정
+    };
+    const response = await addToCart(payload);
+    if (response.data && response.data.success) {
+      Swal.fire({
+        title: '장바구니 담기 성공',
+        text: '상품이 장바구니에 담겼습니다.',
+        icon: 'success',
+        confirmButtonColor: '#11D411',
+        borderRadius: '16px'
+      });
+    }
+  } catch (error) {
+    console.error('장바구니 담기 오류:', error);
+    Swal.fire({
+      title: '장바구니 담기 실패',
+      text: '오류가 발생했습니다. 다시 시도해주세요.',
+      icon: 'error',
+      confirmButtonColor: '#ef4444',
+      borderRadius: '16px'
+    });
   }
 };
 

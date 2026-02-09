@@ -137,7 +137,7 @@ const fetchNotifications = async () => {
         summary: title || body || '알림이 도착했습니다.',
         receivedAt: String(row.receivedAt ?? '').replace('T', ' ').slice(0, 16),
         readAt: row.readAt ? String(row.readAt).replace('T', ' ').slice(0, 16) : null,
-        isRead: !!row.read,
+        isRead: row.isRead || !!row.read,
       }
     })
 

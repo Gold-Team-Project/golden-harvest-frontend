@@ -96,7 +96,7 @@ const favoriteItems = ref([]);
 onMounted(async () => {
   try {
     const userOrderInfoResponse = await fetchUserOrderInfo();
-    const userOrderInfoData = userOrderInfoResponse.result;
+    const userOrderInfoData = userOrderInfoResponse.data;
 
     stats.value = [
       { label: '당일', value: userOrderInfoData.todayOrders, unit: 'orders', icon: DayIcon },

@@ -120,15 +120,12 @@ const error = ref(null);
 
 // 페이지네이션 상태
 const currentPage = ref(1);
-const itemsPerPage = 5;
+const itemsPerPage = 10; // 10개씩 보기
 const totalOrders = ref(0);
 
-// [수정] 안전한 페이징 데이터 계산
+// [수정] 서버사이드 페이징 데이터 사용
 const paginatedOrders = computed(() => {
-  if (!orders.value || !Array.isArray(orders.value)) return [];
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return orders.value.slice(start, end);
+  return orders.value; // 이미 서버에서 페이징된 데이터가 들어옴
 });
 
 const paginationPages = computed(() => {
@@ -142,7 +139,6 @@ const loadOrders = async () => {
   loading.value = true;
   error.value = null;
 
-  // [디자인 변경] 날짜 유효성 검사 알림 교체
   if (startDate.value && endDate.value && startDate.value > endDate.value) {
     Swal.fire({
       title: '날짜 범위 오류',
@@ -157,15 +153,15 @@ const loadOrders = async () => {
 
   try {
     const filters = {
-      startDate: startDate.value,
-      endDate: endDate.value,
+      startDate: startDate.value || null,
+      endDate: endDate.value || null,
       orderStatus: selectedStatus.value === '전체' ? null : selectedStatus.value,
+      customerName: searchCompany.value || null,
     };
-    const response = await fetchAllOrders(filters);
+    // 서버 페이지는 0부터 시작하므로 currentPage - 1 전송
+    const response = await fetchAllOrders(filters, currentPage.value - 1, itemsPerPage);
 
     if (response.success && response.data) {
-      // mapOrderStatusToKey 제거 (order.orderStatusType 사용)
-
       orders.value = response.data.content.map(order => {
         let orderDate = '', orderTime = '';
         if (order.createdAt) {
@@ -181,23 +177,19 @@ const loadOrders = async () => {
           itemsSummary = order.orderItems.length > 1 ? `${itemName} 외 ${order.orderItems.length - 1}건` : itemName;
         }
 
-        const clientName = order.company || '거래처 정보 없음';
-        if (searchCompany.value && !clientName.includes(searchCompany.value)) return null;
-
         return {
           id: order.salesOrderId,
           number: order.salesOrderId,
           date: orderDate,
           time: orderTime,
-          client: clientName,
+          client: order.company || '거래처 정보 없음',
           items: itemsSummary,
           amount: order.totalAmount,
           status: order.orderStatusType || 'UNKNOWN',
         };
-      }).filter(Boolean);
+      });
 
-      totalOrders.value = orders.value.length;
-      currentPage.value = 1;
+      totalOrders.value = response.data.totalElements;
     } else {
       error.value = response.message || '데이터를 불러오는데 실패했습니다.';
     }
@@ -209,7 +201,14 @@ const loadOrders = async () => {
   }
 };
 
+// 필터 변경 시 첫 페이지로 리셋 후 로드
 watch([startDate, endDate, selectedStatus], () => {
+  currentPage.value = 1;
+  loadOrders();
+});
+
+// 페이지 변경 시 로드
+watch(currentPage, () => {
   loadOrders();
 });
 
