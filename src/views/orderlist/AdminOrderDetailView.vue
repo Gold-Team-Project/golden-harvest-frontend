@@ -15,16 +15,19 @@
           <h2 class="order-id">주문 #{{ orderDetail.salesOrderId }}</h2>
           <p class="order-date">주문일시: {{ orderDetail.createdAt }}</p>
         </div>
+        <div class="status-badge-wrap" style="margin-left: 20px; flex: 1;">
+          <OrderStatusBadge :status="orderDetail.orderStatusType || 'UNKNOWN'" />
+        </div>
         <div class="header-actions">
           <button
               class="action-btn cancel-btn"
               @click="handleCancelOrder"
-              :disabled="orderDetail?.orderStatus === '주문 취소' || orderDetail?.orderStatus === '배송 완료'"
+              :disabled="orderDetail?.orderStatusType === 'CANCELLED' || orderDetail?.orderStatusType === 'DELIVERED' || orderDetail?.orderStatusType === 'PURCHASE_CONFIRMED'"
           >주문 취소</button>
           <button
               class="action-btn approve-btn"
               @click="handleApproveOrder"
-              :disabled="orderDetail?.orderStatus !== '주문 완료'"
+              :disabled="orderDetail?.orderStatusType !== 'ORDER_RECEIVED' && orderDetail?.orderStatusType !== 'PENDING'"
           >주문 승인</button>
         </div>
       </div>
@@ -127,8 +130,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import OrderProgress from './OrderProgress.vue'
+import OrderStatusBadge from '@/components/status/OrderStatusBadge.vue'
 import { fetchOrderDetail, cancelOrder, approveOrder } from '@/api/OrderApi'
-import Swal from 'sweetalert2' // 1. Swal 추가
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const orderDetail = ref(null)
@@ -162,16 +166,7 @@ const combinedAddress = computed(() => {
 });
 
 const orderStatusKey = computed(() => {
-  if (!orderDetail.value || !orderDetail.value.orderStatus) return 'UNKNOWN';
-  const statusMap = {
-    '주문 완료': 'PENDING',
-    '상품 준비중': 'PAID',
-    '배송 준비중': 'PREPARING',
-    '배송 중': 'SHIPPING',
-    '배송 완료': 'DELIVERED',
-    '주문 취소': 'CANCELLED'
-  };
-  return statusMap[orderDetail.value.orderStatus] || 'UNKNOWN';
+  return orderDetail.value?.orderStatusType || 'UNKNOWN';
 });
 
 const loadOrderDetail = async () => {

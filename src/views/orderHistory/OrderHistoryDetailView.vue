@@ -17,7 +17,7 @@
             <p class="order-date">주문일시: {{ orderDetail.createdAt }}</p>
           </div>
           <div class="status-badge-wrap">
-            <span :class="['status-badge', orderStatusKey]">{{ orderDetail.orderStatus }}</span>
+            <OrderStatusBadge :status="orderDetail.orderStatusType || 'UNKNOWN'" />
           </div>
         </div>
 
@@ -48,9 +48,9 @@
                     </div>
                   </div>
                 </td>
-                <td class="bold">{{ item.price.toLocaleString() }}원</td>
+                <td class="bold">{{ (item.price || 0).toLocaleString() }}원</td>
                 <td>{{ item.quantity }}</td>
-                <td class="bold price-text text-right">{{ (item.price * item.quantity).toLocaleString() }}원</td>
+                <td class="bold price-text text-right">{{ ((item.price || 0) * (item.quantity || 0)).toLocaleString() }}원</td>
               </tr>
               </tbody>
             </table>
@@ -59,7 +59,7 @@
           <div class="final-summary">
             <div class="summary-box">
               <span class="total-qty">총 수량: <strong>{{ totalQuantity }}개</strong></span>
-              <span class="total-amt">최종 합계: <strong class="green-text">{{ totalAmount.toLocaleString() }}원</strong></span>
+              <span class="total-amt">최종 합계: <strong class="green-text">{{ (totalAmount || 0).toLocaleString() }}원</strong></span>
             </div>
           </div>
         </div>
@@ -92,7 +92,7 @@
             <div class="info-row"><span class="label">결제상태</span><span class="val highlight">입금 대기</span></div>
             <div class="total-payment-row">
               <span class="label">총 결제 금액</span>
-              <span class="amount">{{ totalAmount.toLocaleString() }}원</span>
+              <span class="amount">{{ (totalAmount || 0).toLocaleString() }}원</span>
             </div>
           </div>
         </div>
@@ -105,6 +105,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import OrderProgress from '@/views/orderlist/OrderProgress.vue'
+import OrderStatusBadge from '@/components/status/OrderStatusBadge.vue'
 import { fetchOrderDetail } from '@/api/OrderApi.js'
 
 const route = useRoute()
@@ -139,16 +140,7 @@ const customerAddress = computed(() => {
 });
 
 const orderStatusKey = computed(() => {
-  if (!orderDetail.value || !orderDetail.value.orderStatus) return 'UNKNOWN';
-  const statusMap = {
-    '주문 완료': 'PENDING',
-    '상품 준비중': 'PAID',
-    '배송 준비중': 'PREPARING',
-    '배송 중': 'SHIPPING',
-    '배송 완료': 'DELIVERED',
-    '주문 취소': 'CANCELLED'
-  };
-  return statusMap[orderDetail.value.orderStatus] || 'UNKNOWN';
+  return orderDetail.value?.orderStatusType || 'UNKNOWN';
 });
 
 const loadOrderDetail = async () => {

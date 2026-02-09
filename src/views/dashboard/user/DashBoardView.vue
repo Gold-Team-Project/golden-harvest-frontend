@@ -107,11 +107,11 @@ onMounted(async () => {
     ];
 
     orderSteps.value = [
-      { label: '주문 접수', count: userOrderInfoData.orderReceived, icon: OrderIcon },
-      { label: '상품 준비중', count: userOrderInfoData.productPreparing, icon: ProductIcon },
+      { label: '주문접수', count: userOrderInfoData.orderReceived, icon: OrderIcon },
+      { label: '상품준비중', count: userOrderInfoData.productPreparing, icon: ProductIcon },
       { label: '배송중', count: userOrderInfoData.shipping, icon: ShippingIcon },
-      { label: '배송 완료', count: userOrderInfoData.delivered, icon: DeliveryIcon },
-      { label: '주문 취소', count: userOrderInfoData.cancelled, icon: CancelIcon },
+      { label: '배송완료', count: userOrderInfoData.delivered, icon: DeliveryIcon },
+      { label: '주문취소', count: userOrderInfoData.cancelled, icon: CancelIcon },
     ];
   } catch (error) {
     console.error('Failed to fetch user order info:', error);
@@ -122,10 +122,10 @@ onMounted(async () => {
     const frequentOrdersResponse = await fetchUserFrequentOrders();
     // Assuming frequentOrdersResponse.result is an array of items
     if (frequentOrdersResponse.success && Array.isArray(frequentOrdersResponse.data)) {
-        favoriteItems.value = frequentOrdersResponse.data;
+      favoriteItems.value = frequentOrdersResponse.data;
     } else {
-        console.warn('Frequent orders response data is not an array or success is false:', frequentOrdersResponse);
-        favoriteItems.value = [];
+      console.warn('Frequent orders response data is not an array or success is false:', frequentOrdersResponse);
+      favoriteItems.value = [];
     }
   } catch (error) {
     console.error('Failed to fetch user frequent orders:', error);

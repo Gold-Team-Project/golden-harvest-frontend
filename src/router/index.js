@@ -1,7 +1,7 @@
-import DashboardView from "@/views/admin/DashboardView.vue";
 import { createRouter, createWebHistory } from 'vue-router'
 import { jwtDecode } from 'jwt-decode'
 
+import AdminDashboardView from "@/views/admin/DashboardView.vue";
 import UserDefaultLayout from "@/layouts/user/UserDefaultLayout.vue";
 import InquiryListView from "@/views/inquiry/user/InquiryListView.vue";
 import AdminInquiryListView from "@/views/inquiry/admin/AdminInquiryListView.vue";
@@ -48,7 +48,15 @@ const routes = [
     {
         path: '/',
         component: UserDefaultLayout,
+        // redirect 로직은 가드(beforeEach)에서 제어하므로 여기서는 삭제하거나 유지해도 무방합니다.
+        redirect: '/dashboard',
         children: [
+            {
+                path: 'dashboard',
+                name: "dashboard",
+                component: DashBoardView,
+                meta: { title: '마이페이지 / 대시보드 '}
+            },
             {
                 path: 'order',
                 name: 'Order',
@@ -97,12 +105,6 @@ const routes = [
                 component: Mypage,
                 meta: { title: '마이페이지 / 내정보 수정 '}
             },
-            {
-                path: 'dashboard',
-                name: "dashboard",
-                component: DashBoardView,
-                meta: { title: '마이페이지 / 대시보드 '}
-            },
         ],
     },
     {
@@ -113,7 +115,7 @@ const routes = [
             {
                 path: '',
                 name: 'adminDashboard',
-                component: DashboardView,
+                component: AdminDashboardView,
                 meta: { title: '홈 / 대시보드' },
             },
             {
@@ -196,15 +198,28 @@ const router = createRouter({
     routes
 })
 
-// [수정] 모든 페이지 접근 허용을 위한 가드 주석 처리
 router.beforeEach((to, from, next) => {
-    // 자유로운 페이지 이동을 위해 모든 차단 로직을 주석 처리했습니다.
-    /*
     const accessToken = localStorage.getItem('accessToken');
     const publicPages = ['/login', '/signup', '/password'];
     const isPublicPage = publicPages.includes(to.path);
 
-    // 1. 토큰 만료 체크
+    // 1. 비로그인 사용자 체크 (로그인 안 됐으면 제목 안 바꾸고 바로 로그인 페이지로)
+    if (!accessToken && !isPublicPage) {
+        // 로그인 페이지로 갈 때는 제목을 직접 설정하거나, 해당 페이지 meta를 따르게 함
+        document.title = "로그인 - 골든 하베스트";
+        return next('/login');
+    }
+
+    // 2. 로그인 성공 혹은 공개 페이지 접근 시에만 제목 변경 실행
+    if (to.meta && to.meta.title) {
+        document.title = String(to.meta.title);
+    } else if (isPublicPage) {
+        // 로그인, 회원가입 등 meta title이 따로 없는 공개 페이지용 기본 제목
+        if (to.path === '/login') document.title = "로그인";
+        if (to.path === '/signup') document.title = "회원가입";
+    }
+
+    // 3. 토큰 유효성 및 권한 체크 (기존 로직 유지)
     if (accessToken) {
         try {
             const decoded = jwtDecode(accessToken);
@@ -212,27 +227,17 @@ router.beforeEach((to, from, next) => {
             if (decoded.exp < currentTime) {
                 alert('로그인 세션이 만료되었습니다.');
                 localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
                 return next('/login');
             }
         } catch (e) {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
             return next('/login');
         }
     }
 
-    // 2. 비로그인 사용자 차단
-    if (!accessToken && !isPublicPage) {
-        return next('/login');
-    }
-
-    // 3. 이미 로그인한 사용자 차단
     if (accessToken && isPublicPage) {
         return next('/');
     }
 
-    // 4. 관리자 권한 체크
     const isRequiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
     if (isRequiresAdmin && accessToken) {
         const decoded = jwtDecode(accessToken);
@@ -241,9 +246,7 @@ router.beforeEach((to, from, next) => {
             return next('/');
         }
     }
-    */
 
-    // 무조건 다음 페이지로 이동 허용
     next();
 });
 

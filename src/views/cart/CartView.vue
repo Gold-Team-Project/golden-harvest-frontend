@@ -103,11 +103,11 @@ const loadCartItems = async () => {
         cartItems.value = apiCartItems.map(item => ({
           id: item.skuNo,
           name: item.itemName,
-          spec: '정보 없음',
-          origin: '정보 없음',
-          price: (item.totalPrice && item.quantity) ? (item.totalPrice / item.quantity) : 0,
+          spec: `${item.gradeName} | ${item.varietyName}`,
+          origin: '국내산',
+          price: item.unitPrice || 0,
           quantity: item.quantity || 0,
-          image: '',
+          image: item.fileUrl || '',
           selected: true,
         }));
       } else { error.value = '장바구니 데이터 형식이 올바르지 않습니다.'; }

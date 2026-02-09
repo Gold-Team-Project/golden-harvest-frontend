@@ -119,6 +119,7 @@ const getCurrentTime = () => {
 };
 
 const savedMessages = localStorage.getItem(STORAGE_KEY);
+
 const messages = ref(
     savedMessages
         ? JSON.parse(savedMessages)
@@ -420,6 +421,7 @@ const sendMessage = async () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   max-width: 220px;
   line-height: 1.5;
+
   white-space: pre-line;
 }
 
