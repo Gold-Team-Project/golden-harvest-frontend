@@ -167,7 +167,7 @@ const loadOrders = async () => {
         if (order.createdAt) {
           const dateTime = order.createdAt.split('T');
           orderDate = dateTime[0];
-          orderTime = dateTime[1] ? dateTime[1].substring(0, 5) : '';
+          orderTime = dateTime.length > 1 ? dateTime[1].substring(0, 5) : '';
         }
 
         let itemsSummary = '주문 품목 없음';
