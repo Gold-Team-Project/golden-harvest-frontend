@@ -237,3 +237,10 @@ label { display: block; font-size: 13px; font-weight: 700; color: #666; margin-b
 .modal-body::-webkit-scrollbar { width: 6px; }
 .modal-body::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
 </style>
+
+<style>
+/* SweetAlert2가 모달(z-index:3000) 위에 뜨도록 강제 설정 */
+.swal2-container {
+  z-index: 9999 !important;
+}
+</style>
