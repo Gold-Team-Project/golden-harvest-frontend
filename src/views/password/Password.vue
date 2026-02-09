@@ -2,9 +2,11 @@
   <div class="login-container">
     <div class="image-section">
       <div class="top-brand">Golden Harvest</div>
+
       <div class="image-placeholder">
-        <img src="@/assets/login.svg" alt="Background" class="bg-image" />
+        <div ref="lottieContainer" class="lottie-ani"></div>
       </div>
+
       <div class="overlay">
         <div class="content-box">
           <div class="logo-wrapper"><div class="leaf-icon"></div></div>
@@ -69,20 +71,36 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue'; // onMounted 추가
 import { useRouter } from 'vue-router';
 import authApi from '@/api/AuthApI';
-import Swal from 'sweetalert2'; // 1. Swal 추가
+import Swal from 'sweetalert2';
+import lottie from 'lottie-web'; // lottie 추가
+import harvestAni from '@/assets/lottie/harvest.json'; // 애니메이션 파일
 
 const router = useRouter();
-const isCodeSent = ref(false); // 인증번호 발송 여부
-const isVerified = ref(false); // 인증 완료 여부
+const isCodeSent = ref(false);
+const isVerified = ref(false);
+const lottieContainer = ref(null); // 로티 ref 추가
 
 const form = reactive({
   email: '',
   verifyCode: '',
   newPassword: '',
   passwordConfirm: ''
+});
+
+// 로티 애니메이션 로드
+onMounted(() => {
+  if (lottieContainer.value) {
+    lottie.loadAnimation({
+      container: lottieContainer.value,
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      animationData: harvestAni
+    });
+  }
 });
 
 // 1. 인증번호 발송 함수
@@ -203,32 +221,28 @@ const handleResetPassword = async () => {
 </script>
 
 <style scoped>
-/* 1. 공통 레이아웃 (Signup/Login과 100% 동일) */
+/* 공통 레이아웃 */
 .login-container { display: flex; width: 100vw; height: 100vh; overflow: hidden; }
 
-/* 2. 왼쪽 이미지 섹션 */
-.image-section { position: relative; width: 38%; height: 100%; background-color: #0A2310; }
+/* 왼쪽 섹션 - 로티 배치 */
+.image-section { position: relative; width: 38%; height: 100%; background-color: #0A2310; overflow: hidden; }
 .top-brand { position: absolute; top: 40px; left: 50px; z-index: 20; color: white; font-size: 1.8rem; font-weight: 800; }
-.bg-image { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
-.overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10, 35, 16, 0.9) 15%, transparent 50%); display: flex; flex-direction: column; justify-content: flex-end; padding: 60px 50px; }
+
+.image-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.lottie-ani { width: 130%; height: auto; opacity: 0.7; }
+
+.overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10, 35, 16, 0.9) 15%, transparent 50%); display: flex; flex-direction: column; justify-content: flex-end; padding: 60px 50px; z-index: 10; }
 .logo-wrapper { width: 48px; height: 48px; background: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
 .leaf-icon { width: 24px; height: 24px; background-color: #11D411; border-radius: 0 12px 0 12px; }
 .title { color: white; font-size: 2.2rem; font-weight: 800; margin-bottom: 12px; line-height: 1.2; }
 .subtitle { color: #ccc; font-size: 1rem; line-height: 1.5; }
 
-/* 3. 오른쪽 폼 섹션 (800px 광폭 비율 이식) */
+/* 오른쪽 폼 섹션 - 원본 스타일 유지 */
 .form-section { width: 62%; background: #F6F8F6; display: flex; align-items: center; justify-content: center; }
-.form-wrapper {
-  width: 100%;
-  max-width: 800px;
-  padding: 0 60px;
-  box-sizing: border-box;
-}
-
+.form-wrapper { width: 100%; max-width: 800px; padding: 0 60px; box-sizing: border-box; }
 .form-title { font-size: 2.4rem; font-weight: 700; margin-bottom: 4px; color: #1a1a1a; }
 .form-desc { color: #777; margin-bottom: 30px; font-size: 1.05rem; }
 
-/* 4. 입력창 및 Focus 효과 */
 .input-group { margin-bottom: 16px; width: 100%; }
 label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: #333; }
 input {
@@ -241,14 +255,12 @@ input:focus {
   box-shadow: 0 0 0 3px rgba(17, 212, 17, 0.05);
 }
 
-/* 인증 버튼 */
 .input-with-button { display: flex; gap: 12px; }
 .input-with-button input { flex: 1; }
 .verify-btn { width: 100px; background-color: #11D411; color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
 .verify-btn:hover { background-color: #0fb80f; }
 .verify-btn:active { transform: scale(0.98); }
 
-/* 5. 재설정 버튼 (Signup 스타일) */
 .reset-submit-btn {
   width: 100%; background-color: #11D411; color: white; padding: 16px;
   border: none; border-radius: 12px; font-weight: 700; font-size: 17px; cursor: pointer; margin-top: 10px;
@@ -256,7 +268,6 @@ input:focus {
 .reset-submit-btn:hover { background-color: #0fb80f; }
 .reset-submit-btn:active { transform: scale(0.98); }
 
-/* 6. 하단 푸터 및 링크 */
 .simple-line { width: 100%; height: 1px; background-color: #C9E5C9; margin: 30px 0 20px 0; }
 .form-footer { text-align: center; }
 .back-link {
@@ -266,7 +277,6 @@ input:focus {
 .back-link:hover { color: #11D411; }
 .support-text { margin-top: 20px; color: #bbb; font-size: 12px; }
 
-/* 반응형 대비 */
 @media (max-height: 850px) {
   .form-section { overflow-y: auto; align-items: flex-start; padding: 50px 0; }
 }
