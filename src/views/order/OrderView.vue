@@ -192,7 +192,7 @@ onMounted(loadProducts);
 }
 .product-item-card:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); outline: 5px solid #11D411; }
 
-.image-area { position: relative; height: 220px; overflow: hidden; background: #f9f9f9; }
+.image-area { position: relative; height: 160px; overflow: hidden; background: #f9f9f9; }
 .product-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
 .best-badge {
   position: absolute;
