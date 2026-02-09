@@ -3,7 +3,7 @@ import router from '@/router'
 
 const http = axios.create({
     baseURL: '/api',
-    timeout: 5000,
+    timeout: 60000,
 });
 
 // 요청 인터셉터: 매 요청마다 액세스 토큰을 헤더에 삽입
