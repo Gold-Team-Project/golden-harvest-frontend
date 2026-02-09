@@ -1,15 +1,15 @@
 import http from './axios.js'
 
-export async function fetchMyOrders(filters) { // Added filters parameter
+export async function fetchMyOrders(filters, page = 0, size = 10) {
     try {
-        const params = {}; // Start with an empty params object
-        if (filters?.startDate) { // Only add if startDate has a value
+        const params = { page, size };
+        if (filters?.startDate) {
             params.startDate = filters.startDate;
         }
-        if (filters?.endDate) { // Only add if endDate has a value
+        if (filters?.endDate) {
             params.endDate = filters.endDate;
         }
-        const response = await http.get('/sales/my-orders', { params }); // Pass params to axios
+        const response = await http.get('/sales/my-orders', { params });
         return response.data;
     } catch (error) {
         console.error('Error fetching my orders:', error);
@@ -139,7 +139,7 @@ export async function fetchUserOrderInfo() {
 
 export async function fetchUserFrequentOrders() {
     try {
-        const response = await http.get('/user-frequent-orders');
+        const response = await http.get('/sales/user-frequent-orders');
         return response.data;
     } catch (error) {
         console.error('Error fetching user frequent orders:', error);

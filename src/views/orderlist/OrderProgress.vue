@@ -38,11 +38,11 @@ const props = defineProps({
 })
 
 const steps = [
-  { key: 'PENDING', label: '주문 접수', index: 0 },
-  { key: 'PAID', label: '상품 준비중', index: 1 },
-  { key: 'PREPARING', label: '배송 준비중', index: 2 },
-  { key: 'SHIPPING', label: '배송 중', index: 3 },
-  { key: 'DELIVERED', label: '배송 완료', index: 4 }
+  { key: 'ORDER_RECEIVED', label: '주문접수', index: 0 },
+  { key: 'PRODUCT_PREPARING', label: '상품준비중', index: 1 },
+  { key: 'SHIPPING', label: '배송중', index: 2 },
+  { key: 'DELIVERED', label: '배송완료', index: 3 },
+  { key: 'PURCHASE_CONFIRMED', label: '구매확정', index: 4 }
 ]
 
 const isCancelled = computed(() => props.status === 'CANCELLED');
@@ -53,9 +53,14 @@ const displayText = computed(() => {
 });
 
 const currentStepIndex = computed(() => {
-  const step = steps.find(s => s.key === props.status);
-  return step ? step.index : -1;
-})
+  const status = props.status;
+  if (['PENDING', 'ORDER_RECEIVED'].includes(status)) return 0;
+  if (['PAID', 'PRODUCT_PREPARING', 'PREPARING'].includes(status)) return 1;
+  if (status === 'SHIPPING') return 2;
+  if (status === 'DELIVERED') return 3;
+  if (['CONFIRMED', 'PURCHASE_CONFIRMED'].includes(status)) return 4;
+  return -1;
+});
 </script>
 
 <style scoped>

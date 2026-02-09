@@ -42,11 +42,11 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="order in paginatedOrders" :key="order.id">
+          <tr v-for="order in orders" :key="order.uniqueItemId">
             <td>{{ order.date }}</td>
             <td class="bold">{{ order.productName }}</td>
             <td>{{ order.quantity }}</td>
-            <td class="price-text">{{ order.amount.toLocaleString() }}원</td>
+            <td class="price-text">{{ (order.amount || 0).toLocaleString() }}원</td>
             <td>
               <OrderStatusBadge :status="order.status" />
             </td>
@@ -56,7 +56,7 @@
               </router-link>
             </td>
           </tr>
-          <tr v-if="!loading && paginatedOrders.length === 0">
+          <tr v-if="!loading && orders.length === 0">
             <td colspan="6" class="empty-row">주문 내역이 존재하지 않습니다.</td>
           </tr>
           </tbody>
@@ -96,11 +96,7 @@ const error = ref(null);
 const startDate = ref('');
 const endDate = ref('');
 
-const paginatedOrders = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return orders.value.slice(start, end);
-});
+// paginatedOrders computed 제거 (서버에서 가져온 데이터를 그대로 사용)
 
 const paginationPages = computed(() => {
   const totalPages = Math.ceil(totalOrders.value / itemsPerPage);
@@ -112,36 +108,17 @@ const loadOrders = async (filters = {}) => {
   loading.value = true;
   error.value = null;
   try {
-    const response = await fetchMyOrders(filters);
+    const response = await fetchMyOrders(filters, currentPage.value - 1, itemsPerPage);
     if (response.success && response.data) {
-      const mapOrderStatusToKey = (status) => {
-        switch (status) {
-          case '주문 완료': return 'PENDING';
-          case '상품 준비중': return 'PAID';
-          case '배송 준비중': return 'PREPARING';
-          case '배송 중': return 'SHIPPING';
-          case '배송 완료': return 'DELIVERED';
-          case '주문 취소': return 'CANCELLED';
-          default: return 'UNKNOWN';
-        }
-      };
-
-      orders.value = response.data.content.map(order => {
-        let productName = '상품명 없음';
-        let totalQuantity = 0;
-        if (order.orderItems && order.orderItems.length > 0) {
-          const firstItem = order.orderItems[0];
-          productName = firstItem.itemName || firstItem.gradeName || firstItem.varietyName || '상품명 없음';
-          if (order.orderItems.length > 1) productName += ` 외 ${order.orderItems.length - 1}건`;
-          totalQuantity = order.orderItems.reduce((sum, item) => sum + item.quantity, 0);
-        }
+      orders.value = response.data.content.map(item => {
         return {
-          id: order.salesOrderId,
-          date: order.createdAt,
-          productName: productName,
-          quantity: totalQuantity,
-          amount: order.totalAmount,
-          status: mapOrderStatusToKey(order.orderStatus),
+          id: item.salesOrderId,
+          uniqueItemId: item.salesOrderItemId, // Unique ID for list key
+          date: item.createdAt,
+          productName: `${item.itemName} (${item.varietyName}, ${item.gradeName})`,
+          quantity: item.quantity,
+          amount: item.totalPrice,
+          status: item.orderStatusType || 'UNKNOWN',
         };
       });
       totalOrders.value = response.data.totalElements;
@@ -171,8 +148,11 @@ const applyFilter = () => {
   loadOrders({ startDate: startDate.value, endDate: endDate.value });
 };
 
-onMounted(() => { applyFilter(); });
-watch(currentPage, () => { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+onMounted(() => { loadOrders(); });
+watch(currentPage, () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  loadOrders({ startDate: startDate.value, endDate: endDate.value });
+});
 </script>
 
 <style scoped>

@@ -16,25 +16,37 @@ const props = defineProps({
 
 const displayText = computed(() => {
   switch (props.status) {
-    case 'PENDING': return '주문 접수';
-    case 'PAID': return '상품 준비중'; // Changed from '결제 완료' to '상품 준비중'
-    case 'PREPARING': return '배송 준비중'; // Changed from '상품 준비중' to '배송 준비중'
-    case 'SHIPPING': return '배송 중';
-    case 'DELIVERED': return '배송 완료';
-    case 'CANCELLED': return '주문 취소';
-    case 'PENDING_PAYMENT': return '입금 대기';
+    case 'PENDING':
+    case 'ORDER_RECEIVED': return '주문접수';
+    case 'PAID': return '결제완료';
+    case 'PREPARING':
+    case 'PRODUCT_PREPARING': return '상품준비중';
+    case 'SHIPPING': return '배송중';
+    case 'DELIVERED': return '배송완료';
+    case 'CONFIRMED':
+    case 'PURCHASE_CONFIRMED': return '구매확정';
+    case 'CANCELLED': return '주문취소';
+    case 'RETURN_EXCHANGE': return '반품/교환';
+    case 'REFUNDED': return '환불완료';
+    case 'PENDING_PAYMENT': return '입금대기';
     default: return '알 수 없음';
   }
 });
 
 const statusClass = computed(() => {
   switch (props.status) {
-    case 'PENDING': return 'status-pending';
+    case 'PENDING':
+    case 'ORDER_RECEIVED': return 'status-pending';
     case 'PAID': return 'status-paid';
-    case 'PREPARING': return 'status-preparing';
+    case 'PREPARING':
+    case 'PRODUCT_PREPARING': return 'status-preparing';
     case 'SHIPPING': return 'status-shipping';
     case 'DELIVERED': return 'status-delivered';
+    case 'CONFIRMED':
+    case 'PURCHASE_CONFIRMED': return 'status-confirmed';
     case 'CANCELLED': return 'status-cancelled';
+    case 'RETURN_EXCHANGE': return 'status-return-exchange';
+    case 'REFUNDED': return 'status-refunded';
     case 'PENDING_PAYMENT': return 'status-pending-payment';
     default: return 'status-unknown';
   }
@@ -54,35 +66,47 @@ const statusClass = computed(() => {
 
 /* Status-specific styles */
 .status-pending {
-  background-color: #fffbe6; /* Light yellow */
-  color: #d97706; /* Dark yellow/orange */
+  background-color: #fffbe6;
+  color: #d97706;
 }
 .status-paid {
-  background-color: #dcfce7; /* Light green */
-  color: #16a34a; /* Dark green */
+  background-color: #dcfce7;
+  color: #16a34a;
 }
 .status-preparing {
-  background-color: #eff6ff; /* Light blue */
-  color: #2563eb; /* Dark blue */
+  background-color: #eff6ff;
+  color: #2563eb;
 }
 .status-shipping {
-  background-color: #f0f9ff; /* Lighter blue */
-  color: #0c4a6e; /* Darker blue */
+  background-color: #f0f9ff;
+  color: #0c4a6e;
 }
 .status-delivered {
-  background-color: #dbeafe; /* Another light blue */
-  color: #1d4ed8; /* Another dark blue */
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+.status-confirmed {
+  background-color: #f0fdfa; /* Teal */
+  color: #0f766e;
 }
 .status-cancelled {
-  background-color: #fee2e2; /* Light red */
-  color: #ef4444; /* Dark red */
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+.status-return-exchange {
+  background-color: #fff7ed; /* Orange */
+  color: #c2410c;
+}
+.status-refunded {
+  background-color: #f5f5f5; /* Light Gray */
+  color: #666;
 }
 .status-pending-payment {
-  background-color: #fef2f2; /* Light peach */
-  color: #b91c1c; /* Dark red for pending payment */
+  background-color: #fff1f2;
+  color: #be123c;
 }
 .status-unknown {
-  background-color: #e5e7eb; /* Light gray */
-  color: #4b5563; /* Gray */
+  background-color: #f3f4f6;
+  color: #6b7280;
 }
 </style>

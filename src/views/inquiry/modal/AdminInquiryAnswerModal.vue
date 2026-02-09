@@ -142,8 +142,7 @@ const handleAction = async (status: 'APPROVED' | 'REJECTED') => {
       title: '처리 완료',
       text: `성공적으로 ${actionText} 처리되었습니다.`,
       icon: 'success',
-      confirmButtonColor: '#11D411',
-      borderRadius: '16px'
+      confirmButtonColor: '#11D411'
     });
 
     emit('answered')
@@ -154,8 +153,7 @@ const handleAction = async (status: 'APPROVED' | 'REJECTED') => {
       title: '처리 실패',
       text: '서버 통신 중 오류가 발생했습니다.',
       icon: 'error',
-      confirmButtonColor: '#ef4444',
-      borderRadius: '16px'
+      confirmButtonColor: '#ef4444'
     });
   }
 }
@@ -168,8 +166,7 @@ const downloadFile = async () => {
       title: '파일 없음',
       text: '다운로드할 파일이 존재하지 않습니다.',
       icon: 'info',
-      confirmButtonColor: '#11D411',
-      borderRadius: '16px'
+      confirmButtonColor: '#11D411'
     });
   }
   window.open(url, '_blank');

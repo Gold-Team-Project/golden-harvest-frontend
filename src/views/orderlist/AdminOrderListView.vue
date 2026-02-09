@@ -16,12 +16,15 @@
           <label>주문 상태</label>
           <select v-model="selectedStatus" class="basic-select">
             <option>전체</option>
-            <option>주문 접수</option>
-            <option>결제 완료</option>
-            <option>배송 준비중</option>
-            <option>배송 중</option>
-            <option>배송 완료</option>
-            <option>주문 취소</option>
+            <option>주문접수</option>
+            <option>결제완료</option>
+            <option>상품준비중</option>
+            <option>배송중</option>
+            <option>배송완료</option>
+            <option>구매확정</option>
+            <option>주문취소</option>
+            <option>반품/교환</option>
+            <option>환불완료</option>
           </select>
         </div>
         <div class="filter-item flex-2">
@@ -161,17 +164,7 @@ const loadOrders = async () => {
     const response = await fetchAllOrders(filters);
 
     if (response.success && response.data) {
-      const mapOrderStatusToKey = (status) => {
-        switch (status) {
-          case '주문 완료': return 'PENDING';
-          case '상품 준비중': return 'PAID';
-          case '배송 준비중': return 'PREPARING';
-          case '배송 중': return 'SHIPPING';
-          case '배송 완료': return 'DELIVERED';
-          case '주문 취소': return 'CANCELLED';
-          default: return 'UNKNOWN';
-        }
-      };
+      // mapOrderStatusToKey 제거 (order.orderStatusType 사용)
 
       orders.value = response.data.content.map(order => {
         let orderDate = '', orderTime = '';
@@ -199,7 +192,7 @@ const loadOrders = async () => {
           client: clientName,
           items: itemsSummary,
           amount: order.totalAmount,
-          status: mapOrderStatusToKey(order.orderStatus),
+          status: order.orderStatusType || 'UNKNOWN',
         };
       }).filter(Boolean);
 
