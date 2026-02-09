@@ -148,7 +148,7 @@ const items = computed(() => {
     option: item.varietyName || '옵션 없음',
     price: item.price,
     quantity: item.quantity,
-    image: item.itemImage || '',
+    image: item.fileUrl || '',
   }))
 })
 
