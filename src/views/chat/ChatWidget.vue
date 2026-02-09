@@ -2,9 +2,10 @@
   <div class="fixed-widget">
     <Transition name="fade">
       <div v-if="!isOpen" class="chat-tooltip">
-        AI 챗봇을 이용해보세요!
+        AI 챗봇에게 물어보세요!
       </div>
     </Transition>
+
     <Transition name="slide-fade">
       <div v-if="isOpen" class="chat-card">
         <div class="chat-header">
@@ -59,12 +60,14 @@
                 @keyup.enter="sendMessage"
                 type="text"
                 placeholder="메시지를 입력하세요..."
+                :disabled="isLoading"
             />
-            <button @click="sendMessage" class="send-btn">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
+            <button @click="sendMessage" class="send-btn" :disabled="isLoading">
+              <svg v-if="!isLoading" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
                 <path d="M22 2L11 13" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              <span v-else class="loading-dots">...</span>
             </button>
           </div>
         </div>
@@ -88,9 +91,7 @@
 
 <script setup>
 import { ref, nextTick, watch } from 'vue';
-
-const BACKEND_URL = 'http://localhost:8080';
-const CHAT_PATH = '/api/ai/chat';
+import { sendChatMessage } from '@/api/ChatApi.js'; // [핵심] 분리한 API 파일 import
 
 const STORAGE_KEY = 'green-ai-chat-messages';
 const SESSION_KEY = 'green-ai-chat-session-id';
@@ -98,8 +99,9 @@ const SESSION_KEY = 'green-ai-chat-session-id';
 const isOpen = ref(false);
 const userInput = ref('');
 const chatBody = ref(null);
+const isLoading = ref(false); // 로딩 상태
 
-// --- session_id 생성/저장 ---
+// --- Session ID 관리 ---
 const getOrCreateSessionId = () => {
   let sid = localStorage.getItem(SESSION_KEY);
   if (!sid) {
@@ -110,6 +112,7 @@ const getOrCreateSessionId = () => {
 };
 const sessionId = ref(getOrCreateSessionId());
 
+// --- 시간 포맷 ---
 const getCurrentTime = () => {
   const now = new Date();
   const minutes = now.getMinutes().toString().padStart(2, '0');
@@ -118,14 +121,14 @@ const getCurrentTime = () => {
   return `${ampm} ${hours % 12 || 12}:${minutes}`;
 };
 
+// --- 메시지 로드 ---
 const savedMessages = localStorage.getItem(STORAGE_KEY);
-
 const messages = ref(
     savedMessages
         ? JSON.parse(savedMessages)
         : [
           {
-            text: "안녕하세요! 그린 AI 어시스턴트입니다. 무엇을 도와드릴까요?",
+            text: "안녕하세요! 그린 AI 어시스턴트입니다.\n궁금한 점을 편하게 물어보세요!",
             time: getCurrentTime(),
             isUser: false
           }
@@ -140,21 +143,10 @@ watch(
     { deep: true }
 );
 
+// --- UI 액션 ---
 const toggleChat = () => {
   isOpen.value = !isOpen.value;
   if (isOpen.value) nextTick(scrollToBottom);
-};
-
-// ✅ 다운로드 URL이 상대경로면 BACKEND_URL 붙여서 이동
-const goDownload = (targetUrl) => {
-  if (!targetUrl) return;
-
-  const fullUrl =
-      targetUrl.startsWith('http://') || targetUrl.startsWith('https://')
-          ? targetUrl
-          : `${BACKEND_URL}${targetUrl.startsWith('/') ? '' : '/'}${targetUrl}`;
-
-  window.location.href = fullUrl;
 };
 
 const scrollToBottom = () => {
@@ -163,59 +155,44 @@ const scrollToBottom = () => {
   }
 };
 
-// ✅ FastAPI 에러(detail)가 dict/list/string 어느 형태든 보기 좋게
-const normalizeErrorDetail = (errJson) => {
-  if (!errJson) return '알 수 없는 오류';
-  const d = errJson.detail ?? errJson;
-  if (typeof d === 'string') return d;
-  try {
-    return JSON.stringify(d);
-  } catch (_) {
-    return String(d);
-  }
+const goDownload = (targetUrl) => {
+  if (!targetUrl) return;
+  // 원래 axios를 쓰더라도 응답에 들어있는 URL은 백엔드가 준 그대로이므로
+  // 필요하다면 여기서 도메인을 붙이는 로직을 추가할 수 있습니다.
+  window.location.href = targetUrl;
 };
 
+// --- 메시지 전송 (Axios 사용) ---
 const sendMessage = async () => {
   const trimmed = userInput.value.trim();
-  if (!trimmed) return;
+  if (!trimmed || isLoading.value) return;
 
   const currentMsg = trimmed;
+  userInput.value = '';
+  isLoading.value = true;
 
+  // 1. 유저 메시지 화면 표시
   messages.value.push({
     text: currentMsg,
     time: getCurrentTime(),
     isUser: true
   });
 
-  userInput.value = '';
   await nextTick();
   scrollToBottom();
 
   try {
-    // ✅ 반드시 POST + session_id + message
-    const response = await fetch(`${BACKEND_URL}${CHAT_PATH}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        session_id: sessionId.value,
-        message: currentMsg
-      })
+    // 2. API 호출 (원래 axios 사용)
+    // axios.js의 인터셉터가 자동으로 작동합니다.
+    const response = await sendChatMessage({
+      session_id: sessionId.value,
+      message: currentMsg
     });
 
-    if (!response.ok) {
-      let detail = `HTTP ${response.status}`;
-      try {
-        const err = await response.json();
-        detail = normalizeErrorDetail(err);
-      } catch (_) {}
-      throw new Error(detail);
-    }
-
-    const data = await response.json();
-
-    // ✅ 너 FastAPI 응답은 { type, message, download_url ... } 형태
-    const aiText = data?.message ?? '응답 메시지가 없습니다.';
-    const downloadUrl = data?.download_url || data?.downloadUrl || data?.download_url;
+    // 3. 응답 처리 (response.data에 실제 데이터가 있음)
+    const data = response.data;
+    const aiText = data?.message ?? '응답을 받아오지 못했습니다.';
+    const downloadUrl = data?.download_url || data?.downloadUrl;
 
     messages.value.push({
       text: aiText,
@@ -224,14 +201,29 @@ const sendMessage = async () => {
       downloadUrl: downloadUrl
     });
 
-  } catch (e) {
-    console.error('⚠️ 채팅 오류:', e);
+  } catch (error) {
+    console.error('⚠️ 채팅 API 오류:', error);
+
+    // 4. 에러 메시지 추출 (Axios 에러 객체 구조 활용)
+    let errorMessage = '일시적인 오류가 발생했습니다.';
+
+    if (error.response && error.response.data) {
+      // 백엔드가 { success: false, detail: "..." } 형태로 줄 경우
+      const detail = error.response.data.detail || error.response.data.message;
+      if (detail) {
+        errorMessage = typeof detail === 'object' ? JSON.stringify(detail) : detail;
+      }
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
     messages.value.push({
-      text: `오류가 발생했습니다: ${e?.message || e}`,
+      text: `[오류] ${errorMessage}`,
       time: getCurrentTime(),
       isUser: false
     });
   } finally {
+    isLoading.value = false;
     await nextTick();
     scrollToBottom();
   }
@@ -241,7 +233,7 @@ const sendMessage = async () => {
 <style scoped>
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
-/* 1. 위젯 컨테이너 (우측 하단 고정) */
+/* 스타일은 기존과 동일합니다 */
 .fixed-widget {
   position: fixed;
   bottom: 30px;
@@ -254,7 +246,6 @@ const sendMessage = async () => {
   gap: 15px;
 }
 
-/* 2. 말풍선 스타일 추가 */
 .chat-tooltip {
   position: relative;
   background-color: #4CD964;
@@ -265,11 +256,10 @@ const sendMessage = async () => {
   font-weight: 700;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   white-space: nowrap;
-  animation: bounce-slow 2s infinite; /* 통통 튀는 애니메이션 */
+  animation: bounce-slow 2s infinite;
   margin-bottom: 5px;
 }
 
-/* 말풍선 꼬리표 */
 .chat-tooltip::after {
   content: "";
   position: absolute;
@@ -280,21 +270,16 @@ const sendMessage = async () => {
   border-top: 7px solid #4CD964;
 }
 
-/* 3. 통통 튀는 애니메이션 정의 */
 @keyframes bounce-slow {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
 
-/* 4. 애니메이션 효과 (Fade) */
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+.slide-fade-enter-active, .slide-fade-leave-active { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.5, 1); }
+.slide-fade-enter-from, .slide-fade-leave-to { transform: translateY(20px); opacity: 0; }
 
-/* 2. 둥둥 버튼 (Floating Button) */
 .floating-btn {
   width: 60px;
   height: 60px;
@@ -308,21 +293,10 @@ const sendMessage = async () => {
   align-items: center;
   transition: transform 0.2s, background-color 0.2s;
 }
+.floating-btn:hover { transform: scale(1.05); background-color: #42bd56; }
+.floating-btn:active { transform: scale(0.95); }
+.btn-active { background-color: #333; }
 
-.floating-btn:hover {
-  transform: scale(1.05);
-  background-color: #42bd56;
-}
-
-.floating-btn:active {
-  transform: scale(0.95);
-}
-
-.btn-active {
-  background-color: #333;
-}
-
-/* 3. 채팅창 (Card) */
 .chat-card {
   width: 360px;
   height: 550px;
@@ -342,19 +316,6 @@ const sendMessage = async () => {
   gap: 12px;
   color: white;
 }
-
-.close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin-left: auto;
-  opacity: 0.8;
-}
-
-.close-btn:hover {
-  opacity: 1;
-}
-
 .icon-box {
   width: 36px;
   height: 36px;
@@ -364,18 +325,10 @@ const sendMessage = async () => {
   justify-content: center;
   align-items: center;
 }
-
-.header-text h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.header-text p {
-  margin: 0;
-  font-size: 12px;
-  opacity: 0.9;
-}
+.header-text h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.header-text p { margin: 0; font-size: 12px; opacity: 0.9; }
+.close-btn { background: none; border: none; cursor: pointer; margin-left: auto; opacity: 0.8; }
+.close-btn:hover { opacity: 1; }
 
 .chat-body {
   flex: 1;
@@ -386,19 +339,9 @@ const sendMessage = async () => {
   gap: 15px;
 }
 
-.message-row {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
-
-.ai-row {
-  justify-content: flex-start;
-}
-
-.user-row {
-  justify-content: flex-end;
-}
+.message-row { display: flex; gap: 8px; align-items: flex-start; }
+.ai-row { justify-content: flex-start; }
+.user-row { justify-content: flex-end; }
 
 .profile-icon {
   width: 32px;
@@ -421,10 +364,9 @@ const sendMessage = async () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   max-width: 220px;
   line-height: 1.5;
-
   white-space: pre-line;
+  word-break: break-all;
 }
-
 .user-row .bubble {
   background: #4CD964;
   color: white;
@@ -438,10 +380,7 @@ const sendMessage = async () => {
   margin-top: 4px;
   margin-left: 2px;
 }
-
-.user-row .timestamp {
-  text-align: right;
-}
+.user-row .timestamp { text-align: right; }
 
 .download-link {
   display: inline-block;
@@ -455,18 +394,13 @@ const sendMessage = async () => {
   font-weight: bold;
   cursor: pointer;
 }
-
-.download-link:hover {
-  background: #4CD964;
-  color: white;
-}
+.download-link:hover { background: #4CD964; color: white; }
 
 .chat-footer {
   background: white;
   padding: 15px;
   border-top: 1px solid #eee;
 }
-
 .input-container {
   display: flex;
   align-items: center;
@@ -475,7 +409,6 @@ const sendMessage = async () => {
   border-radius: 12px;
   padding: 5px 10px 5px 15px;
 }
-
 .input-container input {
   flex: 1;
   border: none;
@@ -483,22 +416,8 @@ const sendMessage = async () => {
   font-size: 14px;
   padding: 8px 0;
 }
-
-.send-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 5px;
-}
-
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateY(20px);
-  opacity: 0;
-}
+.input-container input:disabled { background: transparent; cursor: not-allowed; }
+.send-btn { background: none; border: none; cursor: pointer; padding: 5px; }
+.send-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+.loading-dots { font-weight: bold; color: #999; letter-spacing: 2px; }
 </style>
