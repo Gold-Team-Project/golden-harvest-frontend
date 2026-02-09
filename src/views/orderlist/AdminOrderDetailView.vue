@@ -46,7 +46,7 @@
             <div class="info-row"><span class="label">상호명</span><span class="val">{{ orderDetail.company || '-' }}</span></div>
             <div class="info-row"><span class="label">담당자</span><span class="val">{{ orderDetail.name || '-' }}</span></div>
             <div class="info-row"><span class="label">연락처</span><span class="val">{{ orderDetail.phoneNumber || '-' }}</span></div>
-            <div class="info-row"><span class="label">이메일</span><span class="val">ac2ount930@name.co.kr</span></div>
+            <div class="info-row"><span class="label">이메일</span><span class="val">{{ orderDetail.email || '-' }}</span></div>
           </div>
         </div>
 
@@ -57,9 +57,10 @@
           </div>
           <div class="info-content">
             <div class="info-row"><span class="label">수령인</span><span class="val">{{ orderDetail.name || '-' }}</span></div>
+            <div class="info-row"><span class="label">연락처</span><span class="val">{{ orderDetail.phoneNumber || '-' }}</span></div>
             <div class="info-row"><span class="label">배송주소</span><span class="val address">{{ combinedAddress }}</span></div>
-            <div class="info-row"><span class="label">요청일</span><span class="val">2023-10-26</span></div>
-            <div class="info-row"><span class="label">요청사항</span><span class="val">오전 중에 도착하게 해주세요</span></div>
+            <div class="info-row"><span class="label">요청일</span><span class="val">-</span></div>
+            <div class="info-row"><span class="label">요청사항</span><span class="val">-</span></div>
           </div>
         </div>
 
@@ -131,7 +132,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import OrderProgress from './OrderProgress.vue'
 import OrderStatusBadge from '@/components/status/OrderStatusBadge.vue'
-import { fetchOrderDetail, cancelOrder, approveOrder } from '@/api/OrderApi'
+import { fetchAdminOrderDetail, cancelOrder, approveOrder } from '@/api/OrderApi'
 import Swal from 'sweetalert2'
 
 const route = useRoute()
@@ -148,7 +149,7 @@ const items = computed(() => {
     option: item.varietyName || '옵션 없음',
     price: item.price,
     quantity: item.quantity,
-    image: item.itemImage || '',
+    image: item.fileUrl || '',
   }))
 })
 
@@ -172,7 +173,7 @@ const orderStatusKey = computed(() => {
 const loadOrderDetail = async () => {
   loading.value = true;
   try {
-    const response = await fetchOrderDetail(route.params.id)
+    const response = await fetchAdminOrderDetail(route.params.id)
     if (response.success) orderDetail.value = response.data
     else error.value = response.message
   } catch (err) { error.value = err.message }

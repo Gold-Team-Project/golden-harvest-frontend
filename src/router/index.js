@@ -21,7 +21,7 @@ import OrderHistoryView from "@/views/orderHistory/OrderHistoryView.vue";
 import OrderHistoryDetailView from "@/views/orderHistory/OrderHistoryDetailView.vue";
 import CartView from "@/views/cart/CartView.vue";
 import OrderView from "@/views/order/OrderView.vue";
-import OrderDetailView from "@/views/order/OrderDetailView.vue";
+import ProductDetailView from "@/views/order/ProductDetailView.vue";
 import Login from "@/views/login/Login.vue";
 import Signup from "@/views/signup/Signup.vue";
 import Password from "@/views/password/Password.vue";
@@ -55,7 +55,7 @@ const routes = [
                 path: 'dashboard',
                 name: "dashboard",
                 component: DashBoardView,
-                meta: { title: '마이페이지 / 대시보드 '}
+                meta: { title: '마이페이지 / 대시보드 ' }
             },
             {
                 path: 'order',
@@ -66,7 +66,7 @@ const routes = [
             {
                 path: 'order/:id',
                 name: 'ProductDetail',
-                component: OrderDetailView,
+                component: ProductDetailView,
                 meta: { title: '주문 / 상품상세' }
             },
             {
@@ -79,7 +79,7 @@ const routes = [
                 path: 'order-history',
                 name: "Invoice",
                 component: OrderHistoryView,
-                meta: { title: '영수증'}
+                meta: { title: '영수증' }
             },
             {
                 path: 'order-history/:id',
@@ -91,19 +91,19 @@ const routes = [
                 path: 'inquiries',
                 name: "inquiryList",
                 component: InquiryListView,
-                meta: { title: '설정 / 문의 내역'}
+                meta: { title: '설정 / 문의 내역' }
             },
             {
                 path: 'inquiries/create',
                 name: "inquiryCreate",
                 component: InquiryCreateView,
-                meta: { title: '설정 / 문의 내역 / 문의 등록 '}
+                meta: { title: '설정 / 문의 내역 / 문의 등록 ' }
             },
             {
                 path: 'mypage',
                 name: "mypage",
                 component: Mypage,
-                meta: { title: '마이페이지 / 내정보 수정 '}
+                meta: { title: '마이페이지 / 내정보 수정 ' }
             },
         ],
     },

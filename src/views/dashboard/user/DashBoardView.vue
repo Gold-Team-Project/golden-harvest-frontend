@@ -46,7 +46,7 @@
       <div class="item-grid">
         <div v-for="(item, idx) in favoriteItems" :key="idx" class="item-card">
           <div class="item-image">
-            <span class="box-icon">📦</span>
+            <img :src="item.fileUrl || '/placeholder.png'" :alt="item.itemName" class="dashboard-item-thumb" />
           </div>
           <div class="item-details">
             <p class="item-name">{{ item.itemName }}</p>
@@ -96,7 +96,7 @@ const favoriteItems = ref([]);
 onMounted(async () => {
   try {
     const userOrderInfoResponse = await fetchUserOrderInfo();
-    const userOrderInfoData = userOrderInfoResponse.result;
+    const userOrderInfoData = userOrderInfoResponse.data;
 
     stats.value = [
       { label: '당일', value: userOrderInfoData.todayOrders, unit: 'orders', icon: DayIcon },
@@ -250,6 +250,12 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
+}
+.dashboard-item-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .box-icon { font-size: 24px; }

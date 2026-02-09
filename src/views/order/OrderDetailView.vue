@@ -1,210 +1,238 @@
 <template>
   <div class="admin-container">
-    <div class="breadcrumb">홈 / 거래 관리 / 상품 목록 / <strong>상품 상세</strong></div>
+    <div class="breadcrumb">홈 / 주문 관리 / <strong>주문 상세 내역</strong></div>
 
-    <div class="detail-wrapper" v-if="productDetails">
-      <div class="image-card">
-        <div class="image-inner">
-          <img
-              :src="productDetails.fileUrl || '/path/to/default-image.png'"
-              :alt="productDetails.itemName"
-              class="main-img"
-          />
-        </div>
-      </div>
-
-      <div class="info-card">
-        <div class="info-header">
-          <span class="category-tag">{{ productDetails.varietyName || '카테고리' }}</span>
-          <h1 class="item-title">{{ productDetails.itemName || '상품명' }}</h1>
-          <p class="item-origin">원산지 : {{ productDetails.country || '국산' }}</p>
-        </div>
-
-        <div class="price-section">
-          <span class="price-label">판매가</span>
-          <span class="price-amount">{{ (displayPrice || 0).toLocaleString() }}원</span>
-        </div>
-
-        <div class="order-controls">
-          <div class="control-row">
-            <label>수량 선택</label>
-            <div class="quantity-selector">
-              <button @click="decreaseQuantity" class="qty-btn" type="button">-</button>
-              <input type="text" :value="quantity" readonly class="qty-input" />
-              <button @click="increaseQuantity" class="qty-btn" type="button">+</button>
-            </div>
-          </div>
-          <BaseButton
-              variant="primary"
-              :disabled="isSubmitting"
-              @click="handleAddToCart"
-          >
-            장바구니 담기
-          </BaseButton>
-
-
-
-          <div class="total-section">
-            <span class="total-label">총 주문 금액</span>
-            <span class="total-amount">{{ (displayPrice * quantity).toLocaleString() }}원</span>
-          </div>
-
-          <div class="button-group">
-            <button class="cart-btn" @click="handleAddToCart" :disabled="isSubmitting">
-              장바구니 담기
-            </button>
-            <button class="buy-btn" @click="handleBuyNow" :disabled="isSubmitting">
-              바로 구매하기
-            </button>
-          </div>
-        </div>
-
-        <div class="spec-section">
-          <h3>상세 정보</h3>
-          <ul class="spec-list">
-            <li><span class="spec-label">총 중량</span> {{ productDetails.packToKg || '-' }}</li>
-            <li><span class="spec-label">품목코드</span> {{ productDetails.itemCode || '-' }}</li>
-            <li v-if="productDetails.grade"><span class="spec-label">등급</span> {{ productDetails.grade }}</li>
-            <li v-if="productDetails.shelfLifeDays"><span class="spec-label">유통기한</span> 제조일로부터 {{ productDetails.shelfLifeDays }}일</li>
-            <li v-if="productDetails.storageTempMin"><span class="spec-label">보관온도</span> {{ productDetails.storageTempMin }}℃ ~ {{ productDetails.storageTempMax }}℃</li>
-          </ul>
-        </div>
-      </div>
+    <div v-if="loading" class="loading-state">
+      <p>주문 상세 정보를 불러오는 중...</p>
+    </div>
+    <div v-else-if="error" class="error-state">
+      <p>오류: {{ error }}</p>
     </div>
 
-    <div v-else class="loading-state">
-      <div class="spinner"></div>
-      <p>상품 정보를 불러오는 중입니다...</p>
+    <div v-else-if="orderDetail" class="order-content-layout">
+      <div class="main-column">
+        <div class="filter-card header-card">
+          <div class="order-title-group">
+            <h2 class="order-id">주문 #{{ orderDetail.salesOrderId }}</h2>
+            <p class="order-date">주문일시: {{ orderDetail.createdAt }}</p>
+          </div>
+          <div class="status-badge-wrap">
+            <OrderStatusBadge :status="orderDetail.orderStatusType || 'UNKNOWN'" />
+          </div>
+        </div>
+
+        <div class="list-card">
+          <div class="card-header">
+            <img src="@/assets/search.svg" class="title-icon-svg" alt="list" />
+            <h3>주문 품목 리스트</h3>
+          </div>
+
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+              <tr>
+                <th style="width: 50%">상품 정보</th>
+                <th style="width: 15%">단가</th>
+                <th style="width: 10%">수량</th>
+                <th style="width: 25%">합계</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="item in items" :key="item.id">
+                <td>
+                  <div class="item-info-box">
+                    <img :src="item.image || '/placeholder.png'" class="item-thumb" />
+                    <div class="item-txt">
+                      <p class="name">{{ item.name }}</p>
+                      <p class="code">코드: {{ item.code }} | 옵션: {{ item.option }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="bold">{{ (item.price || 0).toLocaleString() }}원</td>
+                <td>{{ item.quantity }}</td>
+                <td class="bold price-text text-right">{{ ((item.price || 0) * (item.quantity || 0)).toLocaleString() }}원</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="final-summary">
+            <div class="summary-box">
+              <span class="total-qty">총 수량: <strong>{{ totalQuantity }}개</strong></span>
+              <span class="total-amt">최종 합계: <strong class="green-text">{{ (totalAmount || 0).toLocaleString() }}원</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-column">
+        <div class="info-card">
+          <div class="info-header">
+            <img src="@/assets/user-icon.svg" class="info-icon" alt="shipping" />
+            <h4>배송 정보</h4>
+          </div>
+          <div v-if="orderDetail.customerInfo" class="info-content">
+            <div class="info-row"><span class="label">수령인</span><span class="val">{{ orderDetail.customerInfo.name }}</span></div>
+            <div class="info-row"><span class="label">연락처</span><span class="val">{{ orderDetail.customerInfo.phoneNumber }}</span></div>
+            <div class="info-row"><span class="label">주소</span><span class="val address">{{ customerAddress }}</span></div>
+          </div>
+          <div class="progress-section">
+            <OrderProgress :status="orderStatusKey" />
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-header">
+            <img src="@/assets/card.svg" class="info-icon" alt="payment" />
+            <h4>결제 정보</h4>
+          </div>
+          <div class="info-content">
+            <div class="info-row"><span class="label">결제수단</span><span class="val">무통장 입금</span></div>
+            <div class="info-row"><span class="label">입금자명</span><span class="val">프레시마켓</span></div>
+            <div class="info-row"><span class="label">결제상태</span><span class="val highlight">입금 대기</span></div>
+            <div class="total-payment-row">
+              <span class="label">총 결제 금액</span>
+              <span class="amount">{{ (totalAmount || 0).toLocaleString() }}원</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import BaseButton from '@/components/button/BaseButton.vue';
-import { fetchItemDetail, addToCart } from '@/api/OrderApi.js';
-import Swal from 'sweetalert2'; // 1. Swal 추가
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import OrderProgress from '@/views/orderlist/OrderProgress.vue'
+import OrderStatusBadge from '@/components/status/OrderStatusBadge.vue'
+import { fetchOrderDetail } from '@/api/OrderApi.js'
 
-const route = useRoute();
-const router = useRouter();
+const route = useRoute()
+const orderDetail = ref(null)
+const loading = ref(true)
+const error = ref(null)
 
-const productDetails = ref(null);
-const quantity = ref(1);
-const displayPrice = ref(0);
-const isSubmitting = ref(false);
+const items = computed(() => {
+  if (!orderDetail.value || !orderDetail.value.orderItems) return []
+  return orderDetail.value.orderItems.map((item, index) => ({
+    id: index,
+    name: item.itemName || item.gradeName || item.varietyName || '상품명 없음',
+    code: item.gradeName || '코드 없음',
+    option: item.varietyName || '옵션 없음',
+    price: item.price,
+    quantity: item.quantity,
+    image: item.fileUrl || '',
+  }))
+})
 
-/* 수량  */
-const increaseQuantity = () => quantity.value++;
-const decreaseQuantity = () => {
-  if (quantity.value > 1) quantity.value--;
-};
+const totalQuantity = computed(() => {
+  if (!orderDetail.value || !orderDetail.value.orderItems) return 0;
+  return orderDetail.value.orderItems.reduce((sum, item) => sum + item.quantity, 0)
+})
 
-/* 총 금액 */
-const totalPrice = computed(() => displayPrice.value * quantity.value);
+const totalAmount = computed(() => orderDetail.value ? orderDetail.value.totalAmount : 0)
 
-/* 장바구니 */
-const handleAddToCart = async () => {
-  if (!productDetails.value || isSubmitting.value) return;
-
-  isSubmitting.value = true;
-  try {
-    await addToCart({
-      skuNo: productDetails.value.skuNo,
-      quantity: quantity.value,
-    });
-
-    // [디자인 변경] 성공 알림
-    Swal.fire({
-      title: '장바구니 담기 완료',
-      text: '장바구니에 상품을 성공적으로 담았습니다 🛒',
-      icon: 'success',
-      confirmButtonColor: '#11D411',
-      borderRadius: '16px'
-    });
-  } catch (e) {
-    // [디자인 변경] 실패 알림
-    Swal.fire({
-      title: '담기 실패',
-      text: '장바구니 담기에 실패했습니다.',
-      icon: 'error',
-      confirmButtonColor: '#ef4444',
-      borderRadius: '16px'
-    });
-  } finally {
-    isSubmitting.value = false;
-  }
-};
-
-onMounted(async () => {
-  const skuNo = route.params.id;
-  const priceQuery = route.query.price;
-
-  if (priceQuery) displayPrice.value = Number(priceQuery);
-
-  try {
-    const res = await fetchItemDetail(skuNo);
-    if (res?.success) {
-      productDetails.value = res.data;
-    }
-  } catch (error) {
-    console.error('데이터 로드 오류:', error);
-  }
+const customerAddress = computed(() => {
+  if (!orderDetail.value?.customerInfo) return '주소 정보 없음';
+  const { postalCode, addressLine1, addressLine2 } = orderDetail.value.customerInfo;
+  return `(${postalCode || ''}) ${addressLine1 || ''} ${addressLine2 || ''}`.trim();
 });
+
+const orderStatusKey = computed(() => {
+  return orderDetail.value?.orderStatusType || 'UNKNOWN';
+});
+
+const loadOrderDetail = async () => {
+  loading.value = true;
+  try {
+    const response = await fetchOrderDetail(route.params.id)
+    if (response.success) orderDetail.value = response.data
+    else error.value = response.message
+  } catch (err) { error.value = err.message }
+  finally { loading.value = false }
+}
+
+onMounted(loadOrderDetail)
 </script>
 
 <style scoped>
-.admin-container { padding: 20px 50px; background-color: #f8f9fb; min-height: 100vh; }
-.breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; text-align: left; }
+/* 관리자 시스템 공통 레이아웃 */
+.admin-container { padding: 20px 50px; background-color: #f8f9fb; min-height: 100vh; text-align: left; }
+.breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; }
 
-.detail-wrapper { display: flex; gap: 30px; align-items: flex-start; width: 100%; }
+/* 레이아웃 구성 */
+.order-content-layout { display: flex; gap: 25px; align-items: flex-start; }
+.main-column { flex: 1; display: flex; flex-direction: column; gap: 25px; }
+.side-column { width: 360px; display: flex; flex-direction: column; gap: 25px; }
 
-/* 이미지 카드 */
-.image-card { flex: 1; background: #fff; border-radius: 20px; padding: 20px; border: 1px solid #e0e0e0; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
-.image-inner { width: 100%; border-radius: 15px; overflow: hidden; background: #f9f9f9; aspect-ratio: 1/1; }
-.main-img { width: 100%; height: 100%; object-fit: cover; }
+/* 카드 공통 스타일 */
+.filter-card, .list-card, .info-card {
+  background: #fff; border-radius: 20px; border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03); padding: 30px;
+}
 
-/* 정보 카드 */
-.info-card { flex: 1.2; background: #fff; border-radius: 20px; padding: 40px; border: 1px solid #e0e0e0; box-shadow: 0 4px 20px rgba(0,0,0,0.03); text-align: left; }
+/* 헤더 카드 */
+.header-card { display: flex; justify-content: space-between; align-items: center; padding: 25px 35px; }
+.order-id { font-size: 22px; font-weight: 800; color: #333; margin: 0; }
+.order-date { font-size: 14px; color: #999; margin-top: 5px; }
 
-.category-tag { color: #11D411; font-weight: 700; font-size: 14px; margin-bottom: 10px; display: block; }
-.item-title { font-size: 32px; font-weight: 800; color: #222; margin: 0 0 10px 0; }
-.item-origin { font-size: 15px; color: #888; margin-bottom: 30px; }
+/* 배지 스타일 */
+.status-badge { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+.status-badge.PENDING { background: #fff8ee; color: #f39c12; border: 1px solid #f39c12; }
+.status-badge.DELIVERED { background: #eefdee; color: #11D411; border: 1px solid #11D411; }
+.status-badge.CANCELLED { background: #fef2f2; color: #ef4444; border: 1px solid #ef4444; }
 
-.price-section { display: flex; align-items: baseline; gap: 15px; padding-bottom: 30px; border-bottom: 1px solid #f1f3f5; margin-bottom: 30px; }
-.price-label { font-size: 16px; color: #444; font-weight: 600; }
-.price-amount { font-size: 28px; font-weight: 800; color: #11D411; }
+/* 정보 카드 (사이드바) */
+.info-card { padding: 25px; }
+.info-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f1f1f1; }
+.info-icon { width: 20px; }
+.info-header h4 { margin: 0; font-size: 16px; font-weight: 700; color: #333; }
+.info-content { display: flex; flex-direction: column; gap: 12px; }
+.info-row { display: flex; justify-content: space-between; font-size: 14px; }
+.info-row .label { color: #888; min-width: 70px; }
+.info-row .val { color: #333; font-weight: 600; text-align: right; }
+.info-row .val.address { font-size: 13px; line-height: 1.4; max-width: 200px; }
+.info-row .val.highlight { color: #f39c12; }
 
-/* 주문 컨트롤 박스 */
-.order-controls { background: #f8f9fb; padding: 25px; border-radius: 15px; margin-bottom: 30px; }
-.control-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.control-row label { font-weight: 700; color: #444; }
+.progress-section { margin-top: 25px; padding-top: 20px; border-top: 2px dashed #f1f1f1; }
 
-.quantity-selector { display: flex; align-items: center; background: #fff; border: 1px solid #C8E4C8; border-radius: 10px; overflow: hidden; }
-.qty-btn { width: 40px; height: 40px; border: none; background: #fff; cursor: pointer; font-size: 18px; color: #666; }
-.qty-btn:hover { background: #f0fdf0; color: #11D411; }
-.qty-input { width: 50px; text-align: center; border: none; font-weight: 700; font-size: 16px; color: #333; outline: none; background: transparent; }
+.total-payment-row {
+  margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.total-payment-row .label { font-weight: 700; color: #333; }
+.total-payment-row .amount { color: #ef4444; font-size: 20px; font-weight: 800; }
 
-.total-section { display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px dotted #ccc; }
-.total-label { font-weight: 700; color: #444; }
-.total-amount { font-size: 22px; font-weight: 800; color: #ef4444; }
+/* 테이블 섹션 */
+.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.title-icon-svg { width: 20px; }
+.card-header h3 { font-size: 17px; font-weight: 700; margin: 0; }
 
-.button-group { display: flex; gap: 10px; margin-top: 25px; }
-.cart-btn, .buy-btn { flex: 1; height: 55px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-.cart-btn { background: #374151; border: 1px solid #FFFFFF; color: #fff; }
-.cart-btn:hover { background-color: #1f2937; }
-.cart-btn:active { transform: scale(0.98); }
+.table-container { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th { padding: 15px; background: #fdfdfd; border-bottom: 2px solid #f1f1f1; color: #888; font-size: 14px; text-align: center; }
+.admin-table td { padding: 18px 10px; border-bottom: 1px solid #f9f9f9; font-size: 14px; text-align: center; }
 
-.buy-btn { background: #11D411; border: none; color: #fff; }
-.buy-btn:hover { background-color: #0fb80f; }
-.buy-btn:active { transform: scale(0.98); }
+.item-info-box { display: flex; align-items: center; gap: 15px; text-align: left; }
+.item-thumb { width: 60px; height: 60px; border-radius: 10px; border: 1px solid #eee; object-fit: cover; }
+.item-txt .name { font-weight: 700; color: #333; margin-bottom: 4px; }
+.item-txt .code { font-size: 12px; color: #999; }
 
+.price-text { color: #11D411; }
+.bold { font-weight: 700; }
+.text-right { text-align: right !important; padding-right: 20px !important; }
 
+.final-summary { margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; }
+.summary-box { display: flex; justify-content: flex-end; gap: 40px; align-items: center; }
+.total-qty { font-size: 15px; color: #666; }
+.total-qty strong { color: #333; margin-left: 5px; }
+.green-text { color: #11D411; font-size: 24px; margin-left: 10px; }
 
-.spec-section h3 { font-size: 18px; font-weight: 700; margin-bottom: 15px; color: #333; }
-.spec-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.spec-list li { font-size: 14px; color: #666; display: flex; align-items: center; }
-.spec-label { width: 80px; font-weight: 600; color: #999; font-size: 13px; flex-shrink: 0; }
+.loading-state, .error-state { padding: 100px; text-align: center; color: #666; }
 
-.loading-state { padding: 100px; text-align: center; color: #888; width: 100%; }
+@media (max-width: 1200px) {
+  .order-content-layout { flex-direction: column; }
+  .side-column { width: 100%; }
+}
 </style>

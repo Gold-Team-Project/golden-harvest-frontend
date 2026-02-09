@@ -108,9 +108,13 @@
 
       <div class="pagination-wrapper">
         <div class="pagination">
-          <button class="arrow" :disabled="currentPage === 1">&lt;</button>
-          <button class="page active">1</button>
-          <button class="arrow">&gt;</button>
+          <button class="arrow" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">&lt;</button>
+          <button v-for="page in totalPages" :key="page"
+                  :class="['page', { active: currentPage === page }]"
+                  @click="changePage(page)">
+            {{ page }}
+          </button>
+          <button class="arrow" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">&gt;</button>
         </div>
       </div>
     </div>
