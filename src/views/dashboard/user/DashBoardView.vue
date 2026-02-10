@@ -52,7 +52,7 @@
             <p class="item-name">{{ item.itemName }}</p>
             <div class="frequent-order-info">
               <span class="order-count">{{ item.orderCount }}회 주문</span>
-              <span class="quantity">{{ item.quantity }}개</span>
+              <span class="quantity">{{ item.quantity }}</span>
             </div>
           </div>
         </div>
