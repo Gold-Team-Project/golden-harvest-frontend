@@ -91,7 +91,7 @@
 
 <script setup>
 import { ref, nextTick, watch } from 'vue';
-import { sendChatMessage } from '@/api/ChatApi.js'; // [핵심] 분리한 API 파일 import
+import { sendChatMessage, downloadChatFile } from '@/api/ChatApi.js'; // [수정] downloadChatFile 추가
 
 const STORAGE_KEY = 'green-ai-chat-messages';
 const SESSION_KEY = 'green-ai-chat-session-id';
@@ -99,7 +99,7 @@ const SESSION_KEY = 'green-ai-chat-session-id';
 const isOpen = ref(false);
 const userInput = ref('');
 const chatBody = ref(null);
-const isLoading = ref(false); // 로딩 상태
+const isLoading = ref(false);
 
 // --- Session ID 관리 ---
 const getOrCreateSessionId = () => {
@@ -155,14 +155,13 @@ const scrollToBottom = () => {
   }
 };
 
-const goDownload = (targetUrl) => {
+// [수정] 단순 이동이 아니라 API를 호출하여 토큰이 담긴 요청으로 다운로드 수행
+const goDownload = async (targetUrl) => {
   if (!targetUrl) return;
-  // 원래 axios를 쓰더라도 응답에 들어있는 URL은 백엔드가 준 그대로이므로
-  // 필요하다면 여기서 도메인을 붙이는 로직을 추가할 수 있습니다.
-  window.location.href = targetUrl;
+  await downloadChatFile(targetUrl);
 };
 
-// --- 메시지 전송 (Axios 사용) ---
+// --- 메시지 전송 ---
 const sendMessage = async () => {
   const trimmed = userInput.value.trim();
   if (!trimmed || isLoading.value) return;
@@ -171,7 +170,6 @@ const sendMessage = async () => {
   userInput.value = '';
   isLoading.value = true;
 
-  // 1. 유저 메시지 화면 표시
   messages.value.push({
     text: currentMsg,
     time: getCurrentTime(),
@@ -182,14 +180,11 @@ const sendMessage = async () => {
   scrollToBottom();
 
   try {
-    // 2. API 호출 (원래 axios 사용)
-    // axios.js의 인터셉터가 자동으로 작동합니다.
     const response = await sendChatMessage({
       session_id: sessionId.value,
       message: currentMsg
     });
 
-    // 3. 응답 처리 (response.data에 실제 데이터가 있음)
     const data = response.data;
     const aiText = data?.message ?? '응답을 받아오지 못했습니다.';
     const downloadUrl = data?.download_url || data?.downloadUrl;
@@ -203,12 +198,9 @@ const sendMessage = async () => {
 
   } catch (error) {
     console.error('⚠️ 채팅 API 오류:', error);
-
-    // 4. 에러 메시지 추출 (Axios 에러 객체 구조 활용)
     let errorMessage = '일시적인 오류가 발생했습니다.';
 
     if (error.response && error.response.data) {
-      // 백엔드가 { success: false, detail: "..." } 형태로 줄 경우
       const detail = error.response.data.detail || error.response.data.message;
       if (detail) {
         errorMessage = typeof detail === 'object' ? JSON.stringify(detail) : detail;
@@ -233,7 +225,6 @@ const sendMessage = async () => {
 <style scoped>
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
-/* 스타일은 기존과 동일합니다 */
 .fixed-widget {
   position: fixed;
   bottom: 30px;
