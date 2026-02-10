@@ -28,6 +28,7 @@
                 <option value="ACTIVE">활성화</option>
                 <option value="PENDING">대기</option>
                 <option value="INACTIVE">비활성화</option>
+                <option value="REJECTED">반려됨</option>
               </select>
             </div>
 
@@ -69,7 +70,8 @@
 
 <script setup>
 import {reactive, computed, watch} from 'vue';
-import { approveUser, approveProfileUpdate, updateUserStatus, updateUserRole } from '@/api/AdminApi.js';
+// processProfileUpdate로 변경된 백엔드 명칭에 맞춰 import 확인 필요 (AdminApi.js도 수정되어야 함)
+import { approveUser, processProfileUpdate, updateUserStatus, updateUserRole } from '@/api/AdminApi.js';
 import Swal from 'sweetalert2';
 
 const props = defineProps(['userData', 'mode']);
@@ -114,7 +116,6 @@ const imageUrl = computed(() => {
 const handleAction = async (type) => {
   const targetEmail = props.userData.userEmail || props.userData.email;
 
-  // 1. 확인창 메시지 설정
   let confirmTitle = "";
   let confirmText = "";
   let confirmBtnColor = "#11D411";
@@ -132,7 +133,6 @@ const handleAction = async (type) => {
     confirmText = "회원의 상태 및 권한이 업데이트됩니다.";
   }
 
-  // 2. 실행 전 확인 (didOpen으로 z-index 강제 조정)
   if (type !== 'CLOSE') {
     const result = await Swal.fire({
       title: confirmTitle,
@@ -144,7 +144,6 @@ const handleAction = async (type) => {
       confirmButtonText: '확인',
       cancelButtonText: '취소',
       borderRadius: '16px',
-      // 모달(3000)보다 위에 뜨도록 설정
       didOpen: () => {
         Swal.getContainer().style.zIndex = "4000";
       }
@@ -152,7 +151,6 @@ const handleAction = async (type) => {
     if (!result.isConfirmed) return;
   }
 
-  // 3. API 호출 로직
   try {
     Swal.fire({
       title: '처리 중...',
@@ -162,12 +160,23 @@ const handleAction = async (type) => {
       }
     });
 
-    if (props.mode === 'join' && type === 'APPROVE') {
-      await approveUser(targetEmail, 'ACTIVE');
+    // --- 가입 승인/거절 로직 ---
+    if (props.mode === 'join') {
+      if (type === 'APPROVE') {
+        await approveUser(targetEmail, 'ACTIVE');
+      } else if (type === 'REJECT') {
+        await approveUser(targetEmail, 'REJECTED'); // 백엔드 UserStatus.REJECTED 반영
+      }
     }
-    else if (props.mode === 'update' && type === 'APPROVE') {
-      await approveProfileUpdate(props.userData.id);
+    // --- 정보 수정 승인/반려 로직 (통합 API 사용) ---
+    else if (props.mode === 'update') {
+      if (type === 'APPROVE') {
+        await processProfileUpdate(props.userData.id, 'APPROVED');
+      } else if (type === 'REJECT') {
+        await processProfileUpdate(props.userData.id, 'REJECTED');
+      }
     }
+    // --- 일반 상세 설정 저장 ---
     else if (type === 'SAVE') {
       await updateUserStatus(targetEmail, localData.userStatus);
       if (updateUserRole) await updateUserRole(targetEmail, localData.role);
@@ -204,7 +213,7 @@ const zoomImage = () => { window.open(imageUrl.value, '_blank'); };
 </script>
 
 <style scoped>
-/* 기존 스타일 유지 + 권한 선택창 관련 미세 조정 */
+/* 이전 스타일과 동일 */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 3000; }
 .modal-box { background: #fff; width: 520px; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 50px rgba(0,0,0,0.2); }
 .modal-header { display: flex; justify-content: space-between; padding: 20px 25px; border-bottom: 1px solid #eee; }
@@ -223,6 +232,7 @@ label { display: block; font-size: 13px; font-weight: 700; color: #666; margin-b
 .status-select.ACTIVE { border-color: #11D411; color: #11D411; font-weight: 700; }
 .status-select.PENDING { border-color: #f39c12; color: #f39c12; font-weight: 700; }
 .status-select.INACTIVE { border-color: #ff4d4d; color: #ff4d4d; font-weight: 700; }
+.status-select.REJECTED { border-color: #999; color: #999; font-weight: 700; }
 .modal-footer { padding: 0 25px 25px; display: flex; gap: 10px; }
 .modal-footer button { flex: 1; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 15px; transition: 0.2s; }
 .approve-btn, .save-btn { background: #11D411; color: #fff; }

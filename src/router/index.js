@@ -91,13 +91,13 @@ const routes = [
                 path: 'inquiries',
                 name: "inquiryList",
                 component: InquiryListView,
-                meta: { title: '설정 / 문의 내역' }
+                meta: { title: '문의 내역'}
             },
             {
                 path: 'inquiries/create',
                 name: "inquiryCreate",
                 component: InquiryCreateView,
-                meta: { title: '설정 / 문의 내역 / 문의 등록 ' }
+                meta: { title: '문의 내역 / 문의 등록 '}
             },
             {
                 path: 'mypage',

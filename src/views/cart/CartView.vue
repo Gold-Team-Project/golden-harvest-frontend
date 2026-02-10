@@ -230,7 +230,7 @@ onMounted(() => { loadCartItems(); });
 </script>
 
 <style scoped>
-
+.breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; }
 
 .cart-layout { display: flex; gap: 30px; align-items: flex-start; }
 .main-content { flex: 1; }

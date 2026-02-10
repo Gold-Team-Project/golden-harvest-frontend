@@ -22,9 +22,9 @@ export async function fetchPendingUpdateRequests() {
     }
 }
 
-// 3. [처리] 신규 가입 승인
+// 3. [처리] 신규 가입 승인 및 반려
 export async function approveUser(email, statusValue) {
-    // statusValue에는 'ACTIVE' 문자열이 들어옵니다.
+    // statusValue에는 'ACTIVE' 또는 'REJECTED' 문자열이 들어옵니다.
     try {
         const response = await http.patch(`/admin/user/${email}/approve`, {
             userStatus: statusValue  // 백엔드 DTO의 필드명과 정확히 일치해야 함
@@ -36,16 +36,21 @@ export async function approveUser(email, statusValue) {
     }
 }
 
-// 4. [처리] 정보 수정 승인
-export async function approveProfileUpdate(requestId) {
+// 4. [처리] 정보 수정 승인 및 반려 통합 처리 (수정된 부분)
+export async function processProfileUpdate(requestId, status) {
+    // status 에는 'APPROVED' 또는 'REJECTED' 문자열이 들어옵니다.
+    // PATCH /admin/user/update-requests/{requestId}/process?status=APPROVED
     try {
-        const response = await http.patch(`/admin/user/update-requests/${requestId}/approve`);
+        const response = await http.patch(`/admin/user/update-requests/${requestId}/process`, null, {
+            params: { status: status }
+        });
         return response.data;
     } catch (error) {
-        console.error(`Error approving profile update for request ${requestId}:`, error);
+        console.error(`Error processing profile update for request ${requestId}:`, error);
         throw error;
     }
 }
+
 // 유저 상태 변경
 export const updateUserStatus = async (targetEmail, newStatus) => {
     // PATCH /api/admin/user/{targetEmail}/status?newStatus=ACTIVE
@@ -53,6 +58,7 @@ export const updateUserStatus = async (targetEmail, newStatus) => {
         params: { newStatus: newStatus }
     });
 };
+
 // 권한 변경
 export const updateUserRole = async (targetEmail, newRole) => {
     // 예시: PATCH /admin/user/{targetEmail}/role?newRole=ROLE_ADMIN

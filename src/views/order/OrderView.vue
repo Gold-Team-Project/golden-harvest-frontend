@@ -178,8 +178,6 @@ onMounted(loadProducts);
 </script>
 
 <style scoped>
-/* 관리자 공통 레이아웃 스타일 */
-.admin-container { padding: 20px 50px; background-color: #f8f9fb; min-height: 100vh; text-align: left; box-sizing: border-box; }
 .breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; }
 
 /* 필터 카드 스타일 */
@@ -248,7 +246,7 @@ onMounted(loadProducts);
   overflow: hidden; /* 빛 효과가 배지 안에서만 보이도록 */
 }
 
-/* 🌟 반짝이는 빛 효과 (애니메이션) */
+/*  반짝이는 빛 효과 (애니메이션) */
 .best-badge::after {
   content: '';
   position: absolute;
@@ -268,7 +266,7 @@ onMounted(loadProducts);
   100% { left: 150%; }
 }
 
-/* 🖱️ 카드를 호버했을 때 더 역동적인 반응 */
+/* 카드를 호버했을 때 더 역동적인 반응 */
 .product-item-card:hover .best-badge {
   transform: scale(1.2) translateY(-3px) rotate(-5deg); /* 더 커지고 위로 살짝 뜸 */
   box-shadow: 0 0 25px rgba(255, 69, 0, 0.8); /* 호버 시 네온 효과 강화 */

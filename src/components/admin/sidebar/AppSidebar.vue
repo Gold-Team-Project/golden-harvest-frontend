@@ -82,31 +82,27 @@ const go = (name) => {
 }
 
 const handleLogout = async () => {
-  // 1. 로그아웃 확인창 띄우기
   const result = await Swal.fire({
     title: '로그아웃 하시겠습니까?',
     text: "안전하게 로그아웃하고 로그인 페이지로 이동합니다.",
     icon: 'question',
     showCancelButton: true,
-    confirmButtonColor: '#22c55e', // 로고 아이콘 색상과 맞춘 초록색
+    confirmButtonColor: '#22c55e',
     cancelButtonColor: '#ef4444',
     confirmButtonText: '로그아웃',
     cancelButtonText: '취소',
-    reverseButtons: true, // 취소 버튼을 왼쪽으로
+    reverseButtons: true,
     background: '#ffffff',
     borderRadius: '12px'
   });
 
-  // 사용자가 취소를 눌렀다면 함수 종료
   if (!result.isConfirmed) return;
 
   try {
-    // 2. 백엔드 로그아웃 요청
     await authApi.logout();
   } catch (error) {
     console.error("로그아웃 요청 중 오류:", error);
   } finally {
-    // 3. 로컬 저장소 정리 및 알림
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
 
@@ -115,7 +111,7 @@ const handleLogout = async () => {
       text: '성공적으로 로그아웃 되었습니다.',
       icon: 'success',
       confirmButtonColor: '#22c55e',
-      timer: 1500, // 1.5초 후 자동 닫힘
+      timer: 1500,
       showConfirmButton: false
     });
 
@@ -130,7 +126,7 @@ const logoutIcon = `<svg viewBox="0 0 24 24" width="18" height="18">
 </svg>`
 
 const tradeDefaultIcon = `<svg viewBox="0 0 24 24" width="18" height="18"><path d="M3 4h18l-2 14H5L3 4Z" fill="currentColor"/></svg>`
-const tradeExpandedIcon = `<svg viewBox="0 0 24 24" width="18" height="18"><rect x="4" y="4" width="16" height="16" rx="2" fill="currentColor"/></svg>` // Filled square icon
+const tradeExpandedIcon = `<svg viewBox="0 0 24 24" width="18" height="18"><rect x="4" y="4" width="16" height="16" rx="2" fill="currentColor"/></svg>`
 
 /* ===== 단일 메뉴 ===== */
 const singleMenus = [
@@ -147,19 +143,18 @@ const singleMenus = [
   },
 ]
 
-/* ===== 아코디언 메뉴 ===== */
+/* ===== 아코디언 메뉴 (수정됨) ===== */
 const accordionMenus = [
   {
     key: 'trade',
     label: '거래 관리',
-    icons: { // Changed from 'icon' to 'icons' object
-        default: tradeDefaultIcon,
-        expanded: tradeExpandedIcon,
+    icons: {
+      default: tradeDefaultIcon,
+      expanded: tradeExpandedIcon,
     },
     children: [
       { key: 'purchase', label: '발주', route: 'adminPurchaseRegister' },
       { key: 'order', label: '고객 주문 목록', route: 'adminOrderList' },
-      { key: 'sales', label: '판매 매출 목록', route: 'adminSalesList' },
     ],
   },
   {
@@ -182,7 +177,6 @@ const accordionMenus = [
     </svg>`,
     children: [
       { key: 'masterData', label: '품목 관리', route: 'adminMasterDataList' },
-      { key: 'masterDataCreate', label: '품목 등록', route: 'adminMasterDataCreate' },
     ],
   },
   {
@@ -199,11 +193,10 @@ const accordionMenus = [
   },
 ]
 
-/* ===== 상태 ===== */
-
+/* ===== 상태 및 로직 (원본 유지) ===== */
 const hoveredMenuKey = ref(null);
 const mouseleaveTimeout = ref(null);
-const HOVER_DELAY_MS = 200; // 200ms 지연 시간 설정
+const HOVER_DELAY_MS = 200;
 
 const startMouseleaveTimeout = () => {
   mouseleaveTimeout.value = setTimeout(() => {
@@ -218,86 +211,24 @@ const clearMouseleaveTimeout = () => {
   }
 };
 
-
-
 const displayedOpenKey = computed(() => {
-
-
-
-    // 1. If currently hovering over a group, that group should be open.
-
-
-
-    if (hoveredMenuKey.value) {
-
-
-
-        return hoveredMenuKey.value;
-
-
-
-    }
-
-
-
-
-
-
-
-    // 2. If not hovering, check if any child route is active.
-
-
-
-    const activeChildGroup = accordionMenus.find(group =>
-
-
-
-        group.children.some(child => child.route === route.name)
-
-
-
-    );
-
-
-
-    if (activeChildGroup) {
-
-
-
-        return activeChildGroup.key;
-
-
-
-    }
-
-
-
-
-
-
-
-    // 3. Otherwise, nothing is open.
-
-
-
-    return null;
-
-
-
+  if (hoveredMenuKey.value) {
+    return hoveredMenuKey.value;
+  }
+  const activeChildGroup = accordionMenus.find(group =>
+      group.children.some(child => child.route === route.name)
+  );
+  if (activeChildGroup) {
+    return activeChildGroup.key;
+  }
+  return null;
 });
 
-
-
 const groupIcon = (group) => {
-
-  if (group.icons) { // Check if 'icons' object exists (for 'trade' group)
-
+  if (group.icons) {
     return displayedOpenKey.value === group.key ? group.icons.expanded : group.icons.default;
-
   }
-
-  return group.icon; // Fallback for other groups that still use single 'icon' string
-
+  return group.icon;
 };
 </script>
 
@@ -311,104 +242,28 @@ const groupIcon = (group) => {
   border-right: 1px solid #e5e7eb;
 }
 
-/* TOP */
-.sidebar-top {
-  padding: 14px 12px 6px;
-}
-
-.logo {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  cursor: pointer; /* Add cursor pointer */
-}
-
+.sidebar-top { padding: 14px 12px 6px; }
+.logo { display: flex; gap: 10px; align-items: center; cursor: pointer; }
 .logo-icon {
-  width: 34px;
-  height: 34px;
-  background: #22c55e;
-  color: white;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  width: 34px; height: 34px; background: #22c55e; color: white;
+  border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
+.logo-text { display: flex; flex-direction: column; line-height: 1.2; }
+.logo-text .brand { font-size: 15px; font-weight: 700; color: #111827; }
+.logo-text .role { font-size: 11px; color: #6b7280; }
 
-.logo-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
+.sidebar-menu { flex: 1; padding: 30px 20px; }
+.menu { display: flex; flex-direction: column; gap: 40px; }
 
-.logo-text .brand {
-  font-size: 15px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.logo-text .role {
-  font-size: 11px;
-  color: #6b7280;
-}
-
-/* MENU */
-.sidebar-menu {
-  flex: 1;
-  padding: 30px 20px;
-}
-
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 40px; /* Increased to 40px */
-}
-
-.menu-group.active {
-  border-radius: 8px;
-}
-
-/* 메뉴 아이템 공통 스타일 */
 .menu-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  color: #374151;
-  font-size: 16px;
+  display: flex; align-items: center; gap: 12px; padding: 8px 12px;
+  border-radius: 8px; cursor: pointer; color: #374151; font-size: 16px;
 }
+.menu-item.sub { padding-left: 42px; font-size: 14px; color: #6b7280; margin-top: 4px; }
+.menu-item:hover { background: #f3f4f6; }
+.menu-item.active { background: #dcfce7; color: #15803d; }
+.menu-item.parent.expanded .icon { color: #15803d; }
 
-/* 하위 메뉴 스타일 조정 */
-.menu-item.sub {
-  padding-left: 42px;
-  font-size: 14px;
-  color: #6b7280;
-  margin-top: 4px;
-}
-
-.menu-item:hover {
-  background: #f3f4f6;
-}
-
-/* 활성화 상태 (Green 색상) */
-.menu-item.active {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.menu-item.parent.expanded .icon {
-    color: #15803d; /* Green color for the icon when parent is expanded */
-}
-
-/* BOTTOM */
-.sidebar-bottom {
-  border-top: 1px solid #e5e7eb;
-  padding: 10px 12px;
-}
-
-.logout {
-  color: #dc2626;
-}
+.sidebar-bottom { border-top: 1px solid #e5e7eb; padding: 10px 12px; }
+.logout { color: #dc2626; }
 </style>

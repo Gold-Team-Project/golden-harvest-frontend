@@ -156,8 +156,6 @@ watch(currentPage, () => {
 </script>
 
 <style scoped>
-/* 관리자 공통 레이아웃 스타일 적용 */
-.admin-container { padding: 20px 50px; background-color: #f8f9fb; min-height: 100vh; text-align: left; box-sizing: border-box; }
 .breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; }
 
 /* 필터 카드 디자인 */

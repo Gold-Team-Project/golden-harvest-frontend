@@ -18,7 +18,7 @@
           <label>사업자명</label>
           <div class="search-input-wrapper">
             <img src="@/assets/search.svg" class="search-icon-svg" alt="search" />
-            <input type="text" placeholder="사업자명 검색" v-model="filters.companyName" @keyup.enter="fetchData" />
+            <input type="text" placeholder="사업자명 검색" v-model="filters.companyName" @keyup.enter="handleSearch" />
           </div>
         </div>
         <div class="filter-item">
@@ -38,7 +38,7 @@
             <option value="INACTIVE">비활성화</option>
           </select>
         </div>
-        <button class="search-btn" @click="fetchData">검색</button>
+        <button class="search-btn" @click="handleSearch">검색</button>
       </div>
     </div>
 
@@ -79,15 +79,15 @@
               <td>{{ item.phone }}</td>
               <td>{{ item.role }}</td>
               <td>
-                  <span :class="['status-badge', item.userStatus]">
-  {{
-                      {
-                        'ACTIVE': '활성화',
-                        'PENDING': '대기',
-                        'INACTIVE': '비활성화'
-                      }[item.userStatus] || '알 수 없음'
-                    }}
-</span>
+                <span :class="['status-badge', item.userStatus]">
+                  {{
+                    {
+                      'ACTIVE': '활성화',
+                      'PENDING': '대기',
+                      'INACTIVE': '비활성화'
+                    }[item.userStatus] || '알 수 없음'
+                  }}
+                </span>
               </td>
             </template>
             <template v-else>
@@ -96,11 +96,24 @@
               <td><span class="update-tag">{{ item.updateField }}</span></td>
               <td class="old-val">{{ item.oldValue }}</td>
               <td class="new-val">{{ item.newValue }}</td>
-              <td><span class="status-badge PENDING">수정대기</span></td>
+              <td>
+    <span :class="['status-badge', item.status]">
+      {{
+        {
+          'PENDING': '수정대기',
+          'APPROVED': '승인됨',
+          'REJECTED': '반려됨'
+        }[item.status] || item.status
+      }}
+    </span>
+              </td>
             </template>
             <td>
               <button class="detail-btn" @click="openModal(item)">상세보기</button>
             </td>
+          </tr>
+          <tr v-if="displayList.length === 0">
+            <td colspan="7" style="text-align: center; padding: 50px; color: #888;">데이터가 없습니다.</td>
           </tr>
           </tbody>
         </table>
@@ -109,15 +122,19 @@
       <div class="pagination-wrapper">
         <div class="pagination">
           <button class="arrow" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">&lt;</button>
-          <button v-for="page in totalPages" :key="page"
-                  :class="['page', { active: currentPage === page }]"
-                  @click="changePage(page)">
+          <button
+              v-for="page in totalPages"
+              :key="page"
+              :class="['page', { active: currentPage === page }]"
+              @click="changePage(page)"
+          >
             {{ page }}
           </button>
           <button class="arrow" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">&gt;</button>
         </div>
       </div>
     </div>
+
     <UserApprovalModal
         v-if="isModalOpen"
         :userData="selectedData"
@@ -130,7 +147,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue';
-import { fetchAllUsers, fetchPendingUpdateRequests, updateUserStatus } from '@/api/AdminApi.js';
+import { fetchAllUsers, fetchPendingUpdateRequests } from '@/api/AdminApi.js';
 import UserApprovalModal from '@/views/userapproval/modal/UserApprovalModal.vue';
 
 // 1. 상태 관리
@@ -138,7 +155,7 @@ const activeTab = ref('all');
 const isModalOpen = ref(false);
 const selectedData = ref(null);
 const currentPage = ref(1);
-const itemsPerPage = 5; // 한 페이지당 보여줄 아이템 수
+const itemsPerPage = 5;
 const filters = reactive({ companyName: '', ceoName: '', phone: '', status: '' });
 
 // 2. 데이터 저장소
@@ -152,7 +169,7 @@ const formatDate = (dateStr) => {
   return dateStr.split('T')[0];
 };
 
-// 4. [페이징 전단계] 데이터 가공 및 필터링 로직
+// 4. 데이터 가공 및 필터링 로직
 const filteredList = computed(() => {
   // --- 가입 승인 및 전체 회원 탭 ---
   if (activeTab.value === 'all' || activeTab.value === 'join') {
@@ -165,6 +182,7 @@ const filteredList = computed(() => {
       ceo: u.userName || u.name || '-',
       phone: u.userPhone || u.phoneNumber || '-',
       role: u.role || '일반 사용자',
+      // 가입 승인 탭에서는 status를 userStatus로 사용
       userStatus: u.status || 'PENDING'
     }));
 
@@ -194,7 +212,9 @@ const filteredList = computed(() => {
             company: req.requestCompany || '-',
             updateField: '사업자 정보 수정',
             oldValue: currentUser ? (currentUser.userCompany || currentUser.company || '-') : '기존 정보 없음',
-            newValue: req.requestCompany || '-'
+            newValue: req.requestCompany || '-',
+            // [중요] 백엔드에서 온 req.status를 그대로 유지하도록 명시
+            status: req.status || 'PENDING'
           };
         })
         .filter(req => {
@@ -205,16 +225,17 @@ const filteredList = computed(() => {
   return [];
 });
 
-// 5. [최종 결과] 현재 페이지에 해당하는 데이터만 잘라서 반환
+// 5. 현재 페이지 데이터 절삭
 const displayList = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
   return filteredList.value.slice(start, end);
 });
 
-// 6. [페이지 계산] 총 페이지 수 계산
+// 6. 총 페이지 수 계산
 const totalPages = computed(() => {
-  return Math.ceil(filteredList.value.length / itemsPerPage) || 1;
+  const total = Math.ceil(filteredList.value.length / itemsPerPage);
+  return total > 0 ? total : 1;
 });
 
 const tabTitle = computed(() => {
@@ -244,6 +265,12 @@ const fetchData = async () => {
   }
 };
 
+// 검색 시 1페이지로 강제 이동
+const handleSearch = () => {
+  currentPage.value = 1;
+  fetchData();
+};
+
 // 8. 이벤트 핸들러
 const openModal = (data) => {
   selectedData.value = {
@@ -271,60 +298,14 @@ watch(activeTab, () => {
 </script>
 
 <style scoped>
-.admin-container { padding: 20px 50px; background-color: #f8f9fb; mheight: 100vh;
-  overflow: hidden; box-sizing: border-box; }
+/* 기존 스타일 그대로 유지 */
+.admin-container { padding: 20px 50px; background-color: #f8f9fb; min-height: 100vh; overflow: hidden; box-sizing: border-box; }
 .breadcrumb { font-size: 14px; color: #888; margin-bottom: 20px; }
-
-/* 탭 디자인 */
-.tab-container {
-  display: flex;
-  gap: 0; /* 탭 사이 틈을 없애고 테두리를 공유하게 설정 (선택 사항) */
-  margin-bottom: -1px;
-}
-.tab-btn {
-  /* 포인트: 고정 너비 설정 (원하는 크기에 따라 조정 가능) */
-  width: 160px;
-  height: 50px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center; /* 텍스트 중앙 정렬 */
-
-  border: 1px solid #e0e0e0;
-  border-bottom: none;
-  background: #f1f3f5;
-  color: #777;
-  font-weight: 700;
-  cursor: pointer;
-  border-radius: 12px 12px 0 0;
-  transition: all 0.2s;
-  font-size: 15px;
-  position: relative;
-  margin-right: 5px; /* 탭 사이 간격 */
-}
-.tab-btn.active {
-  background: #fff;
-  color: #11D411;
-  border-color: #e0e0e0;
-  border-bottom: 2px solid #fff; /* 필터 카드 테두리를 덮음 */
-  z-index: 2;
-}
-.tab-btn .count {
-  background: #ff4d4d;
-  color: #fff;
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 10px;
-  margin-left: 8px;
-  /* 숫자가 있어도 글자가 밀리지 않도록 절대 위치를 잡고 싶다면 아래 주석 해제 */
-  /* position: absolute; right: 15px; */
-}
-
-/* 필터 카드 */
-.filter-card {
-  background: #fff; padding: 30px; border-radius: 0 20px 20px 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #e0e0e0;
-}
+.tab-container { display: flex; gap: 0; margin-bottom: -1px; }
+.tab-btn { width: 160px; height: 50px; display: flex; align-items: center; justify-content: center; border: 1px solid #e0e0e0; border-bottom: none; background: #f1f3f5; color: #777; font-weight: 700; cursor: pointer; border-radius: 12px 12px 0 0; transition: all 0.2s; font-size: 15px; position: relative; margin-right: 5px; }
+.tab-btn.active { background: #fff; color: #11D411; border-color: #e0e0e0; border-bottom: 2px solid #fff; z-index: 2; }
+.tab-btn .count { background: #ff4d4d; color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 10px; margin-left: 8px; }
+.filter-card { background: #fff; padding: 30px; border-radius: 0 20px 20px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); margin-bottom: 30px; border: 1px solid #e0e0e0; }
 .filter-grid { display: flex; gap: 15px; align-items: flex-end; }
 .filter-item { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; }
 .filter-item.flex-2 { flex: 1.8; }
@@ -333,15 +314,9 @@ watch(activeTab, () => {
 /* 인풋 스타일 (요청하신 포커스 효과 유지) */
 .search-input-wrapper { position: relative; width: 100%; }
 .search-icon-svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 18px; }
-.search-input-wrapper input, .basic-input, .basic-select {
-  width: 100%; height: 45px; padding: 0 15px; border: 1px solid #C8E4C8;
-  border-radius: 10px; background: white; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;
-}
+.search-input-wrapper input, .basic-input, .basic-select { width: 100%; height: 45px; padding: 0 15px; border: 1px solid #C8E4C8; border-radius: 10px; background: white; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box; }
 .search-input-wrapper input { padding-left: 45px; }
-.search-input-wrapper input:focus, .basic-input:focus, .basic-select:focus {
-  border-color: #11D411 !important; box-shadow: 0 0 0 3px rgba(17, 212, 17, 0.05);
-}
-
+.search-input-wrapper input:focus, .basic-input:focus, .basic-select:focus { border-color: #11D411 !important; box-shadow: 0 0 0 3px rgba(17, 212, 17, 0.05); }
 .search-btn { background: #11D411; color: #fff; border: none; padding: 0 35px; height: 45px; border-radius: 10px; font-weight: 700; cursor: pointer; flex-shrink: 0; }
 .search-btn:hover { background-color: #0fb80f; }
 .search-btn:active { transform: scale(0.98); }
@@ -366,11 +341,23 @@ watch(activeTab, () => {
 /* 기존 스타일에 INACTIVE 추가 */
 .status-badge.ACTIVE { background: #eefdee; color: #11D411; border: 1px solid #11D411; }
 .status-badge.PENDING { background: #fff8ee; color: #f39c12; border: 1px solid #f39c12; }
-.status-badge.INACTIVE { background: #fef2f2; color: #ef4444; border: 1px solid #ef4444; } /* 빨간색 계열 추천 */
+.status-badge.INACTIVE { background: #fef2f2; color: #ef4444; border: 1px solid #ef4444; }
+.status-badge.REJECTED {
+  background: #f1f3f5;
+  color: #666;
+  border: 1px solid #adb5bd;
+}
+.status-badge.APPROVED {
+  background: #eefdee;
+  color: #11D411;
+  border: 1px solid #11D411;
+}
 .detail-btn { background: #f1f3f5; border: 1px solid #dee2e6; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; }
 
 .pagination-wrapper { margin-top: auto; padding-top: 30px; }
 .pagination { display: flex; justify-content: center; gap: 5px; }
 .page, .arrow { min-width: 32px; height: 32px; border-radius: 6px; border: 1px solid #eee; background: transparent; cursor: pointer; }
 .page.active { background: #11D411; color: #fff; border-color: #11D411; }
+.page:hover:not(.active) { background: #f1f3f5; }
+.arrow:disabled { cursor: not-allowed; opacity: 0.5; }
 </style>
